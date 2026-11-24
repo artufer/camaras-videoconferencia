@@ -5,80 +5,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#1e3c72">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>📷 Control Cámaras BCC950</title>
-<link rel="manifest" href="manifest.json">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📷</text></svg>">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #333; padding-bottom: 80px; }
   
-  /* HEADER CON ICONO CÁMARA */
   header { 
     background: linear-gradient(135deg, #1e3c72, #2a5298); 
-    color: white; 
-    padding: 15px 20px; 
+    color: white; padding: 15px 20px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    display: flex; align-items: center; gap: 12px;
   }
-  .cam-icon {
-    width: 48px;
-    height: 48px;
-    flex-shrink: 0;
-  }
+  .cam-icon { width: 48px; height: 48px; flex-shrink: 0; }
   header h1 { font-size: 18px; line-height: 1.2; }
   header p { font-size: 12px; opacity: 0.85; margin-top: 2px; }
   
-  /* NAVEGACIÓN INFERIOR (móvil) */
   nav.bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    display: flex;
-    justify-content: space-around;
-    padding: 8px 0;
-    border-top: 1px solid #ddd;
-    box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
-    z-index: 50;
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: white; display: flex; justify-content: space-around;
+    padding: 6px 0; border-top: 1px solid #ddd;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.08); z-index: 50;
   }
   nav.bottom-nav button {
-    background: none;
-    border: none;
-    padding: 6px 4px;
-    cursor: pointer;
-    font-size: 10px;
-    color: #888;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    flex: 1;
+    background: none; border: none; padding: 5px 2px;
+    cursor: pointer; font-size: 9px; color: #888;
+    display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1;
   }
-  nav.bottom-nav button .nav-icon { font-size: 20px; }
+  nav.bottom-nav button .nav-icon { font-size: 18px; }
   nav.bottom-nav button.active { color: #1e3c72; font-weight: 600; }
   
-  /* NAVEGACIÓN SUPERIOR (desktop) */
   nav.top-nav {
-    background: white;
-    padding: 0 20px;
-    display: none;
-    gap: 5px;
-    border-bottom: 1px solid #ddd;
-    overflow-x: auto;
+    background: white; padding: 0 20px;
+    display: none; gap: 5px;
+    border-bottom: 1px solid #ddd; overflow-x: auto;
   }
   nav.top-nav button {
-    background: none;
-    border: none;
-    padding: 14px 18px;
-    cursor: pointer;
-    font-size: 14px;
-    color: #555;
-    border-bottom: 3px solid transparent;
-    white-space: nowrap;
+    background: none; border: none; padding: 14px 16px;
+    cursor: pointer; font-size: 14px; color: #555;
+    border-bottom: 3px solid transparent; white-space: nowrap;
   }
   nav.top-nav button:hover { background: #f5f5f5; }
   nav.top-nav button.active { color: #1e3c72; border-bottom-color: #1e3c72; font-weight: 600; }
@@ -98,22 +63,10 @@
   .card h2 { color: #1e3c72; margin-bottom: 12px; font-size: 17px; border-bottom: 2px solid #f0f2f5; padding-bottom: 8px; }
   
   .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
-  .cam-status { 
-    background: #f8f9fa; 
-    border-left: 4px solid #28a745; 
-    padding: 14px; 
-    border-radius: 8px;
-    display: flex;
-    gap: 12px;
-    align-items: flex-start;
-  }
+  .cam-status { background: #f8f9fa; border-left: 4px solid #28a745; padding: 14px; border-radius: 8px; display: flex; gap: 12px; align-items: flex-start; }
   .cam-status.reserved { border-left-color: #ffc107; }
   .cam-status.loaned { border-left-color: #dc3545; }
-  .cam-status .cam-thumb {
-    width: 60px;
-    height: 60px;
-    flex-shrink: 0;
-  }
+  .cam-status .cam-thumb { width: 60px; height: 60px; flex-shrink: 0; }
   .cam-status h3 { font-size: 15px; margin-bottom: 6px; }
   .cam-status small { color: #666; display: block; margin-top: 3px; font-size: 12px; }
   .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-top: 6px; }
@@ -123,29 +76,19 @@
   
   label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #555; }
   input, select, textarea { 
-    width: 100%; 
-    padding: 11px 12px; 
-    border: 1px solid #ccc; 
-    border-radius: 6px; 
-    font-size: 15px; 
-    font-family: inherit;
-    background: white;
+    width: 100%; padding: 11px 12px;
+    border: 1px solid #ccc; border-radius: 6px;
+    font-size: 15px; font-family: inherit; background: white;
   }
   input:focus, select:focus, textarea:focus { outline: none; border-color: #2a5298; box-shadow: 0 0 0 2px rgba(42,82,152,0.15); }
   .form-row { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 12px; }
   @media (min-width: 600px) { .form-row { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); } }
   
   button.btn { 
-    background: #1e3c72; 
-    color: white; 
-    border: none; 
-    padding: 12px 20px; 
-    border-radius: 6px; 
-    cursor: pointer; 
-    font-size: 15px; 
-    font-weight: 600; 
-    width: 100%;
-    transition: background 0.2s;
+    background: #1e3c72; color: white; border: none;
+    padding: 12px 20px; border-radius: 6px;
+    cursor: pointer; font-size: 15px; font-weight: 600;
+    width: 100%; transition: background 0.2s;
   }
   button.btn:hover { background: #2a5298; }
   button.btn-success { background: #28a745; }
@@ -191,7 +134,6 @@
   .empty-state { text-align: center; padding: 30px 15px; color: #888; }
   .empty-state .icon { font-size: 42px; margin-bottom: 8px; }
   
-  /* MODAL */
   .modal-bg { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 15px; }
   .modal-bg.show { display: flex; }
   .modal { background: white; padding: 22px; border-radius: 10px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
@@ -199,72 +141,100 @@
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
   .modal-actions button { width: auto; flex: 1; }
   
-  /* SYNC STATUS */
   .sync-indicator {
-    position: fixed;
-    top: 10px;
-    right: 10px;
+    position: fixed; top: 10px; right: 10px;
     background: rgba(255,255,255,0.95);
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    z-index: 200;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    padding: 6px 12px; border-radius: 20px;
+    font-size: 11px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    z-index: 200; display: flex; align-items: center; gap: 6px;
   }
-  .sync-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #28a745;
-  }
+  .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #28a745; }
   .sync-dot.offline { background: #dc3545; }
   .sync-dot.syncing { background: #ffc107; animation: pulse 1s infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
   
-  /* TABLA RESPONSIVE */
   .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
   
-  /* FAB botón nuevo préstamo */
   .fab {
-    position: fixed;
-    bottom: 80px;
-    right: 20px;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: #28a745;
-    color: white;
-    border: none;
-    font-size: 28px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    cursor: pointer;
-    z-index: 40;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: fixed; bottom: 80px; right: 20px;
+    width: 56px; height: 56px; border-radius: 50%;
+    background: #28a745; color: white; border: none;
+    font-size: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    cursor: pointer; z-index: 40;
+    display: flex; align-items: center; justify-content: center;
   }
   .fab:hover { background: #218838; }
   @media (min-width: 768px) { .fab { bottom: 30px; } }
+  
+  /* ===== COMBOBOX AUTOCOMPLETADO ===== */
+  .combobox-wrap { position: relative; }
+  .combobox-suggestions {
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: white; border: 1px solid #ccc; border-top: none;
+    border-radius: 0 0 6px 6px; max-height: 250px; overflow-y: auto;
+    z-index: 60; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: none;
+  }
+  .combobox-suggestions.show { display: block; }
+  .combobox-item {
+    padding: 10px 12px; cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px;
+  }
+  .combobox-item:hover, .combobox-item.highlighted { background: #e3f2fd; }
+  .combobox-item .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: #1e3c72; color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; flex-shrink: 0;
+  }
+  .combobox-item .info { flex: 1; min-width: 0; }
+  .combobox-item .info .name { font-weight: 600; color: #333; }
+  .combobox-item .info .name mark { background: #ffe082; color: #333; padding: 0 2px; border-radius: 2px; }
+  .combobox-item .info .office { font-size: 11px; color: #888; margin-top: 2px; }
+  .combobox-item.new-person { color: #28a745; font-weight: 600; background: #e8f5e9; }
+  .combobox-item.new-person:hover { background: #c8e6c9; }
+  
+  /* ===== TARJETAS DE PERSONAS ===== */
+  .person-card {
+    background: white; border: 1px solid #e0e0e0; border-radius: 8px;
+    padding: 12px; display: flex; align-items: center; gap: 12px;
+    margin-bottom: 8px;
+  }
+  .person-card .avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: white; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 16px; flex-shrink: 0;
+  }
+  .person-card .info { flex: 1; min-width: 0; }
+  .person-card .info .name { font-weight: 600; font-size: 15px; color: #333; }
+  .person-card .info .detail { font-size: 12px; color: #666; margin-top: 2px; }
+  .person-card .actions { display: flex; gap: 5px; flex-shrink: 0; }
+  .person-card .actions button { padding: 5px 8px; font-size: 12px; width: auto; }
+  
+  .persons-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  @media (min-width: 700px) { .persons-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); } }
+  
+  .loan-count {
+    background: #e3f2fd; color: #1e3c72;
+    padding: 2px 8px; border-radius: 10px;
+    font-size: 11px; font-weight: 600; margin-left: 6px;
+  }
 </style>
 </head>
 <body>
 
-<!-- Indicador de sincronización -->
 <div class="sync-indicator">
-  <div class="sync-dot" id="sync-dot"></div>
+  <div class="sync-dot syncing" id="sync-dot"></div>
   <span id="sync-text">Conectando...</span>
 </div>
 
 <header>
-  <!-- Icono SVG de la Logitech BCC950 -->
   <svg class="cam-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <!-- Base/altavoz -->
     <ellipse cx="50" cy="82" rx="38" ry="12" fill="#2a2a2a"/>
     <path d="M 15 75 Q 15 88 50 88 Q 85 88 85 75 L 85 70 Q 85 62 50 62 Q 15 62 15 70 Z" fill="#1a1a1a"/>
-    <!-- Rejilla altavoz -->
     <rect x="22" y="72" width="56" height="10" rx="3" fill="#333"/>
     <line x1="28" y1="72" x2="28" y2="82" stroke="#222" stroke-width="1"/>
     <line x1="36" y1="72" x2="36" y2="82" stroke="#222" stroke-width="1"/>
@@ -273,23 +243,17 @@
     <line x1="60" y1="72" x2="60" y2="82" stroke="#222" stroke-width="1"/>
     <line x1="68" y1="72" x2="68" y2="82" stroke="#222" stroke-width="1"/>
     <line x1="76" y1="72" x2="76" y2="82" stroke="#222" stroke-width="1"/>
-    <!-- Botones base -->
     <circle cx="30" cy="68" r="2.5" fill="#555"/>
     <circle cx="42" cy="68" r="2.5" fill="#28a745"/>
     <circle cx="58" cy="68" r="2.5" fill="#dc3545"/>
     <circle cx="70" cy="68" r="2.5" fill="#555"/>
-    <!-- Texto Logitech -->
     <text x="50" y="78" text-anchor="middle" font-size="5" fill="#888" font-family="Arial">logitech</text>
-    <!-- Mástil -->
     <rect x="48" y="30" width="4" height="35" fill="#1a1a1a"/>
-    <!-- Cabeza cámara -->
     <circle cx="50" cy="22" r="16" fill="#2a2a2a"/>
     <circle cx="50" cy="22" r="13" fill="#1a1a1a"/>
-    <!-- Lente -->
     <circle cx="50" cy="22" r="7" fill="#0a0a0a"/>
     <circle cx="50" cy="22" r="4" fill="#1e3c72"/>
     <circle cx="48" cy="20" r="1.5" fill="white" opacity="0.6"/>
-    <!-- LED azul -->
     <circle cx="40" cy="22" r="1.5" fill="#4fc3f7"/>
   </svg>
   <div>
@@ -298,26 +262,26 @@
   </div>
 </header>
 
-<nav class="top-nav" id="top-nav">
+<nav class="top-nav">
   <button class="active" data-view="dashboard">🏠 Inicio</button>
   <button data-view="calendar">📅 Calendario</button>
   <button data-view="newloan">➕ Nuevo préstamo</button>
   <button data-view="active">🔄 En curso</button>
   <button data-view="history">📋 Historial</button>
+  <button data-view="persons">👥 Personas</button>
   <button data-view="reports">📊 Informes</button>
   <button data-view="settings">⚙️ Ajustes</button>
 </nav>
 
-<nav class="bottom-nav" id="bottom-nav">
+<nav class="bottom-nav">
   <button class="active" data-view="dashboard"><span class="nav-icon">🏠</span>Inicio</button>
-  <button data-view="calendar"><span class="nav-icon">📅</span>Calendario</button>
+  <button data-view="calendar"><span class="nav-icon">📅</span>Calend.</button>
+  <button data-view="newloan"><span class="nav-icon">➕</span>Prestar</button>
   <button data-view="active"><span class="nav-icon">🔄</span>En curso</button>
+  <button data-view="persons"><span class="nav-icon">👥</span>Personas</button>
   <button data-view="history"><span class="nav-icon">📋</span>Historial</button>
   <button data-view="settings"><span class="nav-icon">⚙️</span>Ajustes</button>
 </nav>
-
-<!-- Botón flotante nuevo préstamo -->
-<button class="fab" onclick="goToView('newloan')" title="Nuevo préstamo">+</button>
 
 <main>
 
@@ -327,7 +291,7 @@
       <div class="stat-box"><div class="num" id="stat-available">3</div><div class="label">Disponibles</div></div>
       <div class="stat-box"><div class="num" id="stat-loaned">0</div><div class="label">Prestadas hoy</div></div>
       <div class="stat-box"><div class="num" id="stat-reserved">0</div><div class="label">Reservas</div></div>
-      <div class="stat-box"><div class="num" id="stat-total">0</div><div class="label">Total histórico</div></div>
+      <div class="stat-box"><div class="num" id="stat-persons">0</div><div class="label">Personas</div></div>
     </div>
 
     <div class="card">
@@ -369,9 +333,13 @@
               <option value="3">📷 Cámara 3</option>
             </select>
           </div>
-          <div>
-            <label>Persona que la solicita *</label>
-            <input type="text" id="f-person" required placeholder="Nombre y oficina/piso">
+          <div style="grid-column: span 2;">
+            <label>Persona que la solicita * <small style="color:#888; font-weight:400">(empieza a escribir...)</small></label>
+            <div class="combobox-wrap">
+              <input type="text" id="f-person" autocomplete="off" required placeholder="Ej: María, Juan, Ana...">
+              <div class="combobox-suggestions" id="person-suggestions"></div>
+            </div>
+            <input type="hidden" id="f-person-id">
           </div>
         </div>
         <div class="form-row">
@@ -429,8 +397,21 @@
           <option value="2">Cámara 2</option>
           <option value="3">Cámara 3</option>
         </select>
+        <button class="btn btn-sm" onclick="exportCSV()">📥 CSV</button>
       </div>
       <div class="table-wrap" id="history-table"></div>
+    </div>
+  </div>
+
+  <!-- PERSONAS -->
+  <div class="view" id="view-persons">
+    <div class="card">
+      <h2>Personas del edificio</h2>
+      <div class="filter-bar">
+        <input type="text" id="filter-persons" placeholder="🔍 Buscar persona...">
+        <button class="btn btn-success btn-sm" onclick="openPersonModal()">➕ Añadir persona</button>
+      </div>
+      <div id="persons-list"></div>
     </div>
   </div>
 
@@ -459,7 +440,6 @@
     </div>
     <div class="card">
       <h2>Copia de seguridad</h2>
-      <p style="margin-bottom:12px; color:#666; font-size:13px">Los datos se sincronizan automáticamente en la nube. Aún así, puedes exportar una copia.</p>
       <button class="btn" onclick="exportBackup()" style="margin-bottom:8px">📤 Exportar datos (JSON)</button>
       <button class="btn btn-warning" onclick="document.getElementById('import-file').click()" style="margin-bottom:8px">📥 Importar copia</button>
       <input type="file" id="import-file" style="display:none" accept=".json" onchange="importBackup(event)">
@@ -491,7 +471,10 @@
     </div>
     <div style="margin-top:10px">
       <label>¿Quién la devuelve? (si es distinto)</label>
-      <input type="text" id="r-returner" placeholder="Dejar vacío si es la misma persona">
+      <div class="combobox-wrap">
+        <input type="text" id="r-returner" autocomplete="off" placeholder="Dejar vacío si es la misma persona">
+        <div class="combobox-suggestions" id="returner-suggestions"></div>
+      </div>
     </div>
     <div style="margin-top:10px">
       <label>Observaciones de la devolución</label>
@@ -504,62 +487,95 @@
   </div>
 </div>
 
-<!-- Firebase SDK -->
+<!-- MODAL PERSONA -->
+<div class="modal-bg" id="person-modal">
+  <div class="modal">
+    <h3 id="person-modal-title">➕ Añadir persona</h3>
+    <form id="person-form">
+      <div style="margin-bottom:12px">
+        <label>Nombre completo *</label>
+        <input type="text" id="p-name" required placeholder="Ej: María García López">
+      </div>
+      <div style="margin-bottom:12px">
+        <label>Oficina / Piso / Departamento</label>
+        <input type="text" id="p-office" placeholder="Ej: 3ª planta, Contabilidad">
+      </div>
+      <div style="margin-bottom:12px">
+        <label>Teléfono / Extensión</label>
+        <input type="text" id="p-phone" placeholder="Ej: Ext. 234 / 600 123 456">
+      </div>
+      <div style="margin-bottom:12px">
+        <label>Email (opcional)</label>
+        <input type="email" id="p-email" placeholder="Ej: maria@empresa.com">
+      </div>
+      <div style="margin-bottom:12px">
+        <label>Notas (opcional)</label>
+        <textarea id="p-notes" rows="2" placeholder="Ej: suele pedir la cámara los lunes..."></textarea>
+      </div>
+      <input type="hidden" id="p-id">
+      <div class="modal-actions">
+        <button type="button" class="btn" onclick="closePersonModal()">Cancelar</button>
+        <button type="submit" class="btn btn-success">✓ Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <script>
 // ============ CONFIGURACIÓN FIREBASE ============
-// ⚠️ IMPORTANTE: Sustituye estos valores por los de TU proyecto de Firebase
-// (ver instrucciones en el README de GitHub)
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROYECTO.firebaseapp.com",
-  databaseURL: "https://TU_PROYECTO-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "TU_PROYECTO",
-  storageBucket: "TU_PROYECTO.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef"
+  apiKey: "AIzaSyCheUfkdzCg9XEsKqZNQyYgz1TnBVMHySg",
+  authDomain: "control-camaras-edificio.firebaseapp.com",
+  databaseURL: "https://control-camaras-edificio-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "control-camaras-edificio",
+  storageBucket: "control-camaras-edificio.firebasestorage.app",
+  messagingSenderId: "798796513505",
+  appId: "1:798796513505:web:ee6082f08552af6298b7a0"
 };
 
-// Modo offline: si no hay Firebase configurado, usa localStorage
 let useFirebase = false;
 let db = null;
-let data = { loans: [], names: { "1": "Cámara 1", "2": "Cámara 2", "3": "Cámara 3" } };
+let data = {
+  loans: [],
+  persons: [],
+  names: { "1": "Cámara 1", "2": "Cámara 2", "3": "Cámara 3" }
+};
 let currentMonth = new Date();
 let currentReturnId = null;
+let editingPersonId = null;
 
-// Intentar inicializar Firebase
+// ===== INICIALIZACIÓN FIREBASE =====
 try {
-  if (firebaseConfig.apiKey !== "TU_API_KEY") {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.database();
-    useFirebase = true;
-    updateSyncStatus('syncing', 'Sincronizando...');
-    
-    // Escuchar cambios en tiempo real
-    db.ref('cameras/loans').on('value', snapshot => {
-      const remoteLoans = snapshot.val() || [];
-      data.loans = Array.isArray(remoteLoans) ? remoteLoans : Object.values(remoteLoans);
-      render();
-      updateSyncStatus('online', 'En línea ✓');
-    });
-    
-    db.ref('cameras/names').on('value', snapshot => {
-      const remoteNames = snapshot.val();
-      if (remoteNames) {
-        data.names = remoteNames;
-        render();
-      }
-    });
-  } else {
-    // Modo localStorage
-    data = JSON.parse(localStorage.getItem('cameras_app') || '{"loans":[],"names":{"1":"Cámara 1","2":"Cámara 2","3":"Cámara 3"}}');
-    updateSyncStatus('offline', 'Modo local');
-  }
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.database();
+  useFirebase = true;
+  updateSyncStatus('syncing', 'Sincronizando...');
+  
+  db.ref('cameras/loans').on('value', snapshot => {
+    const v = snapshot.val();
+    data.loans = v ? (Array.isArray(v) ? v : Object.values(v)) : [];
+    render();
+    updateSyncStatus('online', 'En línea ✓');
+  }, err => { console.error(err); updateSyncStatus('offline', 'Error conexión'); });
+  
+  db.ref('cameras/persons').on('value', snapshot => {
+    const v = snapshot.val();
+    data.persons = v ? (Array.isArray(v) ? v : Object.values(v)) : [];
+    renderPersons();
+    renderReports();
+  });
+  
+  db.ref('cameras/names').on('value', snapshot => {
+    const v = snapshot.val();
+    if (v) { data.names = v; render(); }
+  });
 } catch(e) {
   console.error('Error Firebase:', e);
-  data = JSON.parse(localStorage.getItem('cameras_app') || '{"loans":[],"names":{"1":"Cámara 1","2":"Cámara 2","3":"Cámara 3"}}');
+  data = JSON.parse(localStorage.getItem('cameras_app') || '{"loans":[],"persons":[],"names":{"1":"Cámara 1","2":"Cámara 2","3":"Cámara 3"}}');
+  if (!data.persons) data.persons = [];
   updateSyncStatus('offline', 'Modo local');
 }
 
@@ -574,6 +590,7 @@ function save() {
   if (useFirebase) {
     db.ref('cameras/loans').set(data.loans);
     db.ref('cameras/names').set(data.names);
+    db.ref('cameras/persons').set(data.persons);
   } else {
     localStorage.setItem('cameras_app', JSON.stringify(data));
   }
@@ -582,33 +599,247 @@ function save() {
 function camName(n) { return data.names[n] || 'Cámara ' + n; }
 function fmtDate(d) { if (!d) return '-'; const x = new Date(d); return x.toLocaleDateString('es-ES') + ' ' + x.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}); }
 function fmtDateShort(d) { if (!d) return '-'; return new Date(d).toLocaleDateString('es-ES'); }
+function escapeHtml(s) { return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function initials(name) {
+  const parts = (name||'').trim().split(/\s+/);
+  return ((parts[0]?.[0]||'') + (parts[1]?.[0]||'')).toUpperCase();
+}
 
 // ============ NAVEGACIÓN ============
 function goToView(viewName) {
   document.querySelectorAll('nav button').forEach(x => x.classList.remove('active'));
   document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
   document.querySelectorAll(`[data-view="${viewName}"]`).forEach(x => x.classList.add('active'));
-  document.getElementById('view-' + viewName).classList.add('active');
+  const target = document.getElementById('view-' + viewName);
+  if (target) target.classList.add('active');
   render();
   window.scrollTo(0, 0);
 }
+document.querySelectorAll('nav button').forEach(b => { b.onclick = () => goToView(b.dataset.view); });
 
-document.querySelectorAll('nav button').forEach(b => {
-  b.onclick = () => goToView(b.dataset.view);
+// ============ COMBOBOX AUTOCOMPLETADO ============
+function setupCombobox(inputId, suggestionsId, onSelect, allowCreate = true) {
+  const input = document.getElementById(inputId);
+  const box = document.getElementById(suggestionsId);
+  let highlightIdx = -1;
+  
+  function renderSuggestions(filter) {
+    const q = (filter||'').toLowerCase().trim();
+    let items = data.persons.filter(p => p.activo !== false);
+    if (q) {
+      items = items.filter(p => 
+        p.nombre.toLowerCase().includes(q) ||
+        (p.oficina||'').toLowerCase().includes(q) ||
+        (p.telefono||'').toLowerCase().includes(q)
+      );
+    }
+    items.sort((a,b) => a.nombre.localeCompare(b.nombre, 'es'));
+    
+    let html = '';
+    items.slice(0, 15).forEach((p, i) => {
+      const nameHtml = q ? highlightMatch(p.nombre, q) : escapeHtml(p.nombre);
+      const detail = [p.oficina, p.telefono].filter(x => x).join(' · ');
+      html += `<div class="combobox-item" data-id="${p.id}" data-idx="${i}">
+        <div class="avatar">${initials(p.nombre)}</div>
+        <div class="info">
+          <div class="name">${nameHtml}</div>
+          ${detail ? `<div class="office">${escapeHtml(detail)}</div>` : ''}
+        </div>
+      </div>`;
+    });
+    
+    if (allowCreate && q.length >= 2) {
+      const exact = data.persons.find(p => p.nombre.toLowerCase() === q);
+      if (!exact) {
+        html += `<div class="combobox-item new-person" data-create="1">
+          <div class="avatar" style="background:#28a745">+</div>
+          <div class="info"><div class="name">➕ Crear nueva persona: "<b>${escapeHtml(filter)}</b>"</div></div>
+        </div>`;
+      }
+    }
+    
+    if (items.length === 0 && !html) {
+      html = '<div class="combobox-item" style="cursor:default;color:#888">Sin coincidencias</div>';
+    }
+    
+    box.innerHTML = html;
+    box.classList.add('show');
+    highlightIdx = -1;
+    
+    box.querySelectorAll('.combobox-item[data-id]').forEach(el => {
+      el.onclick = () => {
+        const p = data.persons.find(x => x.id == el.dataset.id);
+        input.value = p.nombre;
+        box.classList.remove('show');
+        onSelect(p);
+      };
+    });
+    box.querySelectorAll('.combobox-item[data-create]').forEach(el => {
+      el.onclick = () => {
+        box.classList.remove('show');
+        openPersonModal(null, input.value);
+      };
+    });
+  }
+  
+  function highlightMatch(text, query) {
+    const idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx < 0) return escapeHtml(text);
+    return escapeHtml(text.slice(0, idx)) + '<mark>' + escapeHtml(text.slice(idx, idx+query.length)) + '</mark>' + escapeHtml(text.slice(idx+query.length));
+  }
+  
+  input.addEventListener('input', () => renderSuggestions(input.value));
+  input.addEventListener('focus', () => renderSuggestions(input.value));
+  input.addEventListener('blur', () => setTimeout(() => box.classList.remove('show'), 200));
+  input.addEventListener('keydown', e => {
+    const items = box.querySelectorAll('.combobox-item[data-id], .combobox-item[data-create]');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault(); highlightIdx = Math.min(highlightIdx+1, items.length-1);
+      items.forEach((el,i) => el.classList.toggle('highlighted', i===highlightIdx));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault(); highlightIdx = Math.max(highlightIdx-1, 0);
+      items.forEach((el,i) => el.classList.toggle('highlighted', i===highlightIdx));
+    } else if (e.key === 'Enter' && highlightIdx >= 0) {
+      e.preventDefault(); items[highlightIdx].click();
+    } else if (e.key === 'Escape') {
+      box.classList.remove('show');
+    }
+  });
+}
+
+setupCombobox('f-person', 'person-suggestions', p => {
+  document.getElementById('f-person-id').value = p.id;
 });
+
+setupCombobox('r-returner', 'returner-suggestions', p => {
+  // solo rellena el nombre
+});
+
+// ============ GESTIÓN DE PERSONAS ============
+function openPersonModal(id = null, prefill = '') {
+  editingPersonId = id;
+  const modal = document.getElementById('person-modal');
+  document.getElementById('person-modal-title').textContent = id ? '✏️ Editar persona' : '➕ Añadir persona';
+  document.getElementById('p-id').value = id || '';
+  document.getElementById('p-name').value = '';
+  document.getElementById('p-office').value = '';
+  document.getElementById('p-phone').value = '';
+  document.getElementById('p-email').value = '';
+  document.getElementById('p-notes').value = '';
+  
+  if (id) {
+    const p = data.persons.find(x => x.id == id);
+    if (p) {
+      document.getElementById('p-name').value = p.nombre;
+      document.getElementById('p-office').value = p.oficina || '';
+      document.getElementById('p-phone').value = p.telefono || '';
+      document.getElementById('p-email').value = p.email || '';
+      document.getElementById('p-notes').value = p.notas || '';
+    }
+  } else if (prefill) {
+    document.getElementById('p-name').value = prefill;
+  }
+  
+  modal.classList.add('show');
+  setTimeout(() => document.getElementById('p-name').focus(), 100);
+}
+
+function closePersonModal() {
+  document.getElementById('person-modal').classList.remove('show');
+  editingPersonId = null;
+}
+
+document.getElementById('person-form').onsubmit = e => {
+  e.preventDefault();
+  const id = editingPersonId || Date.now();
+  const person = {
+    id,
+    nombre: document.getElementById('p-name').value.trim(),
+    oficina: document.getElementById('p-office').value.trim(),
+    telefono: document.getElementById('p-phone').value.trim(),
+    email: document.getElementById('p-email').value.trim(),
+    notas: document.getElementById('p-notes').value.trim(),
+    activo: true,
+    creado: new Date().toISOString()
+  };
+  
+  if (editingPersonId) {
+    const idx = data.persons.findIndex(p => p.id == editingPersonId);
+    if (idx >= 0) data.persons[idx] = person;
+  } else {
+    data.persons.push(person);
+  }
+  
+  save();
+  closePersonModal();
+  alert('✓ Persona guardada');
+  
+  // Si estamos en el formulario de préstamo y era una nueva, seleccionar
+  if (!editingPersonId && document.getElementById('view-newloan').classList.contains('active')) {
+    document.getElementById('f-person').value = person.nombre;
+    document.getElementById('f-person-id').value = person.id;
+  }
+  render();
+};
+
+function deletePerson(id) {
+  const p = data.persons.find(x => x.id == id);
+  const uses = data.loans.filter(l => l.person === p.nombre).length;
+  if (!confirm(`¿Borrar a "${p.nombre}"?${uses ? `\n\nTiene ${uses} préstamo(s) en el historial (se conservan).` : ''}`)) return;
+  data.persons = data.persons.filter(x => x.id != id);
+  save();
+  render();
+}
+
+function renderPersons() {
+  const filter = (document.getElementById('filter-persons')?.value || '').toLowerCase();
+  let list = [...data.persons];
+  if (filter) list = list.filter(p => 
+    p.nombre.toLowerCase().includes(filter) ||
+    (p.oficina||'').toLowerCase().includes(filter)
+  );
+  list.sort((a,b) => a.nombre.localeCompare(b.nombre, 'es'));
+  
+  const div = document.getElementById('persons-list');
+  if (!div) return;
+  if (list.length === 0) {
+    div.innerHTML = '<div class="empty-state"><div class="icon">👥</div>No hay personas. Añade la primera.</div>';
+    return;
+  }
+  
+  let html = '<div class="persons-grid">';
+  list.forEach(p => {
+    const uses = data.loans.filter(l => l.person === p.nombre).length;
+    const detail = [p.oficina, p.telefono, p.email].filter(x => x).join(' · ');
+    html += `<div class="person-card">
+      <div class="avatar">${initials(p.nombre)}</div>
+      <div class="info">
+        <div class="name">${escapeHtml(p.nombre)}<span class="loan-count">${uses}</span></div>
+        <div class="detail">${escapeHtml(detail) || 'Sin datos adicionales'}</div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-sm" onclick="openPersonModal(${p.id})">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="deletePerson(${p.id})">🗑️</button>
+      </div>
+    </div>`;
+  });
+  html += '</div>';
+  div.innerHTML = html;
+}
+
+document.getElementById('filter-persons').oninput = renderPersons;
 
 // ============ DASHBOARD ============
 function renderDashboard() {
   const now = new Date();
-  const today = now.toDateString();
   const active = data.loans.filter(l => !l.returnDate);
-  const todayLoans = data.loans.filter(l => new Date(l.startDate).toDateString() === today);
+  const todayLoans = data.loans.filter(l => new Date(l.startDate).toDateString() === now.toDateString());
   const futureReserves = data.loans.filter(l => !l.returnDate && new Date(l.startDate) > now && l.type === 'reserve');
 
   document.getElementById('stat-available').textContent = 3 - active.length;
   document.getElementById('stat-loaned').textContent = todayLoans.length;
   document.getElementById('stat-reserved').textContent = futureReserves.length;
-  document.getElementById('stat-total').textContent = data.loans.length;
+  document.getElementById('stat-persons').textContent = data.persons.length;
 
   const grid = document.getElementById('cam-status-grid');
   grid.innerHTML = '';
@@ -619,12 +850,12 @@ function renderDashboard() {
     if (loan) {
       cls += ' loaned';
       badge = '<span class="badge badge-red">🔴 Prestada</span>';
-      info = `<small><b>Con:</b> ${loan.person}</small><small><b>Desde:</b> ${fmtDate(loan.startDate)}</small>`;
+      info = `<small><b>Con:</b> ${escapeHtml(loan.person)}</small><small><b>Desde:</b> ${fmtDate(loan.startDate)}</small>`;
       if (loan.expectedEnd) info += `<small><b>Devolución:</b> ${fmtDate(loan.expectedEnd)}</small>`;
     } else if (reserve) {
       cls += ' reserved';
       badge = '<span class="badge badge-yellow">🟡 Reservada</span>';
-      info = `<small><b>Reservada:</b> ${reserve.person}</small><small><b>Fecha:</b> ${fmtDate(reserve.startDate)}</small>`;
+      info = `<small><b>Reservada:</b> ${escapeHtml(reserve.person)}</small><small><b>Fecha:</b> ${fmtDate(reserve.startDate)}</small>`;
     }
     grid.innerHTML += `<div class="${cls}">
       <svg class="cam-thumb" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -648,7 +879,7 @@ function renderDashboard() {
     let html = '<div class="table-wrap"><table><tr><th>Cámara</th><th>Persona</th><th>Devolución</th><th></th></tr>';
     upcoming.forEach(l => {
       const overdue = new Date(l.expectedEnd) < now;
-      html += `<tr><td>${camName(l.camera)}</td><td>${l.person}</td><td>${overdue?'<b style="color:#dc3545">⚠️ ' : ''}${fmtDate(l.expectedEnd)}${overdue?' ⚠️</b>':''}</td><td><button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">Devolver</button></td></tr>`;
+      html += `<tr><td>${camName(l.camera)}</td><td>${escapeHtml(l.person)}</td><td>${overdue?'<b style="color:#dc3545">⚠️ ' : ''}${fmtDate(l.expectedEnd)}${overdue?' ⚠️</b>':''}</td><td><button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">Devolver</button></td></tr>`;
     });
     html += '</table></div>';
     up.innerHTML = html;
@@ -686,7 +917,7 @@ function renderCalendar() {
         return l.camera == n && start <= dayEnd && end >= dayStart;
       });
       if (loan) {
-        events += `<div class="event cam${n}" title="${camName(n)}: ${loan.person}">${camName(n).substring(0,4)}: ${loan.person.split(' ')[0]}</div>`;
+        events += `<div class="event cam${n}" title="${camName(n)}: ${escapeHtml(loan.person)}">${camName(n).substring(0,4)}: ${escapeHtml(loan.person.split(' ')[0])}</div>`;
       }
     });
     grid.innerHTML += `<div class="cal-day ${isToday?'today':''}"><div class="date-num">${d}</div>${events}</div>`;
@@ -698,22 +929,23 @@ function changeMonth(delta) {
   renderCalendar();
 }
 
-// ============ FORMULARIO ============
+// ============ FORMULARIO PRÉSTAMO ============
 document.getElementById('loan-form').onsubmit = e => {
   e.preventDefault();
+  const personName = document.getElementById('f-person').value.trim();
+  if (!personName) { alert('⚠️ Selecciona una persona'); return; }
+  
   const loan = {
     id: Date.now(),
     camera: document.getElementById('f-camera').value,
-    person: document.getElementById('f-person').value.trim(),
+    person: personName,
+    personId: document.getElementById('f-person-id').value ? parseInt(document.getElementById('f-person-id').value) : null,
     startDate: document.getElementById('f-start').value,
     expectedEnd: document.getElementById('f-end').value || null,
     stateOut: document.getElementById('f-state-out').value,
     type: document.getElementById('f-type').value,
     notes: document.getElementById('f-notes').value.trim(),
-    returnDate: null,
-    stateIn: null,
-    returner: null,
-    returnNotes: null
+    returnDate: null, stateIn: null, returner: null, returnNotes: null
   };
 
   const start = new Date(loan.startDate);
@@ -733,6 +965,7 @@ document.getElementById('loan-form').onsubmit = e => {
   save();
   alert('✓ Préstamo registrado');
   e.target.reset();
+  document.getElementById('f-person-id').value = '';
   setDefaultDates();
   render();
 };
@@ -756,7 +989,7 @@ function renderActive() {
     const overdue = l.expectedEnd && new Date(l.expectedEnd) < new Date();
     html += `<tr>
       <td><b>${camName(l.camera)}</b></td>
-      <td>${l.person}</td>
+      <td>${escapeHtml(l.person)}</td>
       <td>${fmtDate(l.startDate)}</td>
       <td>${overdue?'<b style="color:#dc3545">⚠️ ' : ''}${l.expectedEnd?fmtDate(l.expectedEnd):'-'}${overdue?' ⚠️</b>':''}</td>
       <td><button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">Devolver</button></td>
@@ -772,9 +1005,9 @@ function openReturnModal(id) {
   const loan = data.loans.find(l => l.id === id);
   document.getElementById('return-modal-info').innerHTML = `
     <p><b>Cámara:</b> ${camName(loan.camera)}</p>
-    <p><b>Recogida por:</b> ${loan.person}</p>
+    <p><b>Recogida por:</b> ${escapeHtml(loan.person)}</p>
     <p><b>Fecha entrega:</b> ${fmtDate(loan.startDate)}</p>
-    ${loan.notes?'<p><b>Obs. entrega:</b> '+loan.notes+'</p>':''}
+    ${loan.notes?'<p><b>Obs. entrega:</b> '+escapeHtml(loan.notes)+'</p>':''}
   `;
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -820,10 +1053,10 @@ function renderHistory() {
     const estado = l.returnDate ? (l.stateIn === 'ok' ? '<span class="tag tag-ok">✓ OK</span>' : '<span class="tag tag-err">✗ Incidencia</span>') : '<span class="tag tag-pending">Pendiente</span>';
     html += `<tr>
       <td><b>${camName(l.camera)}</b></td>
-      <td>${l.person}</td>
+      <td>${escapeHtml(l.person)}</td>
       <td>${fmtDate(l.startDate)}</td>
       <td>${l.returnDate?fmtDate(l.returnDate):'<i>pendiente</i>'}</td>
-      <td>${l.returner||'-'}</td>
+      <td>${l.returner?escapeHtml(l.returner):'-'}</td>
       <td>${estado}</td>
     </tr>`;
   });
@@ -853,7 +1086,7 @@ function renderReports() {
         if (new Date(l.startDate) > new Date(byPerson[l.person].last)) byPerson[l.person].last = l.startDate;
       });
       Object.entries(byPerson).sort((a,b) => b[1].count - a[1].count).forEach(([p, info]) => {
-        html += `<tr><td>${p}</td><td>${info.count}</td><td>${fmtDateShort(info.last)}</td></tr>`;
+        html += `<tr><td>${escapeHtml(p)}</td><td>${info.count}</td><td>${fmtDateShort(info.last)}</td></tr>`;
       });
       html += '</table></div>';
     }
@@ -876,7 +1109,7 @@ function renderReports() {
       const cams = [...new Set(loans.map(l => camName(l.camera)))].join(', ');
       const last = loans.sort((a,b) => new Date(b.startDate) - new Date(a.startDate))[0].startDate;
       const incid = loans.filter(l => l.stateIn === 'err').length;
-      html2 += `<tr><td><b>${p}</b></td><td>${loans.length}</td><td>${cams}</td><td>${fmtDateShort(last)}</td><td>${incid>0?'<span class="tag tag-err">'+incid+'</span>':'<span class="tag tag-ok">0</span>'}</td></tr>`;
+      html2 += `<tr><td><b>${escapeHtml(p)}</b></td><td>${loans.length}</td><td>${cams}</td><td>${fmtDateShort(last)}</td><td>${incid>0?'<span class="tag tag-err">'+incid+'</span>':'<span class="tag tag-ok">0</span>'}</td></tr>`;
     });
     html2 += '</table></div>';
   }
@@ -907,7 +1140,10 @@ function importBackup(e) {
   const reader = new FileReader();
   reader.onload = ev => {
     try {
-      data = JSON.parse(ev.target.result);
+      const imported = JSON.parse(ev.target.result);
+      if (imported.loans) data.loans = imported.loans;
+      if (imported.persons) data.persons = imported.persons;
+      if (imported.names) data.names = imported.names;
       save();
       alert('✓ Datos importados');
       render();
@@ -916,13 +1152,25 @@ function importBackup(e) {
   reader.readAsText(file);
 }
 function resetAll() {
-  if (confirm('⚠️ ¿Borrar TODOS los datos?')) {
+  if (confirm('⚠️ ¿Borrar TODOS los datos (préstamos y personas)?')) {
     if (confirm('⚠️ ÚLTIMA CONFIRMACIÓN')) {
-      data = {loans:[], names:{1:'Cámara 1',2:'Cámara 2',3:'Cámara 3'}};
+      data = {loans:[], persons:[], names:{1:'Cámara 1',2:'Cámara 2',3:'Cámara 3'}};
       save();
       render();
     }
   }
+}
+function exportCSV() {
+  let csv = 'Cámara;Persona;Fecha entrega;Fecha devolución;Quién devolvió;Estado entrega;Estado devolución;Observaciones entrega;Observaciones devolución;Tipo\n';
+  data.loans.forEach(l => {
+    csv += `"${camName(l.camera)}";"${l.person}";"${fmtDate(l.startDate)}";"${l.returnDate?fmtDate(l.returnDate):''}";"${l.returner||''}";"${l.stateOut}";"${l.stateIn||''}";"${l.notes||''}";"${l.returnNotes||''}";"${l.type}"\n`;
+  });
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'historial_camaras_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
 }
 
 // ============ RENDER ============
@@ -932,14 +1180,14 @@ function render() {
   renderActive();
   renderHistory();
   renderReports();
+  renderPersons();
   loadNames();
   
-  // Info conexión
   const connDiv = document.getElementById('connection-info');
   if (connDiv) {
     connDiv.innerHTML = useFirebase 
-      ? '<div class="alert alert-info">✅ Conectado a Firebase. Los datos se sincronizan entre todos los dispositivos.</div>'
-      : '<div class="alert alert-warning">⚠️ Modo local. Los datos solo se guardan en este navegador. Configura Firebase para sincronizar entre dispositivos.</div>';
+      ? '<div class="alert alert-info">✅ Conectado a Firebase. Datos sincronizados entre dispositivos.</div>'
+      : '<div class="alert alert-warning">⚠️ Modo local.</div>';
   }
 }
 
