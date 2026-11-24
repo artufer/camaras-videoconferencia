@@ -87,7 +87,7 @@
   .empty-state .icon { font-size: 42px; margin-bottom: 8px; }
   .modal-bg { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 15px; }
   .modal-bg.show { display: flex; }
-  .modal { background: white; padding: 22px; border-radius: 10px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
+  .modal { background: white; padding: 22px; border-radius: 10px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; }
   .modal h3 { margin-bottom: 14px; color: #1e3c72; }
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
   .modal-actions button { width: auto; flex: 1; }
@@ -121,7 +121,8 @@
   .person-card .actions button { padding: 5px 8px; font-size: 12px; width: auto; }
   .persons-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
   @media (min-width: 700px) { .persons-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); } }
-  .loan-count { background: #e3f2fd; color: #1e3c72; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; margin-left: 6px; }
+  .loan-count { background: #e3f2fd; color: #1e3c72; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; margin-left: 6px; cursor: pointer; transition: all 0.2s; }
+  .loan-count:hover { background: #1e3c72; color: white; transform: scale(1.1); }
   .return-card { background: white; border: 1px solid #e0e0e0; border-left: 4px solid #dc3545; border-radius: 8px; padding: 14px; margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
   .return-card.overdue { border-left-color: #ff5722; background: #fff5f5; }
   .return-card .cam-icon-small { font-size: 28px; }
@@ -129,6 +130,16 @@
   .return-card .info .person { font-weight: 700; font-size: 15px; color: #333; }
   .return-card .info .meta { font-size: 12px; color: #666; margin-top: 3px; }
   .return-card .actions { flex-shrink: 0; }
+  .search-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
+  .search-tabs button { flex: 1; padding: 10px; border: 2px solid #e0e0e0; background: white; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; color: #666; transition: all 0.2s; }
+  .search-tabs button.active { border-color: #1e3c72; background: #1e3c72; color: white; }
+  .search-tabs button:hover:not(.active) { border-color: #1e3c72; color: #1e3c72; }
+  .history-item { background: #f8f9fa; border-left: 4px solid #1e3c72; padding: 10px 12px; margin-bottom: 8px; border-radius: 6px; }
+  .history-item.active { border-left-color: #dc3545; background: #fff5f5; }
+  .history-item .row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .history-item .label { font-size: 11px; color: #888; text-transform: uppercase; font-weight: 600; }
+  .history-item .value { font-size: 14px; font-weight: 600; color: #333; }
+  .history-item .cam-name { font-size: 12px; color: #1e3c72; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -174,6 +185,7 @@
   <button data-view="calendar">📅 Calendario</button>
   <button data-view="newloan">➕ Nuevo préstamo</button>
   <button data-view="returns">↩️ Devoluciones</button>
+  <button data-view="search">🔍 Búsqueda</button>
   <button data-view="history">📋 Historial</button>
   <button data-view="persons">👥 Personas</button>
   <button data-view="reports">📊 Informes</button>
@@ -185,8 +197,8 @@
   <button data-view="calendar"><span class="nav-icon">📅</span>Calend.</button>
   <button data-view="newloan"><span class="nav-icon">➕</span>Prestar</button>
   <button data-view="returns"><span class="nav-icon">↩️</span>Devolver</button>
+  <button data-view="search"><span class="nav-icon">🔍</span>Buscar</button>
   <button data-view="persons"><span class="nav-icon">👥</span>Personas</button>
-  <button data-view="history"><span class="nav-icon">📋</span>Historial</button>
   <button data-view="settings"><span class="nav-icon">⚙️</span>Ajustes</button>
 </nav>
 
@@ -266,12 +278,46 @@
     </div>
   </div>
 
-  <!-- NUEVA PESTAÑA: DEVOLUCIONES -->
   <div class="view" id="view-returns">
     <div class="card">
       <h2>↩️ Devoluciones pendientes</h2>
       <div class="alert alert-info">Cámaras que están fuera y necesitan ser devueltas. Pulsa <b>"Devolver"</b> cuando la recibas.</div>
       <div id="returns-list"></div>
+    </div>
+  </div>
+
+  <!-- NUEVA PESTAÑA: BÚSQUEDA -->
+  <div class="view" id="view-search">
+    <div class="card">
+      <h2>🔍 Búsqueda de préstamos</h2>
+      <div class="search-tabs">
+        <button class="active" id="tab-search-person" onclick="switchSearchTab('person')">👤 Por persona</button>
+        <button id="tab-search-camera" onclick="switchSearchTab('camera')">📷 Por cámara</button>
+      </div>
+      
+      <div id="search-by-person">
+        <div style="margin-bottom:12px">
+          <label>Selecciona una persona <small style="color:#888; font-weight:400">(empieza a escribir...)</small></label>
+          <div class="combobox-wrap">
+            <input type="text" id="search-person-input" autocomplete="off" placeholder="Ej: María, Juan, Ana...">
+            <div class="combobox-suggestions" id="search-person-suggestions"></div>
+          </div>
+        </div>
+        <div id="search-person-results"></div>
+      </div>
+      
+      <div id="search-by-camera" style="display:none">
+        <div style="margin-bottom:12px">
+          <label>Selecciona una cámara</label>
+          <select id="search-camera-select" onchange="renderSearchByCamera()">
+            <option value="">-- Selecciona --</option>
+            <option value="1">📷 Cámara 1</option>
+            <option value="2">📷 Cámara 2</option>
+            <option value="3">📷 Cámara 3</option>
+          </select>
+        </div>
+        <div id="search-camera-results"></div>
+      </div>
     </div>
   </div>
 
@@ -295,6 +341,7 @@
   <div class="view" id="view-persons">
     <div class="card">
       <h2>Personas del edificio</h2>
+      <div class="alert alert-info">💡 Pulsa sobre el <b>número azul</b> de cada persona para ver su historial de préstamos.</div>
       <div class="filter-bar">
         <input type="text" id="filter-persons" placeholder="🔍 Buscar persona...">
         <button class="btn btn-success btn-sm" onclick="openPersonModal()">➕ Añadir persona</button>
@@ -337,6 +384,17 @@
     </div>
   </div>
 </main>
+
+<!-- MODAL HISTORIAL DE PERSONA (al pulsar el contador) -->
+<div class="modal-bg" id="person-history-modal">
+  <div class="modal">
+    <h3 id="person-history-title">📋 Historial de préstamos</h3>
+    <div id="person-history-content"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closePersonHistoryModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL DEVOLUCIÓN -->
 <div class="modal-bg" id="return-modal">
@@ -612,7 +670,6 @@ function initials(name) {
 function getLoanType(loan) {
   const start = new Date(loan.startDate);
   const now = new Date();
-  // Si la fecha de entrega es más de 1 hora en el futuro, es reserva
   const oneHour = 60 * 60 * 1000;
   if (start.getTime() - now.getTime() > oneHour) return 'reserve';
   return 'loan';
@@ -731,6 +788,156 @@ setupCombobox('f-person', 'person-suggestions', p => {
 
 setupCombobox('r-returner', 'returner-suggestions', p => {});
 
+// Combobox para búsqueda por persona
+setupCombobox('search-person-input', 'search-person-suggestions', p => {
+  renderSearchByPerson(p.nombre);
+}, false);
+
+// ============ BÚSQUEDA ============
+function switchSearchTab(tab) {
+  document.getElementById('tab-search-person').classList.toggle('active', tab === 'person');
+  document.getElementById('tab-search-camera').classList.toggle('active', tab === 'camera');
+  document.getElementById('search-by-person').style.display = tab === 'person' ? 'block' : 'none';
+  document.getElementById('search-by-camera').style.display = tab === 'camera' ? 'block' : 'none';
+}
+
+function renderSearchByPerson(personName) {
+  const div = document.getElementById('search-person-results');
+  if (!personName) {
+    div.innerHTML = '<div class="empty-state"><div class="icon">👤</div>Selecciona una persona para ver su historial</div>';
+    return;
+  }
+  
+  const loans = data.loans
+    .filter(l => l.person === personName)
+    .sort((a,b) => new Date(b.startDate) - new Date(a.startDate));
+  
+  if (loans.length === 0) {
+    div.innerHTML = `<div class="empty-state"><div class="icon">📭</div><b>${escapeHtml(personName)}</b> no ha tenido ningún préstamo</div>`;
+    return;
+  }
+  
+  let html = `<h3 style="color:#1e3c72; margin-bottom:12px">📋 Historial de ${escapeHtml(personName)} (${loans.length} préstamo${loans.length!==1?'s':''})</h3>`;
+  loans.forEach(l => {
+    const isActive = !l.returnDate;
+    const tipo = getLoanType(l) === 'reserve' ? '📅 Reserva' : '📷 Préstamo';
+    html += `<div class="history-item ${isActive?'active':''}">
+      <div class="row">
+        <span class="cam-name">${camName(l.camera)} · ${tipo}</span>
+        ${isActive ? '<span class="tag tag-pending">Pendiente devolución</span>' : '<span class="tag tag-ok">✓ Devuelto</span>'}
+      </div>
+      <div class="row" style="margin-top:6px">
+        <div>
+          <div class="label">Entrega</div>
+          <div class="value">${fmtDate(l.startDate)}</div>
+        </div>
+        <div>
+          <div class="label">Devolución</div>
+          <div class="value">${l.returnDate ? fmtDate(l.returnDate) : '<i style="color:#888">Pendiente</i>'}</div>
+        </div>
+      </div>
+      ${l.returner && l.returner !== l.person ? `<div style="margin-top:4px;font-size:12px;color:#666">Devuelto por: <b>${escapeHtml(l.returner)}</b></div>` : ''}
+      ${l.stateIn === 'err' ? '<div style="margin-top:4px"><span class="tag tag-err">✗ Incidencia al devolver</span></div>' : ''}
+      ${l.notes ? `<div style="margin-top:4px;font-size:12px;color:#666">Obs: ${escapeHtml(l.notes)}</div>` : ''}
+      ${l.returnNotes ? `<div style="margin-top:4px;font-size:12px;color:#666">Obs. devolución: ${escapeHtml(l.returnNotes)}</div>` : ''}
+    </div>`;
+  });
+  div.innerHTML = html;
+}
+
+function renderSearchByCamera() {
+  const cam = document.getElementById('search-camera-select').value;
+  const div = document.getElementById('search-camera-results');
+  
+  if (!cam) {
+    div.innerHTML = '<div class="empty-state"><div class="icon">📷</div>Selecciona una cámara para ver su historial</div>';
+    return;
+  }
+  
+  const loans = data.loans
+    .filter(l => l.camera === cam)
+    .sort((a,b) => new Date(b.startDate) - new Date(a.startDate));
+  
+  if (loans.length === 0) {
+    div.innerHTML = `<div class="empty-state"><div class="icon">📭</div><b>${camName(cam)}</b> no tiene préstamos registrados</div>`;
+    return;
+  }
+  
+  let html = `<h3 style="color:#1e3c72; margin-bottom:12px">📷 Historial de ${camName(cam)} (${loans.length} préstamo${loans.length!==1?'s':''})</h3>`;
+  loans.forEach(l => {
+    const isActive = !l.returnDate;
+    const tipo = getLoanType(l) === 'reserve' ? '📅 Reserva' : '📷 Préstamo';
+    html += `<div class="history-item ${isActive?'active':''}">
+      <div class="row">
+        <span class="cam-name">${escapeHtml(l.person)} · ${tipo}</span>
+        ${isActive ? '<span class="tag tag-pending">Pendiente devolución</span>' : '<span class="tag tag-ok">✓ Devuelto</span>'}
+      </div>
+      <div class="row" style="margin-top:6px">
+        <div>
+          <div class="label">Entrega</div>
+          <div class="value">${fmtDate(l.startDate)}</div>
+        </div>
+        <div>
+          <div class="label">Devolución</div>
+          <div class="value">${l.returnDate ? fmtDate(l.returnDate) : '<i style="color:#888">Pendiente</i>'}</div>
+        </div>
+      </div>
+      ${l.returner && l.returner !== l.person ? `<div style="margin-top:4px;font-size:12px;color:#666">Devuelto por: <b>${escapeHtml(l.returner)}</b></div>` : ''}
+      ${l.stateIn === 'err' ? '<div style="margin-top:4px"><span class="tag tag-err">✗ Incidencia al devolver</span></div>' : ''}
+      ${l.notes ? `<div style="margin-top:4px;font-size:12px;color:#666">Obs: ${escapeHtml(l.notes)}</div>` : ''}
+      ${l.returnNotes ? `<div style="margin-top:4px;font-size:12px;color:#666">Obs. devolución: ${escapeHtml(l.returnNotes)}</div>` : ''}
+    </div>`;
+  });
+  div.innerHTML = html;
+}
+
+// ============ MODAL HISTORIAL DE PERSONA (al pulsar el contador) ============
+function openPersonHistoryModal(personName) {
+  const loans = data.loans
+    .filter(l => l.person === personName)
+    .sort((a,b) => new Date(b.startDate) - new Date(a.startDate));
+  
+  document.getElementById('person-history-title').textContent = `📋 Historial de ${personName}`;
+  
+  const div = document.getElementById('person-history-content');
+  if (loans.length === 0) {
+    div.innerHTML = '<div class="empty-state"><div class="icon">📭</div>Aún no ha tenido ningún préstamo</div>';
+  } else {
+    let html = '';
+    loans.forEach(l => {
+      const isActive = !l.returnDate;
+      const tipo = getLoanType(l) === 'reserve' ? '📅 Reserva' : '📷 Préstamo';
+      html += `<div class="history-item ${isActive?'active':''}">
+        <div class="row">
+          <span class="cam-name">${camName(l.camera)} · ${tipo}</span>
+          ${isActive ? '<span class="tag tag-pending">Pendiente</span>' : '<span class="tag tag-ok">✓ Devuelto</span>'}
+        </div>
+        <div class="row" style="margin-top:6px">
+          <div>
+            <div class="label">Entrega</div>
+            <div class="value">${fmtDate(l.startDate)}</div>
+          </div>
+          <div>
+            <div class="label">Devolución</div>
+            <div class="value">${l.returnDate ? fmtDate(l.returnDate) : '<i style="color:#888">Pendiente</i>'}</div>
+          </div>
+        </div>
+        ${l.returner && l.returner !== l.person ? `<div style="margin-top:4px;font-size:12px;color:#666">Devuelto por: <b>${escapeHtml(l.returner)}</b></div>` : ''}
+        ${l.stateIn === 'err' ? '<div style="margin-top:4px"><span class="tag tag-err">✗ Incidencia</span></div>' : ''}
+        ${l.notes ? `<div style="margin-top:4px;font-size:12px;color:#666">Obs: ${escapeHtml(l.notes)}</div>` : ''}
+        ${l.returnNotes ? `<div style="margin-top:4px;font-size:12px;color:#666">Obs. devolución: ${escapeHtml(l.returnNotes)}</div>` : ''}
+      </div>`;
+    });
+    div.innerHTML = html;
+  }
+  
+  document.getElementById('person-history-modal').classList.add('show');
+}
+
+function closePersonHistoryModal() {
+  document.getElementById('person-history-modal').classList.remove('show');
+}
+
 // ============ GESTIÓN DE PERSONAS ============
 function openPersonModal(id = null, prefill = '') {
   editingPersonId = id;
@@ -829,7 +1036,7 @@ function renderPersons() {
     html += `<div class="person-card">
       <div class="avatar">${initials(p.nombre)}</div>
       <div class="info">
-        <div class="name">${escapeHtml(p.nombre)}<span class="loan-count">${uses}</span></div>
+        <div class="name">${escapeHtml(p.nombre)}<span class="loan-count" onclick="openPersonHistoryModal('${escapeHtml(p.nombre).replace(/'/g,"\\'")}')" title="Ver historial de préstamos">${uses}</span></div>
         <div class="detail">${escapeHtml(detail) || 'Sin datos adicionales'}</div>
       </div>
       <div class="actions">
@@ -860,7 +1067,6 @@ function renderDashboard() {
   grid.innerHTML = '';
   [1,2,3].forEach(n => {
     const loan = active.find(l => l.camera == n);
-    const reserve = active.find(l => l.camera == n && getLoanType(l) === 'reserve');
     let cls = 'cam-status', badge = '<span class="badge badge-green">✓ Disponible</span>', info = '';
     if (loan) {
       const isReserve = getLoanType(loan) === 'reserve';
@@ -939,7 +1145,7 @@ function changeMonth(delta) {
   renderCalendar();
 }
 
-// ============ FORMULARIO PRÉSTAMO (SIN TIPO NI FECHA DEVOLUCIÓN) ============
+// ============ FORMULARIO PRÉSTAMO ============
 document.getElementById('loan-form').onsubmit = e => {
   e.preventDefault();
   const personName = document.getElementById('f-person').value.trim();
@@ -956,12 +1162,10 @@ document.getElementById('loan-form').onsubmit = e => {
     returnDate: null, stateIn: null, returner: null, returnNotes: null
   };
 
-  // Comprobar disponibilidad
   const start = new Date(loan.startDate);
   const conflict = data.loans.find(l => {
     if (l.camera != loan.camera || l.returnDate) return false;
     const ls = new Date(l.startDate);
-    // Si la cámara está prestada y no devuelta, y la fecha de entrega coincide o es anterior, hay conflicto
     return ls <= start;
   });
   if (conflict) {
@@ -986,7 +1190,7 @@ function setDefaultDates() {
   document.getElementById('f-start').value = now.toISOString().slice(0,16);
 }
 
-// ============ NUEVA PESTAÑA: DEVOLUCIONES ============
+// ============ DEVOLUCIONES ============
 function renderReturns() {
   const active = data.loans.filter(l => !l.returnDate);
   const div = document.getElementById('returns-list');
@@ -996,7 +1200,6 @@ function renderReturns() {
     return;
   }
   
-  // Separar préstamos inmediatos de reservas
   const loans = active.filter(l => getLoanType(l) === 'loan');
   const reserves = active.filter(l => getLoanType(l) === 'reserve');
   
