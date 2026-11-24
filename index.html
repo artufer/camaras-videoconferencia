@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1e3c72">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>📷 Control Cámaras BCC950</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📷</text></svg>">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #333; padding-bottom: 80px; }
+  
+  /* HEADER CON ICONO CÁMARA */
+  header { 
+    background: linear-gradient(135deg, #1e3c72, #2a5298); 
+    color: white; 
+    padding: 15px 20px; 
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .cam-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+  }
+  header h1 { font-size: 18px; line-height: 1.2; }
+  header p { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+  
+  /* NAVEGACIÓN INFERIOR (móvil) */
+  nav.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+    border-top: 1px solid #ddd;
+    box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+    z-index: 50;
+  }
+  nav.bottom-nav button {
+    background: none;
+    border: none;
+    padding: 6px 4px;
+    cursor: pointer;
+    font-size: 10px;
+    color: #888;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex: 1;
+  }
+  nav.bottom-nav button .nav-icon { font-size: 20px; }
+  nav.bottom-nav button.active { color: #1e3c72; font-weight: 600; }
+  
+  /* NAVEGACIÓN SUPERIOR (desktop) */
+  nav.top-nav {
+    background: white;
+    padding: 0 20px;
+    display: none;
+    gap: 5px;
+    border-bottom: 1px solid #ddd;
+    overflow-x: auto;
+  }
+  nav.top-nav button {
+    background: none;
+    border: none;
+    padding: 14px 18px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #555;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+  }
+  nav.top-nav button:hover { background: #f5f5f5; }
+  nav.top-nav button.active { color: #1e3c72; border-bottom-color: #1e3c72; font-weight: 600; }
+  
+  @media (min-width: 768px) {
+    nav.top-nav { display: flex; }
+    nav.bottom-nav { display: none; }
+    body { padding-bottom: 20px; }
+  }
+  
+  main { padding: 15px; max-width: 1200px; margin: 0 auto; }
+  .view { display: none; }
+  .view.active { display: block; animation: fadeIn 0.2s; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  
+  .card { background: white; border-radius: 10px; padding: 18px; margin-bottom: 15px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .card h2 { color: #1e3c72; margin-bottom: 12px; font-size: 17px; border-bottom: 2px solid #f0f2f5; padding-bottom: 8px; }
+  
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .cam-status { 
+    background: #f8f9fa; 
+    border-left: 4px solid #28a745; 
+    padding: 14px; 
+    border-radius: 8px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .cam-status.reserved { border-left-color: #ffc107; }
+  .cam-status.loaned { border-left-color: #dc3545; }
+  .cam-status .cam-thumb {
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+  }
+  .cam-status h3 { font-size: 15px; margin-bottom: 6px; }
+  .cam-status small { color: #666; display: block; margin-top: 3px; font-size: 12px; }
+  .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-top: 6px; }
+  .badge-green { background: #d4edda; color: #155724; }
+  .badge-yellow { background: #fff3cd; color: #856404; }
+  .badge-red { background: #f8d7da; color: #721c24; }
+  
+  label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #555; }
+  input, select, textarea { 
+    width: 100%; 
+    padding: 11px 12px; 
+    border: 1px solid #ccc; 
+    border-radius: 6px; 
+    font-size: 15px; 
+    font-family: inherit;
+    background: white;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #2a5298; box-shadow: 0 0 0 2px rgba(42,82,152,0.15); }
+  .form-row { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 12px; }
+  @media (min-width: 600px) { .form-row { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); } }
+  
+  button.btn { 
+    background: #1e3c72; 
+    color: white; 
+    border: none; 
+    padding: 12px 20px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-size: 15px; 
+    font-weight: 600; 
+    width: 100%;
+    transition: background 0.2s;
+  }
+  button.btn:hover { background: #2a5298; }
+  button.btn-success { background: #28a745; }
+  button.btn-success:hover { background: #218838; }
+  button.btn-danger { background: #dc3545; }
+  button.btn-warning { background: #ffc107; color: #333; }
+  button.btn-sm { padding: 7px 12px; font-size: 13px; width: auto; }
+  
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #f0f2f5; text-align: left; padding: 10px 8px; font-weight: 600; color: #555; border-bottom: 2px solid #ddd; }
+  td { padding: 10px 8px; border-bottom: 1px solid #eee; }
+  tr:hover { background: #f8f9fa; }
+  
+  .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .cal-header { background: #1e3c72; color: white; padding: 6px 2px; text-align: center; font-weight: 600; font-size: 11px; }
+  .cal-day { background: white; border: 1px solid #e0e0e0; padding: 4px; min-height: 70px; font-size: 10px; border-radius: 3px; }
+  .cal-day.today { border: 2px solid #1e3c72; }
+  .cal-day.empty { background: #fafafa; }
+  .cal-day .date-num { font-weight: 700; font-size: 12px; color: #333; margin-bottom: 2px; }
+  .cal-day .event { background: #e3f2fd; color: #0d47a1; padding: 2px 3px; border-radius: 2px; margin-bottom: 2px; font-size: 9px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cal-day .event.cam2 { background: #fff3e0; color: #e65100; }
+  .cal-day .event.cam3 { background: #e8f5e9; color: #1b5e20; }
+  .cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .cal-nav h3 { font-size: 17px; color: #1e3c72; }
+  
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+  @media (min-width: 600px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+  .stat-box { background: white; padding: 14px; border-radius: 8px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .stat-box .num { font-size: 26px; font-weight: 700; color: #1e3c72; }
+  .stat-box .label { font-size: 11px; color: #666; margin-top: 3px; }
+  
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .filter-bar input, .filter-bar select { flex: 1; min-width: 120px; font-size: 14px; }
+  
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .tag-ok { background: #d4edda; color: #155724; }
+  .tag-err { background: #f8d7da; color: #721c24; }
+  .tag-pending { background: #fff3cd; color: #856404; }
+  
+  .alert { padding: 11px 14px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; }
+  .alert-info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #17a2b8; }
+  .alert-warning { background: #fff3cd; color: #856404; border-left: 4px solid #ffc107; }
+  .empty-state { text-align: center; padding: 30px 15px; color: #888; }
+  .empty-state .icon { font-size: 42px; margin-bottom: 8px; }
+  
+  /* MODAL */
+  .modal-bg { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 15px; }
+  .modal-bg.show { display: flex; }
+  .modal { background: white; padding: 22px; border-radius: 10px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
+  .modal h3 { margin-bottom: 14px; color: #1e3c72; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+  .modal-actions button { width: auto; flex: 1; }
+  
+  /* SYNC STATUS */
+  .sync-indicator {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(255,255,255,0.95);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sync-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #28a745;
+  }
+  .sync-dot.offline { background: #dc3545; }
+  .sync-dot.syncing { background: #ffc107; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+  
+  /* TABLA RESPONSIVE */
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  
+  /* FAB botón nuevo préstamo */
+  .fab {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #28a745;
+    color: white;
+    border: none;
+    font-size: 28px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    cursor: pointer;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .fab:hover { background: #218838; }
+  @media (min-width: 768px) { .fab { bottom: 30px; } }
+</style>
+</head>
+<body>
+
+<!-- Indicador de sincronización -->
+<div class="sync-indicator">
+  <div class="sync-dot" id="sync-dot"></div>
+  <span id="sync-text">Conectando...</span>
+</div>
+
+<header>
+  <!-- Icono SVG de la Logitech BCC950 -->
+  <svg class="cam-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <!-- Base/altavoz -->
+    <ellipse cx="50" cy="82" rx="38" ry="12" fill="#2a2a2a"/>
+    <path d="M 15 75 Q 15 88 50 88 Q 85 88 85 75 L 85 70 Q 85 62 50 62 Q 15 62 15 70 Z" fill="#1a1a1a"/>
+    <!-- Rejilla altavoz -->
+    <rect x="22" y="72" width="56" height="10" rx="3" fill="#333"/>
+    <line x1="28" y1="72" x2="28" y2="82" stroke="#222" stroke-width="1"/>
+    <line x1="36" y1="72" x2="36" y2="82" stroke="#222" stroke-width="1"/>
+    <line x1="44" y1="72" x2="44" y2="82" stroke="#222" stroke-width="1"/>
+    <line x1="52" y1="72" x2="52" y2="82" stroke="#222" stroke-width="1"/>
+    <line x1="60" y1="72" x2="60" y2="82" stroke="#222" stroke-width="1"/>
+    <line x1="68" y1="72" x2="68" y2="82" stroke="#222" stroke-width="1"/>
+    <line x1="76" y1="72" x2="76" y2="82" stroke="#222" stroke-width="1"/>
+    <!-- Botones base -->
+    <circle cx="30" cy="68" r="2.5" fill="#555"/>
+    <circle cx="42" cy="68" r="2.5" fill="#28a745"/>
+    <circle cx="58" cy="68" r="2.5" fill="#dc3545"/>
+    <circle cx="70" cy="68" r="2.5" fill="#555"/>
+    <!-- Texto Logitech -->
+    <text x="50" y="78" text-anchor="middle" font-size="5" fill="#888" font-family="Arial">logitech</text>
+    <!-- Mástil -->
+    <rect x="48" y="30" width="4" height="35" fill="#1a1a1a"/>
+    <!-- Cabeza cámara -->
+    <circle cx="50" cy="22" r="16" fill="#2a2a2a"/>
+    <circle cx="50" cy="22" r="13" fill="#1a1a1a"/>
+    <!-- Lente -->
+    <circle cx="50" cy="22" r="7" fill="#0a0a0a"/>
+    <circle cx="50" cy="22" r="4" fill="#1e3c72"/>
+    <circle cx="48" cy="20" r="1.5" fill="white" opacity="0.6"/>
+    <!-- LED azul -->
+    <circle cx="40" cy="22" r="1.5" fill="#4fc3f7"/>
+  </svg>
+  <div>
+    <h1>Control Cámaras BCC950</h1>
+    <p>Edificio de Oficinas · Préstamo y reservas</p>
+  </div>
+</header>
+
+<nav class="top-nav" id="top-nav">
+  <button class="active" data-view="dashboard">🏠 Inicio</button>
+  <button data-view="calendar">📅 Calendario</button>
+  <button data-view="newloan">➕ Nuevo préstamo</button>
+  <button data-view="active">🔄 En curso</button>
+  <button data-view="history">📋 Historial</button>
+  <button data-view="reports">📊 Informes</button>
+  <button data-view="settings">⚙️ Ajustes</button>
+</nav>
+
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="active" data-view="dashboard"><span class="nav-icon">🏠</span>Inicio</button>
+  <button data-view="calendar"><span class="nav-icon">📅</span>Calendario</button>
+  <button data-view="active"><span class="nav-icon">🔄</span>En curso</button>
+  <button data-view="history"><span class="nav-icon">📋</span>Historial</button>
+  <button data-view="settings"><span class="nav-icon">⚙️</span>Ajustes</button>
+</nav>
+
+<!-- Botón flotante nuevo préstamo -->
+<button class="fab" onclick="goToView('newloan')" title="Nuevo préstamo">+</button>
+
+<main>
+
+  <!-- DASHBOARD -->
+  <div class="view active" id="view-dashboard">
+    <div class="stats">
+      <div class="stat-box"><div class="num" id="stat-available">3</div><div class="label">Disponibles</div></div>
+      <div class="stat-box"><div class="num" id="stat-loaned">0</div><div class="label">Prestadas hoy</div></div>
+      <div class="stat-box"><div class="num" id="stat-reserved">0</div><div class="label">Reservas</div></div>
+      <div class="stat-box"><div class="num" id="stat-total">0</div><div class="label">Total histórico</div></div>
+    </div>
+
+    <div class="card">
+      <h2>Estado de las cámaras</h2>
+      <div class="grid-3" id="cam-status-grid"></div>
+    </div>
+
+    <div class="card">
+      <h2>Próximas devoluciones</h2>
+      <div id="upcoming-returns"></div>
+    </div>
+  </div>
+
+  <!-- CALENDARIO -->
+  <div class="view" id="view-calendar">
+    <div class="card">
+      <h2>Calendario mensual</h2>
+      <div class="alert alert-info">🔵 Cámara 1 · 🟠 Cámara 2 · 🟢 Cámara 3</div>
+      <div class="cal-nav">
+        <button class="btn btn-sm" onclick="changeMonth(-1)">◀</button>
+        <h3 id="cal-month-label"></h3>
+        <button class="btn btn-sm" onclick="changeMonth(1)">▶</button>
+      </div>
+      <div class="calendar" id="calendar-grid"></div>
+    </div>
+  </div>
+
+  <!-- NUEVO PRÉSTAMO -->
+  <div class="view" id="view-newloan">
+    <div class="card">
+      <h2>Registrar préstamo / reserva</h2>
+      <form id="loan-form">
+        <div class="form-row">
+          <div>
+            <label>Cámara *</label>
+            <select id="f-camera" required>
+              <option value="1">📷 Cámara 1</option>
+              <option value="2">📷 Cámara 2</option>
+              <option value="3">📷 Cámara 3</option>
+            </select>
+          </div>
+          <div>
+            <label>Persona que la solicita *</label>
+            <input type="text" id="f-person" required placeholder="Nombre y oficina/piso">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Fecha y hora de entrega *</label>
+            <input type="datetime-local" id="f-start" required>
+          </div>
+          <div>
+            <label>Fecha y hora prevista de devolución</label>
+            <input type="datetime-local" id="f-end">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label>Estado al entregar</label>
+            <select id="f-state-out">
+              <option value="ok">✓ Funcionando correctamente</option>
+              <option value="err">⚠ Con alguna incidencia</option>
+            </select>
+          </div>
+          <div>
+            <label>Tipo</label>
+            <select id="f-type">
+              <option value="loan">Préstamo inmediato</option>
+              <option value="reserve">Reserva para fecha futura</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:15px">
+          <label>Observaciones (opcional)</label>
+          <textarea id="f-notes" rows="2" placeholder="Ej: batería cargada, falta tarjeta SD..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">✓ Registrar préstamo</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- PRÉSTAMOS ACTIVOS -->
+  <div class="view" id="view-active">
+    <div class="card">
+      <h2>Préstamos en curso</h2>
+      <div id="active-loans"></div>
+    </div>
+  </div>
+
+  <!-- HISTORIAL -->
+  <div class="view" id="view-history">
+    <div class="card">
+      <h2>Histórico completo</h2>
+      <div class="filter-bar">
+        <input type="text" id="filter-person" placeholder="🔍 Buscar por persona...">
+        <select id="filter-camera">
+          <option value="">Todas las cámaras</option>
+          <option value="1">Cámara 1</option>
+          <option value="2">Cámara 2</option>
+          <option value="3">Cámara 3</option>
+        </select>
+      </div>
+      <div class="table-wrap" id="history-table"></div>
+    </div>
+  </div>
+
+  <!-- INFORMES -->
+  <div class="view" id="view-reports">
+    <div class="card">
+      <h2>Informe por cámara</h2>
+      <div id="report-camera"></div>
+    </div>
+    <div class="card">
+      <h2>Informe por persona</h2>
+      <div id="report-person"></div>
+    </div>
+  </div>
+
+  <!-- AJUSTES -->
+  <div class="view" id="view-settings">
+    <div class="card">
+      <h2>Personalizar nombres</h2>
+      <div class="form-row">
+        <div><label>Cámara 1</label><input type="text" id="name-cam-1"></div>
+        <div><label>Cámara 2</label><input type="text" id="name-cam-2"></div>
+        <div><label>Cámara 3</label><input type="text" id="name-cam-3"></div>
+      </div>
+      <button class="btn" onclick="saveNames()">💾 Guardar nombres</button>
+    </div>
+    <div class="card">
+      <h2>Copia de seguridad</h2>
+      <p style="margin-bottom:12px; color:#666; font-size:13px">Los datos se sincronizan automáticamente en la nube. Aún así, puedes exportar una copia.</p>
+      <button class="btn" onclick="exportBackup()" style="margin-bottom:8px">📤 Exportar datos (JSON)</button>
+      <button class="btn btn-warning" onclick="document.getElementById('import-file').click()" style="margin-bottom:8px">📥 Importar copia</button>
+      <input type="file" id="import-file" style="display:none" accept=".json" onchange="importBackup(event)">
+      <button class="btn btn-danger" onclick="resetAll()">🗑️ Borrar todos los datos</button>
+    </div>
+    <div class="card">
+      <h2>Estado de la conexión</h2>
+      <div id="connection-info"></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL DEVOLUCIÓN -->
+<div class="modal-bg" id="return-modal">
+  <div class="modal">
+    <h3>Registrar devolución</h3>
+    <div id="return-modal-info"></div>
+    <div style="margin-top:14px">
+      <label>Fecha y hora de devolución</label>
+      <input type="datetime-local" id="r-datetime">
+    </div>
+    <div style="margin-top:10px">
+      <label>Estado en que se devuelve *</label>
+      <select id="r-state">
+        <option value="ok">✓ Funcionando correctamente</option>
+        <option value="err">✗ Estropeada / con incidencia</option>
+      </select>
+    </div>
+    <div style="margin-top:10px">
+      <label>¿Quién la devuelve? (si es distinto)</label>
+      <input type="text" id="r-returner" placeholder="Dejar vacío si es la misma persona">
+    </div>
+    <div style="margin-top:10px">
+      <label>Observaciones de la devolución</label>
+      <textarea id="r-notes" rows="2"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeReturnModal()">Cancelar</button>
+      <button class="btn btn-success" onclick="confirmReturn()">✓ Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+<script>
+// ============ CONFIGURACIÓN FIREBASE ============
+// ⚠️ IMPORTANTE: Sustituye estos valores por los de TU proyecto de Firebase
+// (ver instrucciones en el README de GitHub)
+const firebaseConfig = {
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_PROYECTO.firebaseapp.com",
+  databaseURL: "https://TU_PROYECTO-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "TU_PROYECTO",
+  storageBucket: "TU_PROYECTO.appspot.com",
+  messagingSenderId: "123456789",
+  appId: "1:123456789:web:abcdef"
+};
+
+// Modo offline: si no hay Firebase configurado, usa localStorage
+let useFirebase = false;
+let db = null;
+let data = { loans: [], names: { "1": "Cámara 1", "2": "Cámara 2", "3": "Cámara 3" } };
+let currentMonth = new Date();
+let currentReturnId = null;
+
+// Intentar inicializar Firebase
+try {
+  if (firebaseConfig.apiKey !== "TU_API_KEY") {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+    useFirebase = true;
+    updateSyncStatus('syncing', 'Sincronizando...');
+    
+    // Escuchar cambios en tiempo real
+    db.ref('cameras/loans').on('value', snapshot => {
+      const remoteLoans = snapshot.val() || [];
+      data.loans = Array.isArray(remoteLoans) ? remoteLoans : Object.values(remoteLoans);
+      render();
+      updateSyncStatus('online', 'En línea ✓');
+    });
+    
+    db.ref('cameras/names').on('value', snapshot => {
+      const remoteNames = snapshot.val();
+      if (remoteNames) {
+        data.names = remoteNames;
+        render();
+      }
+    });
+  } else {
+    // Modo localStorage
+    data = JSON.parse(localStorage.getItem('cameras_app') || '{"loans":[],"names":{"1":"Cámara 1","2":"Cámara 2","3":"Cámara 3"}}');
+    updateSyncStatus('offline', 'Modo local');
+  }
+} catch(e) {
+  console.error('Error Firebase:', e);
+  data = JSON.parse(localStorage.getItem('cameras_app') || '{"loans":[],"names":{"1":"Cámara 1","2":"Cámara 2","3":"Cámara 3"}}');
+  updateSyncStatus('offline', 'Modo local');
+}
+
+function updateSyncStatus(status, text) {
+  const dot = document.getElementById('sync-dot');
+  const txt = document.getElementById('sync-text');
+  dot.className = 'sync-dot ' + (status === 'online' ? '' : status);
+  txt.textContent = text;
+}
+
+function save() {
+  if (useFirebase) {
+    db.ref('cameras/loans').set(data.loans);
+    db.ref('cameras/names').set(data.names);
+  } else {
+    localStorage.setItem('cameras_app', JSON.stringify(data));
+  }
+}
+
+function camName(n) { return data.names[n] || 'Cámara ' + n; }
+function fmtDate(d) { if (!d) return '-'; const x = new Date(d); return x.toLocaleDateString('es-ES') + ' ' + x.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}); }
+function fmtDateShort(d) { if (!d) return '-'; return new Date(d).toLocaleDateString('es-ES'); }
+
+// ============ NAVEGACIÓN ============
+function goToView(viewName) {
+  document.querySelectorAll('nav button').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll(`[data-view="${viewName}"]`).forEach(x => x.classList.add('active'));
+  document.getElementById('view-' + viewName).classList.add('active');
+  render();
+  window.scrollTo(0, 0);
+}
+
+document.querySelectorAll('nav button').forEach(b => {
+  b.onclick = () => goToView(b.dataset.view);
+});
+
+// ============ DASHBOARD ============
+function renderDashboard() {
+  const now = new Date();
+  const today = now.toDateString();
+  const active = data.loans.filter(l => !l.returnDate);
+  const todayLoans = data.loans.filter(l => new Date(l.startDate).toDateString() === today);
+  const futureReserves = data.loans.filter(l => !l.returnDate && new Date(l.startDate) > now && l.type === 'reserve');
+
+  document.getElementById('stat-available').textContent = 3 - active.length;
+  document.getElementById('stat-loaned').textContent = todayLoans.length;
+  document.getElementById('stat-reserved').textContent = futureReserves.length;
+  document.getElementById('stat-total').textContent = data.loans.length;
+
+  const grid = document.getElementById('cam-status-grid');
+  grid.innerHTML = '';
+  [1,2,3].forEach(n => {
+    const loan = active.find(l => l.camera == n);
+    const reserve = data.loans.find(l => !l.returnDate && l.camera == n && new Date(l.startDate) > now && l.type === 'reserve');
+    let cls = 'cam-status', badge = '<span class="badge badge-green">✓ Disponible</span>', info = '';
+    if (loan) {
+      cls += ' loaned';
+      badge = '<span class="badge badge-red">🔴 Prestada</span>';
+      info = `<small><b>Con:</b> ${loan.person}</small><small><b>Desde:</b> ${fmtDate(loan.startDate)}</small>`;
+      if (loan.expectedEnd) info += `<small><b>Devolución:</b> ${fmtDate(loan.expectedEnd)}</small>`;
+    } else if (reserve) {
+      cls += ' reserved';
+      badge = '<span class="badge badge-yellow">🟡 Reservada</span>';
+      info = `<small><b>Reservada:</b> ${reserve.person}</small><small><b>Fecha:</b> ${fmtDate(reserve.startDate)}</small>`;
+    }
+    grid.innerHTML += `<div class="${cls}">
+      <svg class="cam-thumb" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="50" cy="82" rx="38" ry="12" fill="#2a2a2a"/>
+        <path d="M 15 75 Q 15 88 50 88 Q 85 88 85 75 L 85 70 Q 85 62 50 62 Q 15 62 15 70 Z" fill="#1a1a1a"/>
+        <rect x="48" y="30" width="4" height="35" fill="#1a1a1a"/>
+        <circle cx="50" cy="22" r="16" fill="#2a2a2a"/>
+        <circle cx="50" cy="22" r="7" fill="#0a0a0a"/>
+        <circle cx="50" cy="22" r="4" fill="#1e3c72"/>
+        <circle cx="40" cy="22" r="1.5" fill="#4fc3f7"/>
+      </svg>
+      <div><h3>${camName(n)}</h3>${badge}${info}</div>
+    </div>`;
+  });
+
+  const up = document.getElementById('upcoming-returns');
+  const upcoming = active.filter(l => l.expectedEnd).sort((a,b) => new Date(a.expectedEnd) - new Date(b.expectedEnd)).slice(0,5);
+  if (upcoming.length === 0) {
+    up.innerHTML = '<div class="empty-state"><div class="icon">📭</div>No hay devoluciones previstas</div>';
+  } else {
+    let html = '<div class="table-wrap"><table><tr><th>Cámara</th><th>Persona</th><th>Devolución</th><th></th></tr>';
+    upcoming.forEach(l => {
+      const overdue = new Date(l.expectedEnd) < now;
+      html += `<tr><td>${camName(l.camera)}</td><td>${l.person}</td><td>${overdue?'<b style="color:#dc3545">⚠️ ' : ''}${fmtDate(l.expectedEnd)}${overdue?' ⚠️</b>':''}</td><td><button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">Devolver</button></td></tr>`;
+    });
+    html += '</table></div>';
+    up.innerHTML = html;
+  }
+}
+
+// ============ CALENDARIO ============
+function renderCalendar() {
+  const year = currentMonth.getFullYear();
+  const month = currentMonth.getMonth();
+  const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('cal-month-label').textContent = monthNames[month] + ' ' + year;
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const offset = firstDay === 0 ? 6 : firstDay - 1;
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const today = new Date();
+
+  const grid = document.getElementById('calendar-grid');
+  grid.innerHTML = '';
+  ['L','M','X','J','V','S','D'].forEach(d => grid.innerHTML += `<div class="cal-header">${d}</div>`);
+
+  for (let i = 0; i < offset; i++) grid.innerHTML += '<div class="cal-day empty"></div>';
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(year, month, d);
+    const isToday = date.toDateString() === today.toDateString();
+    let events = '';
+    [1,2,3].forEach(n => {
+      const loan = data.loans.find(l => {
+        const start = new Date(l.startDate);
+        const end = l.returnDate ? new Date(l.returnDate) : new Date(l.expectedEnd || start);
+        const dayStart = new Date(year, month, d, 0, 0, 0);
+        const dayEnd = new Date(year, month, d, 23, 59, 59);
+        return l.camera == n && start <= dayEnd && end >= dayStart;
+      });
+      if (loan) {
+        events += `<div class="event cam${n}" title="${camName(n)}: ${loan.person}">${camName(n).substring(0,4)}: ${loan.person.split(' ')[0]}</div>`;
+      }
+    });
+    grid.innerHTML += `<div class="cal-day ${isToday?'today':''}"><div class="date-num">${d}</div>${events}</div>`;
+  }
+}
+
+function changeMonth(delta) {
+  currentMonth.setMonth(currentMonth.getMonth() + delta);
+  renderCalendar();
+}
+
+// ============ FORMULARIO ============
+document.getElementById('loan-form').onsubmit = e => {
+  e.preventDefault();
+  const loan = {
+    id: Date.now(),
+    camera: document.getElementById('f-camera').value,
+    person: document.getElementById('f-person').value.trim(),
+    startDate: document.getElementById('f-start').value,
+    expectedEnd: document.getElementById('f-end').value || null,
+    stateOut: document.getElementById('f-state-out').value,
+    type: document.getElementById('f-type').value,
+    notes: document.getElementById('f-notes').value.trim(),
+    returnDate: null,
+    stateIn: null,
+    returner: null,
+    returnNotes: null
+  };
+
+  const start = new Date(loan.startDate);
+  const end = loan.expectedEnd ? new Date(loan.expectedEnd) : start;
+  const conflict = data.loans.find(l => {
+    if (l.camera != loan.camera || l.returnDate) return false;
+    const ls = new Date(l.startDate);
+    const le = l.expectedEnd ? new Date(l.expectedEnd) : ls;
+    return ls <= end && le >= start;
+  });
+  if (conflict) {
+    alert('⚠️ Conflicto: ' + camName(loan.camera) + ' ya está prestada/reservada en esas fechas a ' + conflict.person);
+    return;
+  }
+
+  data.loans.push(loan);
+  save();
+  alert('✓ Préstamo registrado');
+  e.target.reset();
+  setDefaultDates();
+  render();
+};
+
+function setDefaultDates() {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('f-start').value = now.toISOString().slice(0,16);
+}
+
+// ============ ACTIVOS ============
+function renderActive() {
+  const active = data.loans.filter(l => !l.returnDate);
+  const div = document.getElementById('active-loans');
+  if (active.length === 0) {
+    div.innerHTML = '<div class="empty-state"><div class="icon">✅</div>¡Todas las cámaras disponibles!</div>';
+    return;
+  }
+  let html = '<div class="table-wrap"><table><tr><th>Cámara</th><th>Persona</th><th>Entrega</th><th>Devolución</th><th></th></tr>';
+  active.forEach(l => {
+    const overdue = l.expectedEnd && new Date(l.expectedEnd) < new Date();
+    html += `<tr>
+      <td><b>${camName(l.camera)}</b></td>
+      <td>${l.person}</td>
+      <td>${fmtDate(l.startDate)}</td>
+      <td>${overdue?'<b style="color:#dc3545">⚠️ ' : ''}${l.expectedEnd?fmtDate(l.expectedEnd):'-'}${overdue?' ⚠️</b>':''}</td>
+      <td><button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">Devolver</button></td>
+    </tr>`;
+  });
+  html += '</table></div>';
+  div.innerHTML = html;
+}
+
+// ============ MODAL DEVOLUCIÓN ============
+function openReturnModal(id) {
+  currentReturnId = id;
+  const loan = data.loans.find(l => l.id === id);
+  document.getElementById('return-modal-info').innerHTML = `
+    <p><b>Cámara:</b> ${camName(loan.camera)}</p>
+    <p><b>Recogida por:</b> ${loan.person}</p>
+    <p><b>Fecha entrega:</b> ${fmtDate(loan.startDate)}</p>
+    ${loan.notes?'<p><b>Obs. entrega:</b> '+loan.notes+'</p>':''}
+  `;
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('r-datetime').value = now.toISOString().slice(0,16);
+  document.getElementById('r-state').value = 'ok';
+  document.getElementById('r-returner').value = '';
+  document.getElementById('r-notes').value = '';
+  document.getElementById('return-modal').classList.add('show');
+}
+
+function closeReturnModal() {
+  document.getElementById('return-modal').classList.remove('show');
+  currentReturnId = null;
+}
+
+function confirmReturn() {
+  const loan = data.loans.find(l => l.id === currentReturnId);
+  loan.returnDate = document.getElementById('r-datetime').value;
+  loan.stateIn = document.getElementById('r-state').value;
+  loan.returner = document.getElementById('r-returner').value.trim() || loan.person;
+  loan.returnNotes = document.getElementById('r-notes').value.trim();
+  save();
+  closeReturnModal();
+  alert('✓ Devolución registrada');
+  render();
+}
+
+// ============ HISTORIAL ============
+function renderHistory() {
+  const personFilter = document.getElementById('filter-person').value.toLowerCase();
+  const camFilter = document.getElementById('filter-camera').value;
+  let list = [...data.loans].reverse();
+  if (personFilter) list = list.filter(l => l.person.toLowerCase().includes(personFilter) || (l.returner && l.returner.toLowerCase().includes(personFilter)));
+  if (camFilter) list = list.filter(l => l.camera == camFilter);
+
+  const div = document.getElementById('history-table');
+  if (list.length === 0) {
+    div.innerHTML = '<div class="empty-state"><div class="icon">📭</div>No hay registros</div>';
+    return;
+  }
+  let html = '<table><tr><th>Cámara</th><th>Persona</th><th>Entrega</th><th>Devolución</th><th>Devuelto por</th><th>Estado</th></tr>';
+  list.forEach(l => {
+    const estado = l.returnDate ? (l.stateIn === 'ok' ? '<span class="tag tag-ok">✓ OK</span>' : '<span class="tag tag-err">✗ Incidencia</span>') : '<span class="tag tag-pending">Pendiente</span>';
+    html += `<tr>
+      <td><b>${camName(l.camera)}</b></td>
+      <td>${l.person}</td>
+      <td>${fmtDate(l.startDate)}</td>
+      <td>${l.returnDate?fmtDate(l.returnDate):'<i>pendiente</i>'}</td>
+      <td>${l.returner||'-'}</td>
+      <td>${estado}</td>
+    </tr>`;
+  });
+  html += '</table>';
+  div.innerHTML = html;
+}
+
+document.getElementById('filter-person').oninput = renderHistory;
+document.getElementById('filter-camera').onchange = renderHistory;
+
+// ============ INFORMES ============
+function renderReports() {
+  let html = '';
+  [1,2,3].forEach(n => {
+    const loans = data.loans.filter(l => l.camera == n);
+    const uniquePersons = [...new Set(loans.map(l => l.person))];
+    const damages = loans.filter(l => l.stateIn === 'err').length;
+    html += `<div style="margin-bottom:18px; padding:14px; background:#f8f9fa; border-radius:8px">
+      <h3 style="color:#1e3c72">📷 ${camName(n)}</h3>
+      <p><b>Total:</b> ${loans.length} · <b>Personas:</b> ${uniquePersons.length} · <b>Incidencias:</b> ${damages}</p>`;
+    if (loans.length > 0) {
+      html += '<div class="table-wrap"><table style="margin-top:10px"><tr><th>Persona</th><th>Veces</th><th>Último uso</th></tr>';
+      const byPerson = {};
+      loans.forEach(l => {
+        if (!byPerson[l.person]) byPerson[l.person] = {count:0, last:l.startDate};
+        byPerson[l.person].count++;
+        if (new Date(l.startDate) > new Date(byPerson[l.person].last)) byPerson[l.person].last = l.startDate;
+      });
+      Object.entries(byPerson).sort((a,b) => b[1].count - a[1].count).forEach(([p, info]) => {
+        html += `<tr><td>${p}</td><td>${info.count}</td><td>${fmtDateShort(info.last)}</td></tr>`;
+      });
+      html += '</table></div>';
+    }
+    html += '</div>';
+  });
+  document.getElementById('report-camera').innerHTML = html;
+
+  const persons = {};
+  data.loans.forEach(l => {
+    if (!persons[l.person]) persons[l.person] = [];
+    persons[l.person].push(l);
+  });
+  let html2 = '';
+  const sortedPersons = Object.entries(persons).sort((a,b) => b[1].length - a[1].length);
+  if (sortedPersons.length === 0) {
+    html2 = '<div class="empty-state"><div class="icon">📭</div>Aún no hay datos</div>';
+  } else {
+    html2 += '<div class="table-wrap"><table><tr><th>Persona</th><th>Préstamos</th><th>Cámaras</th><th>Último</th><th>Incidencias</th></tr>';
+    sortedPersons.forEach(([p, loans]) => {
+      const cams = [...new Set(loans.map(l => camName(l.camera)))].join(', ');
+      const last = loans.sort((a,b) => new Date(b.startDate) - new Date(a.startDate))[0].startDate;
+      const incid = loans.filter(l => l.stateIn === 'err').length;
+      html2 += `<tr><td><b>${p}</b></td><td>${loans.length}</td><td>${cams}</td><td>${fmtDateShort(last)}</td><td>${incid>0?'<span class="tag tag-err">'+incid+'</span>':'<span class="tag tag-ok">0</span>'}</td></tr>`;
+    });
+    html2 += '</table></div>';
+  }
+  document.getElementById('report-person').innerHTML = html2;
+}
+
+// ============ AJUSTES ============
+function loadNames() {
+  [1,2,3].forEach(n => document.getElementById('name-cam-'+n).value = data.names[n]);
+}
+function saveNames() {
+  [1,2,3].forEach(n => data.names[n] = document.getElementById('name-cam-'+n).value.trim() || 'Cámara '+n);
+  save();
+  alert('✓ Nombres guardados');
+  render();
+}
+function exportBackup() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'camaras_backup_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+}
+function importBackup(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      data = JSON.parse(ev.target.result);
+      save();
+      alert('✓ Datos importados');
+      render();
+    } catch(err) { alert('❌ Archivo inválido'); }
+  };
+  reader.readAsText(file);
+}
+function resetAll() {
+  if (confirm('⚠️ ¿Borrar TODOS los datos?')) {
+    if (confirm('⚠️ ÚLTIMA CONFIRMACIÓN')) {
+      data = {loans:[], names:{1:'Cámara 1',2:'Cámara 2',3:'Cámara 3'}};
+      save();
+      render();
+    }
+  }
+}
+
+// ============ RENDER ============
+function render() {
+  renderDashboard();
+  renderCalendar();
+  renderActive();
+  renderHistory();
+  renderReports();
+  loadNames();
+  
+  // Info conexión
+  const connDiv = document.getElementById('connection-info');
+  if (connDiv) {
+    connDiv.innerHTML = useFirebase 
+      ? '<div class="alert alert-info">✅ Conectado a Firebase. Los datos se sincronizan entre todos los dispositivos.</div>'
+      : '<div class="alert alert-warning">⚠️ Modo local. Los datos solo se guardan en este navegador. Configura Firebase para sincronizar entre dispositivos.</div>';
+  }
+}
+
+setDefaultDates();
+render();
+</script>
+</body>
+</html>
