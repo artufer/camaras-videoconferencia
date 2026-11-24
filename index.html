@@ -10,58 +10,25 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #333; padding-bottom: 80px; }
-  
-  header { 
-    background: linear-gradient(135deg, #1e3c72, #2a5298); 
-    color: white; padding: 15px 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    display: flex; align-items: center; gap: 12px;
-  }
+  header { background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; padding: 15px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; }
   .cam-icon { width: 48px; height: 48px; flex-shrink: 0; }
   header h1 { font-size: 18px; line-height: 1.2; }
   header p { font-size: 12px; opacity: 0.85; margin-top: 2px; }
-  
-  nav.bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: white; display: flex; justify-content: space-around;
-    padding: 6px 0; border-top: 1px solid #ddd;
-    box-shadow: 0 -2px 8px rgba(0,0,0,0.08); z-index: 50;
-  }
-  nav.bottom-nav button {
-    background: none; border: none; padding: 5px 2px;
-    cursor: pointer; font-size: 9px; color: #888;
-    display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1;
-  }
+  nav.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 6px 0; border-top: 1px solid #ddd; box-shadow: 0 -2px 8px rgba(0,0,0,0.08); z-index: 50; }
+  nav.bottom-nav button { background: none; border: none; padding: 5px 2px; cursor: pointer; font-size: 9px; color: #888; display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; }
   nav.bottom-nav button .nav-icon { font-size: 18px; }
   nav.bottom-nav button.active { color: #1e3c72; font-weight: 600; }
-  
-  nav.top-nav {
-    background: white; padding: 0 20px;
-    display: none; gap: 5px;
-    border-bottom: 1px solid #ddd; overflow-x: auto;
-  }
-  nav.top-nav button {
-    background: none; border: none; padding: 14px 16px;
-    cursor: pointer; font-size: 14px; color: #555;
-    border-bottom: 3px solid transparent; white-space: nowrap;
-  }
+  nav.top-nav { background: white; padding: 0 20px; display: none; gap: 5px; border-bottom: 1px solid #ddd; overflow-x: auto; }
+  nav.top-nav button { background: none; border: none; padding: 14px 16px; cursor: pointer; font-size: 14px; color: #555; border-bottom: 3px solid transparent; white-space: nowrap; }
   nav.top-nav button:hover { background: #f5f5f5; }
   nav.top-nav button.active { color: #1e3c72; border-bottom-color: #1e3c72; font-weight: 600; }
-  
-  @media (min-width: 768px) {
-    nav.top-nav { display: flex; }
-    nav.bottom-nav { display: none; }
-    body { padding-bottom: 20px; }
-  }
-  
+  @media (min-width: 768px) { nav.top-nav { display: flex; } nav.bottom-nav { display: none; } body { padding-bottom: 20px; } }
   main { padding: 15px; max-width: 1200px; margin: 0 auto; }
   .view { display: none; }
   .view.active { display: block; animation: fadeIn 0.2s; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-  
   .card { background: white; border-radius: 10px; padding: 18px; margin-bottom: 15px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
   .card h2 { color: #1e3c72; margin-bottom: 12px; font-size: 17px; border-bottom: 2px solid #f0f2f5; padding-bottom: 8px; }
-  
   .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
   .cam-status { background: #f8f9fa; border-left: 4px solid #28a745; padding: 14px; border-radius: 8px; display: flex; gap: 12px; align-items: flex-start; }
   .cam-status.reserved { border-left-color: #ffc107; }
@@ -73,35 +40,22 @@
   .badge-green { background: #d4edda; color: #155724; }
   .badge-yellow { background: #fff3cd; color: #856404; }
   .badge-red { background: #f8d7da; color: #721c24; }
-  
   label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #555; }
-  input, select, textarea { 
-    width: 100%; padding: 11px 12px;
-    border: 1px solid #ccc; border-radius: 6px;
-    font-size: 15px; font-family: inherit; background: white;
-  }
+  input, select, textarea { width: 100%; padding: 11px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; font-family: inherit; background: white; }
   input:focus, select:focus, textarea:focus { outline: none; border-color: #2a5298; box-shadow: 0 0 0 2px rgba(42,82,152,0.15); }
   .form-row { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 12px; }
   @media (min-width: 600px) { .form-row { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); } }
-  
-  button.btn { 
-    background: #1e3c72; color: white; border: none;
-    padding: 12px 20px; border-radius: 6px;
-    cursor: pointer; font-size: 15px; font-weight: 600;
-    width: 100%; transition: background 0.2s;
-  }
+  button.btn { background: #1e3c72; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-size: 15px; font-weight: 600; width: 100%; transition: background 0.2s; }
   button.btn:hover { background: #2a5298; }
   button.btn-success { background: #28a745; }
   button.btn-success:hover { background: #218838; }
   button.btn-danger { background: #dc3545; }
   button.btn-warning { background: #ffc107; color: #333; }
   button.btn-sm { padding: 7px 12px; font-size: 13px; width: auto; }
-  
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th { background: #f0f2f5; text-align: left; padding: 10px 8px; font-weight: 600; color: #555; border-bottom: 2px solid #ddd; }
   td { padding: 10px 8px; border-bottom: 1px solid #eee; }
   tr:hover { background: #f8f9fa; }
-  
   .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
   .cal-header { background: #1e3c72; color: white; padding: 6px 2px; text-align: center; font-weight: 600; font-size: 11px; }
   .cal-day { background: white; border: 1px solid #e0e0e0; padding: 4px; min-height: 70px; font-size: 10px; border-radius: 3px; }
@@ -113,115 +67,68 @@
   .cal-day .event.cam3 { background: #e8f5e9; color: #1b5e20; }
   .cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
   .cal-nav h3 { font-size: 17px; color: #1e3c72; }
-  
   .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
   @media (min-width: 600px) { .stats { grid-template-columns: repeat(4, 1fr); } }
   .stat-box { background: white; padding: 14px; border-radius: 8px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
   .stat-box .num { font-size: 26px; font-weight: 700; color: #1e3c72; }
   .stat-box .label { font-size: 11px; color: #666; margin-top: 3px; }
-  
   .filter-bar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
   .filter-bar input, .filter-bar select { flex: 1; min-width: 120px; font-size: 14px; }
-  
   .tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
   .tag-ok { background: #d4edda; color: #155724; }
   .tag-err { background: #f8d7da; color: #721c24; }
   .tag-pending { background: #fff3cd; color: #856404; }
-  
+  .tag-loan { background: #e3f2fd; color: #0d47a1; }
+  .tag-reserve { background: #fff3e0; color: #e65100; }
   .alert { padding: 11px 14px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; }
   .alert-info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #17a2b8; }
   .alert-warning { background: #fff3cd; color: #856404; border-left: 4px solid #ffc107; }
   .empty-state { text-align: center; padding: 30px 15px; color: #888; }
   .empty-state .icon { font-size: 42px; margin-bottom: 8px; }
-  
   .modal-bg { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 15px; }
   .modal-bg.show { display: flex; }
   .modal { background: white; padding: 22px; border-radius: 10px; max-width: 500px; width: 100%; max-height: 90vh; overflow-y: auto; }
   .modal h3 { margin-bottom: 14px; color: #1e3c72; }
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
   .modal-actions button { width: auto; flex: 1; }
-  
-  .sync-indicator {
-    position: fixed; top: 10px; right: 10px;
-    background: rgba(255,255,255,0.95);
-    padding: 6px 12px; border-radius: 20px;
-    font-size: 11px; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    z-index: 200; display: flex; align-items: center; gap: 6px;
-  }
+  .sync-indicator { position: fixed; top: 10px; right: 10px; background: rgba(255,255,255,0.95); padding: 6px 12px; border-radius: 20px; font-size: 11px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); z-index: 200; display: flex; align-items: center; gap: 6px; }
   .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: #28a745; }
   .sync-dot.offline { background: #dc3545; }
   .sync-dot.syncing { background: #ffc107; animation: pulse 1s infinite; }
   @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-  
   .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  
-  .fab {
-    position: fixed; bottom: 80px; right: 20px;
-    width: 56px; height: 56px; border-radius: 50%;
-    background: #28a745; color: white; border: none;
-    font-size: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    cursor: pointer; z-index: 40;
-    display: flex; align-items: center; justify-content: center;
-  }
+  .fab { position: fixed; bottom: 80px; right: 20px; width: 56px; height: 56px; border-radius: 50%; background: #28a745; color: white; border: none; font-size: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); cursor: pointer; z-index: 40; display: flex; align-items: center; justify-content: center; }
   .fab:hover { background: #218838; }
   @media (min-width: 768px) { .fab { bottom: 30px; } }
-  
-  /* ===== COMBOBOX AUTOCOMPLETADO ===== */
   .combobox-wrap { position: relative; }
-  .combobox-suggestions {
-    position: absolute; top: 100%; left: 0; right: 0;
-    background: white; border: 1px solid #ccc; border-top: none;
-    border-radius: 0 0 6px 6px; max-height: 250px; overflow-y: auto;
-    z-index: 60; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    display: none;
-  }
+  .combobox-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ccc; border-top: none; border-radius: 0 0 6px 6px; max-height: 250px; overflow-y: auto; z-index: 60; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; }
   .combobox-suggestions.show { display: block; }
-  .combobox-item {
-    padding: 10px 12px; cursor: pointer;
-    border-bottom: 1px solid #f0f0f0;
-    display: flex; align-items: center; gap: 10px;
-    font-size: 14px;
-  }
+  .combobox-item { padding: 10px 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 10px; font-size: 14px; }
   .combobox-item:hover, .combobox-item.highlighted { background: #e3f2fd; }
-  .combobox-item .avatar {
-    width: 32px; height: 32px; border-radius: 50%;
-    background: #1e3c72; color: white;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 13px; flex-shrink: 0;
-  }
+  .combobox-item .avatar { width: 32px; height: 32px; border-radius: 50%; background: #1e3c72; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0; }
   .combobox-item .info { flex: 1; min-width: 0; }
   .combobox-item .info .name { font-weight: 600; color: #333; }
   .combobox-item .info .name mark { background: #ffe082; color: #333; padding: 0 2px; border-radius: 2px; }
   .combobox-item .info .office { font-size: 11px; color: #888; margin-top: 2px; }
   .combobox-item.new-person { color: #28a745; font-weight: 600; background: #e8f5e9; }
   .combobox-item.new-person:hover { background: #c8e6c9; }
-  
-  /* ===== TARJETAS DE PERSONAS ===== */
-  .person-card {
-    background: white; border: 1px solid #e0e0e0; border-radius: 8px;
-    padding: 12px; display: flex; align-items: center; gap: 12px;
-    margin-bottom: 8px;
-  }
-  .person-card .avatar {
-    width: 44px; height: 44px; border-radius: 50%;
-    background: linear-gradient(135deg, #1e3c72, #2a5298);
-    color: white; display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 16px; flex-shrink: 0;
-  }
+  .person-card { background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .person-card .avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; flex-shrink: 0; }
   .person-card .info { flex: 1; min-width: 0; }
   .person-card .info .name { font-weight: 600; font-size: 15px; color: #333; }
   .person-card .info .detail { font-size: 12px; color: #666; margin-top: 2px; }
   .person-card .actions { display: flex; gap: 5px; flex-shrink: 0; }
   .person-card .actions button { padding: 5px 8px; font-size: 12px; width: auto; }
-  
   .persons-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
   @media (min-width: 700px) { .persons-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); } }
-  
-  .loan-count {
-    background: #e3f2fd; color: #1e3c72;
-    padding: 2px 8px; border-radius: 10px;
-    font-size: 11px; font-weight: 600; margin-left: 6px;
-  }
+  .loan-count { background: #e3f2fd; color: #1e3c72; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; margin-left: 6px; }
+  .return-card { background: white; border: 1px solid #e0e0e0; border-left: 4px solid #dc3545; border-radius: 8px; padding: 14px; margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .return-card.overdue { border-left-color: #ff5722; background: #fff5f5; }
+  .return-card .cam-icon-small { font-size: 28px; }
+  .return-card .info { flex: 1; min-width: 200px; }
+  .return-card .info .person { font-weight: 700; font-size: 15px; color: #333; }
+  .return-card .info .meta { font-size: 12px; color: #666; margin-top: 3px; }
+  .return-card .actions { flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -266,7 +173,7 @@
   <button class="active" data-view="dashboard">🏠 Inicio</button>
   <button data-view="calendar">📅 Calendario</button>
   <button data-view="newloan">➕ Nuevo préstamo</button>
-  <button data-view="active">🔄 En curso</button>
+  <button data-view="returns">↩️ Devoluciones</button>
   <button data-view="history">📋 Historial</button>
   <button data-view="persons">👥 Personas</button>
   <button data-view="reports">📊 Informes</button>
@@ -277,15 +184,13 @@
   <button class="active" data-view="dashboard"><span class="nav-icon">🏠</span>Inicio</button>
   <button data-view="calendar"><span class="nav-icon">📅</span>Calend.</button>
   <button data-view="newloan"><span class="nav-icon">➕</span>Prestar</button>
-  <button data-view="active"><span class="nav-icon">🔄</span>En curso</button>
+  <button data-view="returns"><span class="nav-icon">↩️</span>Devolver</button>
   <button data-view="persons"><span class="nav-icon">👥</span>Personas</button>
   <button data-view="history"><span class="nav-icon">📋</span>Historial</button>
   <button data-view="settings"><span class="nav-icon">⚙️</span>Ajustes</button>
 </nav>
 
 <main>
-
-  <!-- DASHBOARD -->
   <div class="view active" id="view-dashboard">
     <div class="stats">
       <div class="stat-box"><div class="num" id="stat-available">3</div><div class="label">Disponibles</div></div>
@@ -293,19 +198,16 @@
       <div class="stat-box"><div class="num" id="stat-reserved">0</div><div class="label">Reservas</div></div>
       <div class="stat-box"><div class="num" id="stat-persons">0</div><div class="label">Personas</div></div>
     </div>
-
     <div class="card">
       <h2>Estado de las cámaras</h2>
       <div class="grid-3" id="cam-status-grid"></div>
     </div>
-
     <div class="card">
       <h2>Próximas devoluciones</h2>
       <div id="upcoming-returns"></div>
     </div>
   </div>
 
-  <!-- CALENDARIO -->
   <div class="view" id="view-calendar">
     <div class="card">
       <h2>Calendario mensual</h2>
@@ -319,10 +221,10 @@
     </div>
   </div>
 
-  <!-- NUEVO PRÉSTAMO -->
   <div class="view" id="view-newloan">
     <div class="card">
       <h2>Registrar préstamo / reserva</h2>
+      <div class="alert alert-info">💡 Si la fecha de entrega es futura, se registrará automáticamente como <b>reserva</b>. Si es inmediata, como <b>préstamo</b>.</div>
       <form id="loan-form">
         <div class="form-row">
           <div>
@@ -348,23 +250,10 @@
             <input type="datetime-local" id="f-start" required>
           </div>
           <div>
-            <label>Fecha y hora prevista de devolución</label>
-            <input type="datetime-local" id="f-end">
-          </div>
-        </div>
-        <div class="form-row">
-          <div>
             <label>Estado al entregar</label>
             <select id="f-state-out">
               <option value="ok">✓ Funcionando correctamente</option>
               <option value="err">⚠ Con alguna incidencia</option>
-            </select>
-          </div>
-          <div>
-            <label>Tipo</label>
-            <select id="f-type">
-              <option value="loan">Préstamo inmediato</option>
-              <option value="reserve">Reserva para fecha futura</option>
             </select>
           </div>
         </div>
@@ -377,15 +266,15 @@
     </div>
   </div>
 
-  <!-- PRÉSTAMOS ACTIVOS -->
-  <div class="view" id="view-active">
+  <!-- NUEVA PESTAÑA: DEVOLUCIONES -->
+  <div class="view" id="view-returns">
     <div class="card">
-      <h2>Préstamos en curso</h2>
-      <div id="active-loans"></div>
+      <h2>↩️ Devoluciones pendientes</h2>
+      <div class="alert alert-info">Cámaras que están fuera y necesitan ser devueltas. Pulsa <b>"Devolver"</b> cuando la recibas.</div>
+      <div id="returns-list"></div>
     </div>
   </div>
 
-  <!-- HISTORIAL -->
   <div class="view" id="view-history">
     <div class="card">
       <h2>Histórico completo</h2>
@@ -403,7 +292,6 @@
     </div>
   </div>
 
-  <!-- PERSONAS -->
   <div class="view" id="view-persons">
     <div class="card">
       <h2>Personas del edificio</h2>
@@ -415,7 +303,6 @@
     </div>
   </div>
 
-  <!-- INFORMES -->
   <div class="view" id="view-reports">
     <div class="card">
       <h2>Informe por cámara</h2>
@@ -427,7 +314,6 @@
     </div>
   </div>
 
-  <!-- AJUSTES -->
   <div class="view" id="view-settings">
     <div class="card">
       <h2>Personalizar nombres</h2>
@@ -450,13 +336,12 @@
       <div id="connection-info"></div>
     </div>
   </div>
-
 </main>
 
 <!-- MODAL DEVOLUCIÓN -->
 <div class="modal-bg" id="return-modal">
   <div class="modal">
-    <h3>Registrar devolución</h3>
+    <h3>↩️ Registrar devolución</h3>
     <div id="return-modal-info"></div>
     <div style="margin-top:14px">
       <label>Fecha y hora de devolución</label>
@@ -482,7 +367,7 @@
     </div>
     <div class="modal-actions">
       <button class="btn" onclick="closeReturnModal()">Cancelar</button>
-      <button class="btn btn-success" onclick="confirmReturn()">✓ Confirmar</button>
+      <button class="btn btn-success" onclick="confirmReturn()">✓ Confirmar devolución</button>
     </div>
   </div>
 </div>
@@ -492,26 +377,11 @@
   <div class="modal">
     <h3 id="person-modal-title">➕ Añadir persona</h3>
     <form id="person-form">
-      <div style="margin-bottom:12px">
-        <label>Nombre completo *</label>
-        <input type="text" id="p-name" required placeholder="Ej: María García López">
-      </div>
-      <div style="margin-bottom:12px">
-        <label>Oficina / Piso / Departamento</label>
-        <input type="text" id="p-office" placeholder="Ej: 3ª planta, Contabilidad">
-      </div>
-      <div style="margin-bottom:12px">
-        <label>Teléfono / Extensión</label>
-        <input type="text" id="p-phone" placeholder="Ej: Ext. 234 / 600 123 456">
-      </div>
-      <div style="margin-bottom:12px">
-        <label>Email (opcional)</label>
-        <input type="email" id="p-email" placeholder="Ej: maria@empresa.com">
-      </div>
-      <div style="margin-bottom:12px">
-        <label>Notas (opcional)</label>
-        <textarea id="p-notes" rows="2" placeholder="Ej: suele pedir la cámara los lunes..."></textarea>
-      </div>
+      <div style="margin-bottom:12px"><label>Nombre completo *</label><input type="text" id="p-name" required placeholder="Ej: María García López"></div>
+      <div style="margin-bottom:12px"><label>Oficina / Piso / Departamento</label><input type="text" id="p-office" placeholder="Ej: 3ª planta, Contabilidad"></div>
+      <div style="margin-bottom:12px"><label>Teléfono / Extensión</label><input type="text" id="p-phone" placeholder="Ej: Ext. 234 / 600 123 456"></div>
+      <div style="margin-bottom:12px"><label>Email (opcional)</label><input type="email" id="p-email" placeholder="Ej: maria@empresa.com"></div>
+      <div style="margin-bottom:12px"><label>Notas (opcional)</label><textarea id="p-notes" rows="2" placeholder="Ej: suele pedir la cámara los lunes..."></textarea></div>
       <input type="hidden" id="p-id">
       <div class="modal-actions">
         <button type="button" class="btn" onclick="closePersonModal()">Cancelar</button>
@@ -536,13 +406,144 @@ const firebaseConfig = {
   appId: "1:798796513505:web:ee6082f08552af6298b7a0"
 };
 
+// ============ LISTA DE PERSONAS DEL EDIFICIO (131) ============
+const PERSONAS_INICIALES = [
+  {"id":1,"nombre":"Patricia Ajenjo Fresno","email":"patricia.ajenjo@dipuleon.es","telefono":"1026","oficina":"Derechos Sociales - Psicología"},
+  {"id":2,"nombre":"Raquel Alonso Rodrigo","email":"raquel.alonso@dipuleon.es","telefono":"1063 / 4063","oficina":"Asuntos Generales - Arquitectura Técnica"},
+  {"id":3,"nombre":"Raquel Andres Garcia","email":"raquel.andres@dipuleon.es","telefono":"1058","oficina":"Desarrollo Rural y Medio Ambiente - Administrativo"},
+  {"id":4,"nombre":"Roberto Alvarez Perez","email":"roberto.alvarez@dipuleon.es","telefono":"1443","oficina":"Derechos Sociales - Coordinación Servicios Básicos"},
+  {"id":5,"nombre":"Rocio Rodriguez Curto","email":"rocio.rodriguez@dipuleon.es","telefono":"","oficina":"ILC - Bibliobús - Encargada Bibliobús"},
+  {"id":6,"nombre":"Rosa Martinez Rodriguez","email":"rosa.martinez@dipuleon.es","telefono":"1097","oficina":"Cooperación - Administrativo"},
+  {"id":7,"nombre":"Rosalina Gutierrez Rodriguez","email":"rosalina.gutierrez@dipuleon.es","telefono":"1076","oficina":"Asuntos Generales - Auxiliar Administrativo"},
+  {"id":8,"nombre":"Ruben Jimenez Pinilla","email":"ruben.jimenez@dipuleon.es","telefono":"1428","oficina":"Cooperación - Arquitectura Técnica"},
+  {"id":9,"nombre":"Ruth Noemi Grañeras Reyero","email":"ruth.graneras@dipuleon.es","telefono":"1052 / 4570","oficina":"Desarrollo Rural y Medio Ambiente - Ingeniería Técnica Forestal"},
+  {"id":10,"nombre":"Alicia Soto Casado","email":"alicia.soto@dipuleon.es","telefono":"1458","oficina":"Derechos Sociales - Sección de Programas - Mujer"},
+  {"id":11,"nombre":"Alma Maria Tascon Tascon","email":"alma.tascon@dipuleon.es","telefono":"1456","oficina":"Derechos Sociales - Sección de Programas - Mujer"},
+  {"id":12,"nombre":"Amaia Regina Rubio Muro","email":"amaia.rubio@dipuleon.es","telefono":"1096","oficina":"ILC - Bibliobús - Auxiliar Biblioteca"},
+  {"id":13,"nombre":"Ana Belen Cosmen Garcia","email":"ana.cosmen@dipuleon.es","telefono":"1012","oficina":"Cooperación - Jefa de Servicio"},
+  {"id":14,"nombre":"Ana Belen Rodriguez Robles","email":"anabelen.rodriguez@dipuleon.es","telefono":"1457","oficina":"Derechos Sociales - Sección de Dependencia"},
+  {"id":15,"nombre":"Ana Gonzalez Masia","email":"ana.gonzalez@dipuleon.es","telefono":"1023","oficina":"Derechos Sociales - Sección de Programas - Familia EAF"},
+  {"id":16,"nombre":"Ana Isabel Suarez Rodriguez","email":"anaisabel.suarez@dipuleon.es","telefono":"1066","oficina":"Derechos Sociales - Sección de Programas - Familia EAF"},
+  {"id":17,"nombre":"Ana Maria Llamas Caso","email":"ana.llamas@dipuleon.es","telefono":"1099","oficina":"Cooperación - Jefa de Sección"},
+  {"id":18,"nombre":"Ana Olga Cuevas Molleda","email":"anaolga.cuevas@dipuleon.es","telefono":"1041","oficina":"Derechos Sociales - Consumo"},
+  {"id":19,"nombre":"Ana Sagardio Garcia","email":"ana.sagardio@dipuleon.es","telefono":"1048","oficina":"Derechos Sociales - Coordinación de CEAS"},
+  {"id":20,"nombre":"Alberto Diaz Puche","email":"alberto.diaz@dipuleon.es","telefono":"1027","oficina":"Cooperación - Arquitectura Técnica"},
+  {"id":21,"nombre":"Albina Vega Ramon","email":"luis.vega@dipuleon.es","telefono":"1081","oficina":"Archivo e Imprenta - Imprenta"},
+  {"id":22,"nombre":"Angel Lescun Gutierrez","email":"angelescun.gutierrez@dipuleon.es","telefono":"1074","oficina":"Cooperación - T.A.G."},
+  {"id":23,"nombre":"Angela Dominguez Gomez","email":"angela.dominguez@dipuleon.es","telefono":"1061","oficina":"Desarrollo Rural y Medio Ambiente - Oficial Administrativa"},
+  {"id":24,"nombre":"Beatriz Alvarez Campos","email":"beatriz.alvarez@dipuleon.es","telefono":"1072","oficina":"Desarrollo Rural y Medio Ambiente - Veterinario"},
+  {"id":25,"nombre":"Beatriz Carrillo Colund","email":"beatriz.carrillo@dipuleon.es","telefono":"1479","oficina":"Cooperación - Coordinadora Administrativa"},
+  {"id":26,"nombre":"Berta Santos Del Castillo","email":"berta.santos@dipuleon.es","telefono":"1095","oficina":"ILC - Unidad Administrativa - Ordenanza"},
+  {"id":27,"nombre":"Blas Castrillo Martinez","email":"blas.castrillo@dipuleon.es","telefono":"1067 / 4067","oficina":"SEPEIS - Jefe de Sección"},
+  {"id":28,"nombre":"Carmen Pelaez Romero","email":"carmen.pelaez@dipuleon.es","telefono":"1028","oficina":"Derechos Sociales - Absentismo"},
+  {"id":29,"nombre":"Cesar Serrano Leon","email":"cesar.serrano@dipuleon.es","telefono":"1082","oficina":"Archivo e Imprenta - Maquinista"},
+  {"id":30,"nombre":"Diana Muñoz Asensio","email":"diana.munoz@dipuleon.es","telefono":"1087","oficina":"Derechos Sociales - Técnico de Gestión"},
+  {"id":31,"nombre":"Elena Gonzalez Sanchez","email":"elena.gonzalez@dipuleon.es","telefono":"1382","oficina":"Centros de Atención Especializada - CAE"},
+  {"id":32,"nombre":"Esther Rodriguez Alvarez","email":"esther.rodriguez@dipuleon.es","telefono":"1454","oficina":"Derechos Sociales - Sección de Programas - Familia"},
+  {"id":33,"nombre":"Eva Maria Sanchez Alonso","email":"eva.sanchez@dipuleon.es","telefono":"1078","oficina":"Archivo e Imprenta - Encargada Bibliobús"},
+  {"id":34,"nombre":"Eva Maria Suarez Diez","email":"evamaria.suarez@dipuleon.es","telefono":"1042","oficina":"Derechos Sociales - Consumo"},
+  {"id":35,"nombre":"Carlos Ferrero Gonzalez","email":"carlos.ferrero@dipuleon.es","telefono":"1596 / 4333","oficina":"SEPEIS - Suboficial"},
+  {"id":36,"nombre":"Guillermo Gonzalez Diez","email":"guillermo.gonzalez@dipuleon.es","telefono":"1013","oficina":"Derechos Sociales - Coordinación de CEAS"},
+  {"id":37,"nombre":"Hector Alvarez Cabañeros","email":"hector.alvarezcabañeros@dipuleon.es","telefono":"1069","oficina":"Archivo e Imprenta - Técnico de Diseño"},
+  {"id":38,"nombre":"Hortensia Valcarce Hernandez","email":"","telefono":"1020","oficina":"Derechos Sociales - Sección de Programas - Familia EAF"},
+  {"id":39,"nombre":"Iban Martinez Robles","email":"iban.martinez@dipuleon.es","telefono":"1435","oficina":"Derechos Sociales - Jefatura"},
+  {"id":40,"nombre":"Irene Otero Llamazares","email":"irene.otero@dipuleon.es","telefono":"1051","oficina":"Desarrollo Rural y Medio Ambiente - Coordinadora Administrativa"},
+  {"id":41,"nombre":"Isabel Lopez Urban","email":"isabel.lopez@dipuleon.es","telefono":"","oficina":"Derechos Sociales - Terapeuta Ocupacional"},
+  {"id":42,"nombre":"Isabel Zardain Tamargo","email":"isabel.zardain@dipuleon.es","telefono":"1036","oficina":"Derechos Sociales - Sección de Programas"},
+  {"id":43,"nombre":"Jorge Modal Puerta","email":"jorge.modal@dipuleon.es","telefono":"1045","oficina":"Centros de Atención Especializada - CAE"},
+  {"id":44,"nombre":"Eva Santos Gonzalez","email":"eva.santos@dipuleon.es","telefono":"1091 / 4091","oficina":"ILC - Bibliobús - Encargada Bibliobús"},
+  {"id":45,"nombre":"Fatima Susana Mansilla Rodriguez","email":"fatima.mansilla@dipuleon.es","telefono":"1050","oficina":"Desarrollo Rural y Medio Ambiente - Jefa de Servicio"},
+  {"id":46,"nombre":"Fco Javier Menendez Hernandez","email":"francisco.menendez@dipuleon.es","telefono":"1090","oficina":"ILC - Bibliobús - Encargado Bibliobús"},
+  {"id":47,"nombre":"Fernando Fernandez Martinez","email":"fernando.fernandez@dipuleon.es","telefono":"1085","oficina":"Asuntos Generales - Oficial 1ª Mantenimiento"},
+  {"id":48,"nombre":"Francisco Bajo Alvarez","email":"paco.bajo@dipuleon.es","telefono":"1451","oficina":"Desarrollo Rural y Medio Ambiente - Jefe de Sección"},
+  {"id":49,"nombre":"Francisco Javier Larraguiri Migues","email":"francisco.larraguiri@dipuleon.es","telefono":"1064","oficina":"Cooperación - Proyectos"},
+  {"id":50,"nombre":"Francisco Javier Rojo Gonzalez","email":"javier.rojo@dipuleon.es","telefono":"1008","oficina":"Derechos Sociales - Sección de Coordinación"},
+  {"id":51,"nombre":"Gabriela Maria Fernandez Tabuyo","email":"gabriela.fernandez@dipuleon.es","telefono":"1002","oficina":"Archivo e Imprenta - Directora Imprenta"},
+  {"id":52,"nombre":"Gloria Mabel Hidalgo Escobar","email":"gloria.hidalgo@dipuleon.es","telefono":"1475","oficina":"Centros de Atención Especializada - CAE"},
+  {"id":53,"nombre":"Jose Enrique Garcia Pando","email":"joseenrique.garcia@dipuleon.es","telefono":"1014","oficina":"Derechos Sociales - Sección de Coordinación"},
+  {"id":54,"nombre":"Jose Luis Rey Suarez","email":"joseluis.rey@dipuleon.es","telefono":"1083","oficina":"Asuntos Generales - Mantenimiento"},
+  {"id":55,"nombre":"Jose Maria Alvaro Martin","email":"jose.alvaro@dipuleon.es","telefono":"1016","oficina":"Cooperación - Arquitecto - Coordinador Técnico"},
+  {"id":56,"nombre":"Jose Raul Ortega Perez","email":"joserault.ortega@dipuleon.es","telefono":"1131","oficina":"Desarrollo Rural y Medio Ambiente - Profesor/a Programa"},
+  {"id":57,"nombre":"Juan Jose Escanciano Gonzalez","email":"juanjose.escanciano@dipuleon.es","telefono":"1070","oficina":"Archivo e Imprenta - Imprenta"},
+  {"id":58,"nombre":"Julian Alcal Moran","email":"julian.alcala@dipuleon.es","telefono":"1439 / 4411","oficina":"SEPEIS - Oficial Superior"},
+  {"id":59,"nombre":"Julio Alves Ruperez","email":"julio.alves@dipuleon.es","telefono":"1037","oficina":"Derechos Sociales - Jefatura"},
+  {"id":60,"nombre":"Julio Hurtado Martin","email":"julio.hurtado@dipuleon.es","telefono":"1429","oficina":"Cooperación - Auxiliar Administrativo"},
+  {"id":61,"nombre":"Laura Cimbranos Anes","email":"","telefono":"1447","oficina":"Derechos Sociales"},
+  {"id":62,"nombre":"Laura Fernandez Alvarez","email":"laura.fernandez@dipuleon.es","telefono":"1017 / 4037","oficina":"Derechos Sociales - Sección de Programas - EDIS"},
+  {"id":63,"nombre":"Laura Mendez Garcia","email":"laura.mendez@dipuleon.es","telefono":"1476","oficina":"Derechos Sociales - Coordinadora Administrativa"},
+  {"id":64,"nombre":"Leonardo Arturo Fernandez Carbajo","email":"arturo.fernandez@dipuleon.es","telefono":"1482","oficina":"Asuntos Generales - Ordenanzas"},
+  {"id":65,"nombre":"Leticia Fernandez Rascón","email":"leticia.fernandez@dipuleon.es","telefono":"1265","oficina":"Desarrollo Rural y Medio Ambiente - Profesora Programa"},
+  {"id":66,"nombre":"Leticia Garcia Gonzalez","email":"leticia.garcia@dipuleon.es","telefono":"1445","oficina":"Derechos Sociales - Ayuda a Domicilio"},
+  {"id":67,"nombre":"Lorena Gonzalez Perez","email":"lorena.gperez@dipuleon.es","telefono":"1432","oficina":"Centros de Atención Especializada - CAE"},
+  {"id":68,"nombre":"Luz Amor Del Rio Diez","email":"luzamor.rio@dipuleon.es","telefono":"1004","oficina":"Derechos Sociales - Jefatura"},
+  {"id":69,"nombre":"M. Belen Bartolome Fernandez","email":"belen.bartolome@dipuleon.es","telefono":"1481 / 4481","oficina":"Contratación y Patrimonio - Arquitecto"},
+  {"id":70,"nombre":"M. Carmen Corcero Gonzalez","email":"carmen.corcero@dipuleon.es","telefono":"1449","oficina":"Desarrollo Rural y Medio Ambiente - Técnico Superior M. Ambiente"},
+  {"id":71,"nombre":"M. Jose Lescun Canoura","email":"mariajose.lescuin@dipuleon.es","telefono":"1007","oficina":"Derechos Sociales - Sección de Programas - Mujer"},
+  {"id":72,"nombre":"M. Angeles Santos Perez","email":"angeles.santos@dipuleon.es","telefono":"1015 / 4038","oficina":"Derechos Sociales - Sección de Programas - EDIS"},
+  {"id":73,"nombre":"M. Angeles Varga Gonzalez","email":"angeles.varga@dipuleon.es","telefono":"1453","oficina":"Derechos Sociales - Ayuda a Domicilio"},
+  {"id":74,"nombre":"M. Asuncion Alvarez Lopez","email":"asun.alvarez@dipuleon.es","telefono":"1073","oficina":"Desarrollo Rural y Medio Ambiente - Jefa de Negociado"},
+  {"id":75,"nombre":"M. Camino Diez Soto","email":"camino.diez@dipuleon.es","telefono":"1033","oficina":"Derechos Sociales - Sección de Programas"},
+  {"id":76,"nombre":"M. Carmen Alvarez Cabo","email":"carmen.alvarez@dipuleon.es","telefono":"1062","oficina":"Desarrollo Rural y Medio Ambiente - Jefa de Sección"},
+  {"id":77,"nombre":"M. Carmen Fernandez Hernandez","email":"carmen.fernandez@dipuleon.es","telefono":"1032","oficina":"Derechos Sociales - Trabajadora Social"},
+  {"id":78,"nombre":"M. Carmen Godoy Cano","email":"maria.godoy@dipuleon.es","telefono":"1448","oficina":"Desarrollo Rural y Medio Ambiente - T.A.G."},
+  {"id":79,"nombre":"M. Dolores Fernandez Gonzalez","email":"loli.fernandez@dipuleon.es","telefono":"1057","oficina":"SEPEIS - Jefa de Negociado"},
+  {"id":80,"nombre":"M. Elena Cimas Hernando","email":"elena.cimas@dipuleon.es","telefono":"1040","oficina":"Derechos Sociales - Consumo"},
+  {"id":81,"nombre":"M. Encarnacion Miguez Sastre","email":"encarna.miguez@dipuleon.es","telefono":"1029","oficina":"Derechos Sociales - Sección de Programas - Familia EAF"},
+  {"id":82,"nombre":"M. Guioamar Alvarez Gonzalez","email":"guioamar.alvarez@dipuleon.es","telefono":"1022","oficina":"Derechos Sociales - Sección de Programas - Familia"},
+  {"id":83,"nombre":"M. Isabel Santos Martinez","email":"isabel.santos@dipuleon.es","telefono":"1455","oficina":"Centros de Atención Especializada - CAE"},
+  {"id":84,"nombre":"M. Jesus Matilla Gutierrez","email":"mariajesus.matilla@dipuleon.es","telefono":"1441","oficina":"Derechos Sociales - Sección de Programas - Familia EAF"},
+  {"id":85,"nombre":"M. Mar Chamorro Gonzalez","email":"mar.chamorro@dipuleon.es","telefono":"1006","oficina":"Derechos Sociales - Sección de Programas"},
+  {"id":86,"nombre":"M. Montserrat Garcia Alonso","email":"montse.garcia@dipuleon.es","telefono":"1003","oficina":"Derechos Sociales - Jefatura"},
+  {"id":87,"nombre":"M. Nieves Lozano Lozano","email":"nieves.lozano@dipuleon.es","telefono":"1053","oficina":"Desarrollo Rural y Medio Ambiente - Granja Agrícola"},
+  {"id":88,"nombre":"M. Paz Sanchez Gonzalez","email":"maria.paz.sanchez@dipuleon.es","telefono":"1038","oficina":"Derechos Sociales - Sección de Dependencia"},
+  {"id":89,"nombre":"M. Pilar Moran Gonzalez","email":"pilar.moran@dipuleon.es","telefono":"1025","oficina":"Cooperación - Proyectos"},
+  {"id":90,"nombre":"Maite Muñiz Martinez","email":"maite.muniz@dipuleon.es","telefono":"1430","oficina":"Cooperación - Administrativo"},
+  {"id":91,"nombre":"Maria De La Paz Sanchez Lozano","email":"mariadelapaz.sanchez@dipuleon.es","telefono":"1011","oficina":"Desarrollo Rural y Medio Ambiente - Tratamiento de Residuos"},
+  {"id":92,"nombre":"Maria Garcia Crespo","email":"maria.garcia.crespo@dipuleon.es","telefono":"1462","oficina":"Derechos Sociales - Sección de Programas - Familia"},
+  {"id":93,"nombre":"Maria Ines Briezmes Nicolas","email":"ines.briezmes@dipuleon.es","telefono":"1437","oficina":"Derechos Sociales - Sección de Programas - Familia EAF"},
+  {"id":94,"nombre":"Maria Jesus Bermejo Cacurro","email":"mariaj.bermejo@dipuleon.es","telefono":"1068","oficina":"Archivo e Imprenta - Imprenta"},
+  {"id":95,"nombre":"Maria Jose Lamos Fernandez Corvaledo","email":"mjose.lamos@dipuleon.es","telefono":"1404","oficina":"Derechos Sociales - Consumo"},
+  {"id":96,"nombre":"Maria Luisa Fernandez Diez","email":"luisa.fernandez@dipuleon.es","telefono":"1092 / 4092","oficina":"ILC - Bibliobús - Encargada Bibliobús"},
+  {"id":97,"nombre":"Marina Arias Robles","email":"marina.arias@dipuleon.es","telefono":"1265","oficina":"Desarrollo Rural y Medio Ambiente - Profesora Programa"},
+  {"id":98,"nombre":"Mario Villadanos Fernandez","email":"mario.villadanos@dipuleon.es","telefono":"1054","oficina":"Desarrollo Rural y Medio Ambiente - Ingeniería Técnica Industrial"},
+  {"id":99,"nombre":"Marta Eva Pastrana Rubio","email":"martaeva.pastrana@dipuleon.es","telefono":"1060","oficina":"Desarrollo Rural y Medio Ambiente - Coordinadora Técnica"},
+  {"id":100,"nombre":"Marta Maria Gutierrez Mayor","email":"marta.mayor@dipuleon.es","telefono":"1047","oficina":"Derechos Sociales - Cooperación al Desarrollo"},
+  {"id":101,"nombre":"Marta Maria Tascon Martinez","email":"marta.tascon@dipuleon.es","telefono":"1440","oficina":"Derechos Sociales - Sección de Programas"},
+  {"id":102,"nombre":"Miguel Angel Lozano Gonzalez","email":"miguelangel.lozano@dipuleon.es","telefono":"1480","oficina":"Centros de Atención Especializada - CAE"},
+  {"id":103,"nombre":"Miguel Angel Ordas Del Corral","email":"miguelangel.ordas@dipuleon.es","telefono":"1439","oficina":"Derechos Sociales - Sección de Programas - Familia EAF"},
+  {"id":104,"nombre":"Miguel Angel Palenzuela Pastrana","email":"miguelangel.palenzuela@dipuleon.es","telefono":"1444 / 4036","oficina":"Derechos Sociales - Sección de Programas - EDIS"},
+  {"id":105,"nombre":"Miriam Gutierrez Martinez","email":"miriam.gutierrez@dipuleon.es","telefono":"1438","oficina":"Derechos Sociales - Sección de Programas - Familia"},
+  {"id":106,"nombre":"Mirian Alvarez Vivas","email":"mirian.alvarez@dipuleon.es","telefono":"1024","oficina":"SEPEIS - Jefa de Sección"},
+  {"id":107,"nombre":"Monica Sevilla Perez","email":"monica.sevilla@dipuleon.es","telefono":"1018","oficina":"Derechos Sociales - Teleasistencia"},
+  {"id":108,"nombre":"Montserrat Alvarez Cano","email":"montse.alvarez@dipuleon.es","telefono":"1098","oficina":"Cooperación - Jefa de Negociado"},
+  {"id":109,"nombre":"Montserrat Gago Garcia","email":"montserrat.gago@dipuleon.es","telefono":"1021","oficina":"Derechos Sociales - Sección de Programas - Familia EAF"},
+  {"id":110,"nombre":"Montserrat Gonzalez Lopez","email":"montserrat.gonzalez@dipuleon.es","telefono":"1010 / 4010","oficina":"Derechos Sociales - Sección de Programas - Adicciones"},
+  {"id":111,"nombre":"Natalia Sanchez De Prado","email":"natalia.sanchez@dipuleon.es","telefono":"","oficina":"Archivo e Imprenta - Imprenta"},
+  {"id":112,"nombre":"Natividad Morera Roque","email":"natividad.morera@dipuleon.es","telefono":"1071","oficina":"Desarrollo Rural y Medio Ambiente - Tratamiento de Residuos"},
+  {"id":113,"nombre":"Nemesio Martinez Martinez","email":"nemesio.martinez@dipuleon.es","telefono":"4077 / 1077","oficina":"Asuntos Generales - Mantenimiento"},
+  {"id":114,"nombre":"Nuria Baños Fernandez","email":"nuria.banos@dipuleon.es","telefono":"1436","oficina":"Derechos Sociales - Coordinación Servicios Básicos"},
+  {"id":115,"nombre":"Nuria Bolivar Del Pozo","email":"nuria.delpozo@dipuleon.es","telefono":"1044","oficina":"Derechos Sociales - Sección de Programas - Adicciones"},
+  {"id":116,"nombre":"Olga Ropero Serrano","email":"olga.ropero@dipuleon.es","telefono":"1093 / 4093","oficina":"ILC - Bibliobús - Encargada Bibliobús"},
+  {"id":117,"nombre":"Omar Alvarez Martinez","email":"omar.alvarez@dipuleon.es","telefono":"1431","oficina":"SEPEIS - Oficial Técnico (OE)"},
+  {"id":118,"nombre":"Oscar Martin Alvarez","email":"oscar.martin@dipuleon.es","telefono":"1433","oficina":"Derechos Sociales - Jefatura"},
+  {"id":119,"nombre":"Pamela Swida Rodriguez","email":"pamela.swida@dipuleon.es","telefono":"1079","oficina":"Asuntos Generales - Mantenimiento"},
+  {"id":120,"nombre":"Santiago Carlos Gonzalez Mayor","email":"santiago.gonzalez@dipuleon.es","telefono":"1478","oficina":"Derechos Sociales - Sección de Programas - Familia EAF"},
+  {"id":121,"nombre":"Santiago Martinez Novo","email":"santiago.martinez@dipuleon.es","telefono":"1084 / 4084","oficina":"Asuntos Generales - Mantenimiento"},
+  {"id":122,"nombre":"Sara Calvo Carbal","email":"sara.calvo@dipuleon.es","telefono":"1094 / 4094","oficina":"ILC - Coordinación de Bibliotecas - Encargada Bibliobús"},
+  {"id":123,"nombre":"Secundino Prieto Tercero","email":"secundino.prieto@dipuleon.es","telefono":"1065","oficina":"Desarrollo Rural y Medio Ambiente - Tratamiento de Residuos"},
+  {"id":124,"nombre":"Sergio Cayon Cañon","email":"sergio.cayon@dipuleon.es","telefono":"1055","oficina":"Cooperación - Cooperación"},
+  {"id":125,"nombre":"Silvia Lorenzana Gutierrez","email":"silvia.lorenzana@dipuleon.es","telefono":"1005","oficina":"Cooperación - Jefa de Negociado"},
+  {"id":126,"nombre":"Sofia Gonzalez Santamaria","email":"sofia.gonzalez@dipuleon.es","telefono":"1046","oficina":"Derechos Sociales - Cooperación al Desarrollo"},
+  {"id":127,"nombre":"Sonia Sanz Gutierrez","email":"sonia.sanz@dipuleon.es","telefono":"1019","oficina":"Derechos Sociales - Jefatura"},
+  {"id":128,"nombre":"Sonia Vicente De Celis","email":"sonia.vicente@dipuleon.es","telefono":"1431","oficina":"SEPEIS - Jefa de Sección"},
+  {"id":129,"nombre":"Trinidad Canuria Fernandez","email":"trinidad.canuria@dipuleon.es","telefono":"1039","oficina":"Derechos Sociales - Consumo"},
+  {"id":130,"nombre":"Vanesa Fernandez Garcia","email":"vanesa.fernandez@dipuleon.es","telefono":"1034","oficina":"Derechos Sociales - Sección de Dependencia"},
+  {"id":131,"nombre":"Vanesa Grande Fidalgo","email":"vanesa.grande@dipuleon.es","telefono":"1059","oficina":"Derechos Sociales - Sección de Programas"}
+];
+
 let useFirebase = false;
 let db = null;
-let data = {
-  loans: [],
-  persons: [],
-  names: { "1": "Cámara 1", "2": "Cámara 2", "3": "Cámara 3" }
-};
+let data = { loans: [], persons: [...PERSONAS_INICIALES], names: { "1": "Cámara 1", "2": "Cámara 2", "3": "Cámara 3" } };
 let currentMonth = new Date();
 let currentReturnId = null;
 let editingPersonId = null;
@@ -563,9 +564,15 @@ try {
   
   db.ref('cameras/persons').on('value', snapshot => {
     const v = snapshot.val();
-    data.persons = v ? (Array.isArray(v) ? v : Object.values(v)) : [];
+    if (v) {
+      const remotePersons = Array.isArray(v) ? v : Object.values(v);
+      if (remotePersons.length > 0) data.persons = remotePersons;
+    }
     renderPersons();
     renderReports();
+    if (!v || (Array.isArray(v) ? v : Object.values(v)).length === 0) {
+      db.ref('cameras/persons').set(data.persons);
+    }
   });
   
   db.ref('cameras/names').on('value', snapshot => {
@@ -574,8 +581,6 @@ try {
   });
 } catch(e) {
   console.error('Error Firebase:', e);
-  data = JSON.parse(localStorage.getItem('cameras_app') || '{"loans":[],"persons":[],"names":{"1":"Cámara 1","2":"Cámara 2","3":"Cámara 3"}}');
-  if (!data.persons) data.persons = [];
   updateSyncStatus('offline', 'Modo local');
 }
 
@@ -603,6 +608,19 @@ function escapeHtml(s) { return (s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','
 function initials(name) {
   const parts = (name||'').trim().split(/\s+/);
   return ((parts[0]?.[0]||'') + (parts[1]?.[0]||'')).toUpperCase();
+}
+function getLoanType(loan) {
+  const start = new Date(loan.startDate);
+  const now = new Date();
+  // Si la fecha de entrega es más de 1 hora en el futuro, es reserva
+  const oneHour = 60 * 60 * 1000;
+  if (start.getTime() - now.getTime() > oneHour) return 'reserve';
+  return 'loan';
+}
+function getLoanTypeLabel(loan) {
+  return getLoanType(loan) === 'reserve' 
+    ? '<span class="tag tag-reserve">📅 Reserva</span>' 
+    : '<span class="tag tag-loan">📷 Préstamo</span>';
 }
 
 // ============ NAVEGACIÓN ============
@@ -711,9 +729,7 @@ setupCombobox('f-person', 'person-suggestions', p => {
   document.getElementById('f-person-id').value = p.id;
 });
 
-setupCombobox('r-returner', 'returner-suggestions', p => {
-  // solo rellena el nombre
-});
+setupCombobox('r-returner', 'returner-suggestions', p => {});
 
 // ============ GESTIÓN DE PERSONAS ============
 function openPersonModal(id = null, prefill = '') {
@@ -774,7 +790,6 @@ document.getElementById('person-form').onsubmit = e => {
   closePersonModal();
   alert('✓ Persona guardada');
   
-  // Si estamos en el formulario de préstamo y era una nueva, seleccionar
   if (!editingPersonId && document.getElementById('view-newloan').classList.contains('active')) {
     document.getElementById('f-person').value = person.nombre;
     document.getElementById('f-person-id').value = person.id;
@@ -834,28 +849,26 @@ function renderDashboard() {
   const now = new Date();
   const active = data.loans.filter(l => !l.returnDate);
   const todayLoans = data.loans.filter(l => new Date(l.startDate).toDateString() === now.toDateString());
-  const futureReserves = data.loans.filter(l => !l.returnDate && new Date(l.startDate) > now && l.type === 'reserve');
+  const reserves = active.filter(l => getLoanType(l) === 'reserve');
 
   document.getElementById('stat-available').textContent = 3 - active.length;
   document.getElementById('stat-loaned').textContent = todayLoans.length;
-  document.getElementById('stat-reserved').textContent = futureReserves.length;
+  document.getElementById('stat-reserved').textContent = reserves.length;
   document.getElementById('stat-persons').textContent = data.persons.length;
 
   const grid = document.getElementById('cam-status-grid');
   grid.innerHTML = '';
   [1,2,3].forEach(n => {
     const loan = active.find(l => l.camera == n);
-    const reserve = data.loans.find(l => !l.returnDate && l.camera == n && new Date(l.startDate) > now && l.type === 'reserve');
+    const reserve = active.find(l => l.camera == n && getLoanType(l) === 'reserve');
     let cls = 'cam-status', badge = '<span class="badge badge-green">✓ Disponible</span>', info = '';
     if (loan) {
-      cls += ' loaned';
-      badge = '<span class="badge badge-red">🔴 Prestada</span>';
+      const isReserve = getLoanType(loan) === 'reserve';
+      cls += isReserve ? ' reserved' : ' loaned';
+      badge = isReserve 
+        ? '<span class="badge badge-yellow">🟡 Reservada</span>'
+        : '<span class="badge badge-red">🔴 Prestada</span>';
       info = `<small><b>Con:</b> ${escapeHtml(loan.person)}</small><small><b>Desde:</b> ${fmtDate(loan.startDate)}</small>`;
-      if (loan.expectedEnd) info += `<small><b>Devolución:</b> ${fmtDate(loan.expectedEnd)}</small>`;
-    } else if (reserve) {
-      cls += ' reserved';
-      badge = '<span class="badge badge-yellow">🟡 Reservada</span>';
-      info = `<small><b>Reservada:</b> ${escapeHtml(reserve.person)}</small><small><b>Fecha:</b> ${fmtDate(reserve.startDate)}</small>`;
     }
     grid.innerHTML += `<div class="${cls}">
       <svg class="cam-thumb" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -872,14 +885,12 @@ function renderDashboard() {
   });
 
   const up = document.getElementById('upcoming-returns');
-  const upcoming = active.filter(l => l.expectedEnd).sort((a,b) => new Date(a.expectedEnd) - new Date(b.expectedEnd)).slice(0,5);
-  if (upcoming.length === 0) {
-    up.innerHTML = '<div class="empty-state"><div class="icon">📭</div>No hay devoluciones previstas</div>';
+  if (active.length === 0) {
+    up.innerHTML = '<div class="empty-state"><div class="icon">📭</div>No hay cámaras fuera</div>';
   } else {
-    let html = '<div class="table-wrap"><table><tr><th>Cámara</th><th>Persona</th><th>Devolución</th><th></th></tr>';
-    upcoming.forEach(l => {
-      const overdue = new Date(l.expectedEnd) < now;
-      html += `<tr><td>${camName(l.camera)}</td><td>${escapeHtml(l.person)}</td><td>${overdue?'<b style="color:#dc3545">⚠️ ' : ''}${fmtDate(l.expectedEnd)}${overdue?' ⚠️</b>':''}</td><td><button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">Devolver</button></td></tr>`;
+    let html = '<div class="table-wrap"><table><tr><th>Cámara</th><th>Persona</th><th>Tipo</th><th>Entrega</th><th></th></tr>';
+    active.forEach(l => {
+      html += `<tr><td>${camName(l.camera)}</td><td>${escapeHtml(l.person)}</td><td>${getLoanTypeLabel(l)}</td><td>${fmtDate(l.startDate)}</td><td><button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">Devolver</button></td></tr>`;
     });
     html += '</table></div>';
     up.innerHTML = html;
@@ -911,10 +922,9 @@ function renderCalendar() {
     [1,2,3].forEach(n => {
       const loan = data.loans.find(l => {
         const start = new Date(l.startDate);
-        const end = l.returnDate ? new Date(l.returnDate) : new Date(l.expectedEnd || start);
         const dayStart = new Date(year, month, d, 0, 0, 0);
         const dayEnd = new Date(year, month, d, 23, 59, 59);
-        return l.camera == n && start <= dayEnd && end >= dayStart;
+        return l.camera == n && !l.returnDate && start <= dayEnd;
       });
       if (loan) {
         events += `<div class="event cam${n}" title="${camName(n)}: ${escapeHtml(loan.person)}">${camName(n).substring(0,4)}: ${escapeHtml(loan.person.split(' ')[0])}</div>`;
@@ -929,7 +939,7 @@ function changeMonth(delta) {
   renderCalendar();
 }
 
-// ============ FORMULARIO PRÉSTAMO ============
+// ============ FORMULARIO PRÉSTAMO (SIN TIPO NI FECHA DEVOLUCIÓN) ============
 document.getElementById('loan-form').onsubmit = e => {
   e.preventDefault();
   const personName = document.getElementById('f-person').value.trim();
@@ -941,29 +951,29 @@ document.getElementById('loan-form').onsubmit = e => {
     person: personName,
     personId: document.getElementById('f-person-id').value ? parseInt(document.getElementById('f-person-id').value) : null,
     startDate: document.getElementById('f-start').value,
-    expectedEnd: document.getElementById('f-end').value || null,
     stateOut: document.getElementById('f-state-out').value,
-    type: document.getElementById('f-type').value,
     notes: document.getElementById('f-notes').value.trim(),
     returnDate: null, stateIn: null, returner: null, returnNotes: null
   };
 
+  // Comprobar disponibilidad
   const start = new Date(loan.startDate);
-  const end = loan.expectedEnd ? new Date(loan.expectedEnd) : start;
   const conflict = data.loans.find(l => {
     if (l.camera != loan.camera || l.returnDate) return false;
     const ls = new Date(l.startDate);
-    const le = l.expectedEnd ? new Date(l.expectedEnd) : ls;
-    return ls <= end && le >= start;
+    // Si la cámara está prestada y no devuelta, y la fecha de entrega coincide o es anterior, hay conflicto
+    return ls <= start;
   });
   if (conflict) {
-    alert('⚠️ Conflicto: ' + camName(loan.camera) + ' ya está prestada/reservada en esas fechas a ' + conflict.person);
+    alert('⚠️ Conflicto: ' + camName(loan.camera) + ' ya está prestada/reservada a ' + conflict.person);
     return;
   }
 
   data.loans.push(loan);
   save();
-  alert('✓ Préstamo registrado');
+  
+  const tipo = getLoanType(loan) === 'reserve' ? 'reserva' : 'préstamo';
+  alert(`✓ ${tipo.charAt(0).toUpperCase() + tipo.slice(1)} registrado`);
   e.target.reset();
   document.getElementById('f-person-id').value = '';
   setDefaultDates();
@@ -976,26 +986,59 @@ function setDefaultDates() {
   document.getElementById('f-start').value = now.toISOString().slice(0,16);
 }
 
-// ============ ACTIVOS ============
-function renderActive() {
+// ============ NUEVA PESTAÑA: DEVOLUCIONES ============
+function renderReturns() {
   const active = data.loans.filter(l => !l.returnDate);
-  const div = document.getElementById('active-loans');
+  const div = document.getElementById('returns-list');
+  
   if (active.length === 0) {
-    div.innerHTML = '<div class="empty-state"><div class="icon">✅</div>¡Todas las cámaras disponibles!</div>';
+    div.innerHTML = '<div class="empty-state"><div class="icon">✅</div>¡Todas las cámaras están en su sitio!<br><small>No hay devoluciones pendientes</small></div>';
     return;
   }
-  let html = '<div class="table-wrap"><table><tr><th>Cámara</th><th>Persona</th><th>Entrega</th><th>Devolución</th><th></th></tr>';
-  active.forEach(l => {
-    const overdue = l.expectedEnd && new Date(l.expectedEnd) < new Date();
-    html += `<tr>
-      <td><b>${camName(l.camera)}</b></td>
-      <td>${escapeHtml(l.person)}</td>
-      <td>${fmtDate(l.startDate)}</td>
-      <td>${overdue?'<b style="color:#dc3545">⚠️ ' : ''}${l.expectedEnd?fmtDate(l.expectedEnd):'-'}${overdue?' ⚠️</b>':''}</td>
-      <td><button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">Devolver</button></td>
-    </tr>`;
-  });
-  html += '</table></div>';
+  
+  // Separar préstamos inmediatos de reservas
+  const loans = active.filter(l => getLoanType(l) === 'loan');
+  const reserves = active.filter(l => getLoanType(l) === 'reserve');
+  
+  let html = '';
+  
+  if (loans.length > 0) {
+    html += '<h3 style="color:#dc3545; margin:15px 0 10px; font-size:15px">📷 Préstamos en curso (' + loans.length + ')</h3>';
+    loans.forEach(l => {
+      html += `<div class="return-card">
+        <div class="cam-icon-small">📷</div>
+        <div class="info">
+          <div class="person">${escapeHtml(l.person)}</div>
+          <div class="meta"><b>${camName(l.camera)}</b> · Entregada: ${fmtDate(l.startDate)}${l.notes ? ' · ' + escapeHtml(l.notes) : ''}</div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">↩️ Devolver</button>
+        </div>
+      </div>`;
+    });
+  }
+  
+  if (reserves.length > 0) {
+    html += '<h3 style="color:#e65100; margin:20px 0 10px; font-size:15px">📅 Reservas futuras (' + reserves.length + ')</h3>';
+    reserves.forEach(l => {
+      const start = new Date(l.startDate);
+      const now = new Date();
+      const diff = start - now;
+      const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+      const timeLabel = days > 0 ? `Faltan ${days} día(s)` : 'Hoy';
+      html += `<div class="return-card" style="border-left-color:#ffc107">
+        <div class="cam-icon-small">📅</div>
+        <div class="info">
+          <div class="person">${escapeHtml(l.person)}</div>
+          <div class="meta"><b>${camName(l.camera)}</b> · Entrega prevista: ${fmtDate(l.startDate)} · ${timeLabel}${l.notes ? ' · ' + escapeHtml(l.notes) : ''}</div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-sm btn-warning" onclick="openReturnModal(${l.id})">↩️ Devolver</button>
+        </div>
+      </div>`;
+    });
+  }
+  
   div.innerHTML = html;
 }
 
@@ -1003,8 +1046,10 @@ function renderActive() {
 function openReturnModal(id) {
   currentReturnId = id;
   const loan = data.loans.find(l => l.id === id);
+  const tipo = getLoanType(loan) === 'reserve' ? 'Reserva' : 'Préstamo';
   document.getElementById('return-modal-info').innerHTML = `
     <p><b>Cámara:</b> ${camName(loan.camera)}</p>
+    <p><b>Tipo:</b> ${tipo}</p>
     <p><b>Recogida por:</b> ${escapeHtml(loan.person)}</p>
     <p><b>Fecha entrega:</b> ${fmtDate(loan.startDate)}</p>
     ${loan.notes?'<p><b>Obs. entrega:</b> '+escapeHtml(loan.notes)+'</p>':''}
@@ -1048,12 +1093,13 @@ function renderHistory() {
     div.innerHTML = '<div class="empty-state"><div class="icon">📭</div>No hay registros</div>';
     return;
   }
-  let html = '<table><tr><th>Cámara</th><th>Persona</th><th>Entrega</th><th>Devolución</th><th>Devuelto por</th><th>Estado</th></tr>';
+  let html = '<table><tr><th>Cámara</th><th>Persona</th><th>Tipo</th><th>Entrega</th><th>Devolución</th><th>Devuelto por</th><th>Estado</th></tr>';
   list.forEach(l => {
     const estado = l.returnDate ? (l.stateIn === 'ok' ? '<span class="tag tag-ok">✓ OK</span>' : '<span class="tag tag-err">✗ Incidencia</span>') : '<span class="tag tag-pending">Pendiente</span>';
     html += `<tr>
       <td><b>${camName(l.camera)}</b></td>
       <td>${escapeHtml(l.person)}</td>
+      <td>${getLoanTypeLabel(l)}</td>
       <td>${fmtDate(l.startDate)}</td>
       <td>${l.returnDate?fmtDate(l.returnDate):'<i>pendiente</i>'}</td>
       <td>${l.returner?escapeHtml(l.returner):'-'}</td>
@@ -1154,16 +1200,17 @@ function importBackup(e) {
 function resetAll() {
   if (confirm('⚠️ ¿Borrar TODOS los datos (préstamos y personas)?')) {
     if (confirm('⚠️ ÚLTIMA CONFIRMACIÓN')) {
-      data = {loans:[], persons:[], names:{1:'Cámara 1',2:'Cámara 2',3:'Cámara 3'}};
+      data = {loans:[], persons:[...PERSONAS_INICIALES], names:{1:'Cámara 1',2:'Cámara 2',3:'Cámara 3'}};
       save();
       render();
     }
   }
 }
 function exportCSV() {
-  let csv = 'Cámara;Persona;Fecha entrega;Fecha devolución;Quién devolvió;Estado entrega;Estado devolución;Observaciones entrega;Observaciones devolución;Tipo\n';
+  let csv = 'Cámara;Persona;Tipo;Fecha entrega;Fecha devolución;Quién devolvió;Estado entrega;Estado devolución;Observaciones entrega;Observaciones devolución\n';
   data.loans.forEach(l => {
-    csv += `"${camName(l.camera)}";"${l.person}";"${fmtDate(l.startDate)}";"${l.returnDate?fmtDate(l.returnDate):''}";"${l.returner||''}";"${l.stateOut}";"${l.stateIn||''}";"${l.notes||''}";"${l.returnNotes||''}";"${l.type}"\n`;
+    const tipo = getLoanType(l) === 'reserve' ? 'Reserva' : 'Préstamo';
+    csv += `"${camName(l.camera)}";"${l.person}";"${tipo}";"${fmtDate(l.startDate)}";"${l.returnDate?fmtDate(l.returnDate):''}";"${l.returner||''}";"${l.stateOut}";"${l.stateIn||''}";"${l.notes||''}";"${l.returnNotes||''}"\n`;
   });
   const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
   const url = URL.createObjectURL(blob);
@@ -1177,7 +1224,7 @@ function exportCSV() {
 function render() {
   renderDashboard();
   renderCalendar();
-  renderActive();
+  renderReturns();
   renderHistory();
   renderReports();
   renderPersons();
