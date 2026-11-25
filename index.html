@@ -55,7 +55,7 @@
   button.btn-sm { padding: 7px 12px; font-size: 13px; width: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th { background: #f0f2f5; text-align: left; padding: 10px 8px; font-weight: 600; color: #555; border-bottom: 2px solid #ddd; }
-  td { padding: 10px 8px; border-bottom: 1px solid #eee; }
+  td { padding: 10px 8px; border-bottom: 1px solid #eee; vertical-align: top; }
   tr:hover { background: #f8f9fa; }
   .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
   .cal-header { background: #1e3c72; color: white; padding: 6px 2px; text-align: center; font-weight: 600; font-size: 11px; }
@@ -161,7 +161,7 @@
   }
   .toast {
     background: white;
-    padding: 18px 24px;
+    padding: 16px 22px;
     border-radius: 10px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.25);
     display: flex;
@@ -169,7 +169,7 @@
     gap: 14px;
     min-width: 300px;
     max-width: 480px;
-    animation: toastIn 0.35s ease;
+    animation: toastIn 0.25s ease;
     pointer-events: auto;
     border-left: 5px solid #1e3c72;
   }
@@ -177,10 +177,10 @@
   .toast.error { border-left-color: #dc3545; }
   .toast.warning { border-left-color: #ffc107; }
   .toast.info { border-left-color: #17a2b8; }
-  .toast .toast-icon { font-size: 26px; flex-shrink: 0; margin-top: 2px; }
+  .toast .toast-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
   .toast .toast-msg { flex: 1; font-size: 15px; color: #333; line-height: 1.4; }
   .toast .toast-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #888; padding: 0 4px; align-self: flex-start; }
-  .toast.hiding { animation: toastOut 0.35s ease forwards; }
+  .toast.hiding { animation: toastOut 0.25s ease forwards; }
   @keyframes toastIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
   @keyframes toastOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
 </style>
@@ -768,7 +768,8 @@ function getLoanTypeLabel(loan) {
     : '<span class="tag tag-loan">📷 Préstamo</span>';
 }
 
-function showToast(message, type = 'info', duration = 4000) {
+// ===== SISTEMA DE NOTIFICACIONES TOAST (TIEMPOS REDUCIDOS) =====
+function showToast(message, type = 'info', duration = 2200) {
   const container = document.getElementById('toast-container');
   const icons = { success: '✅', error: '🚫', warning: '⚠️', info: 'ℹ️' };
   const toast = document.createElement('div');
@@ -776,13 +777,13 @@ function showToast(message, type = 'info', duration = 4000) {
   toast.innerHTML = `
     <span class="toast-icon">${icons[type] || icons.info}</span>
     <span class="toast-msg">${message}</span>
-    <button class="toast-close" onclick="this.parentElement.classList.add('hiding'); setTimeout(()=>this.parentElement.remove(), 350);">✕</button>
+    <button class="toast-close" onclick="this.parentElement.classList.add('hiding'); setTimeout(()=>this.parentElement.remove(), 250);">✕</button>
   `;
   container.appendChild(toast);
   setTimeout(() => {
     if (toast.parentElement) {
       toast.classList.add('hiding');
-      setTimeout(() => toast.remove(), 350);
+      setTimeout(() => toast.remove(), 250);
     }
   }, duration);
 }
@@ -902,8 +903,7 @@ function renderSearchByPerson(personName) {
     const tipo = getLoanType(l) === 'reserve' ? '📅 Reserva' : '📷 Préstamo';
     html += `<div class="history-item ${isActive?'active':''}">
       <div class="row"><span class="cam-name">${camName(l.camera)} · ${tipo}</span>${isActive ? '<span class="tag tag-pending">Pendiente devolución</span>' : '<span class="tag tag-ok">✓ Devuelto</span>'}</div>
-      <div class="row" style="margin-top:6px"><div><div class="label">Entrega</div><div class="value">${fmtDate(l.startDate)}</div></div><div><div class="label">Devolución</div><div class="value">${l.returnDate ? fmtDate(l.returnDate) : '<i style="color:#888">Pendiente</i>'}</div></div></div>
-      ${l.expectedEnd ? `<div style="margin-top:4px;font-size:12px;color:#856404"><b>Prevista:</b> ${fmtDate(l.expectedEnd)}</div>` : ''}
+      <div class="row" style="margin-top:6px"><div><div class="label">Entrega</div><div class="value">${fmtDate(l.startDate)}</div></div><div><div class="label">Devolución</div><div class="value">${l.returnDate ? fmtDate(l.returnDate) : (l.expectedEnd ? `<small style="color:#856404">⏳ Prev: ${fmtDate(l.expectedEnd)}</small>` : '<i style="color:#888">Pendiente</i>')}</div></div></div>
       ${l.returner && l.returner !== l.person ? `<div style="margin-top:4px;font-size:12px;color:#666">Devuelto por: <b>${escapeHtml(l.returner)}</b></div>` : ''}
       ${l.stateIn === 'err' ? '<div style="margin-top:4px"><span class="tag tag-err">✗ Incidencia al devolver</span></div>' : ''}
       ${l.notes ? `<div style="margin-top:4px;font-size:12px;color:#666">Obs: ${escapeHtml(l.notes)}</div>` : ''}
@@ -925,8 +925,7 @@ function renderSearchByCamera() {
     const tipo = getLoanType(l) === 'reserve' ? '📅 Reserva' : '📷 Préstamo';
     html += `<div class="history-item ${isActive?'active':''}">
       <div class="row"><span class="cam-name">${escapeHtml(l.person)} · ${tipo}</span>${isActive ? '<span class="tag tag-pending">Pendiente devolución</span>' : '<span class="tag tag-ok">✓ Devuelto</span>'}</div>
-      <div class="row" style="margin-top:6px"><div><div class="label">Entrega</div><div class="value">${fmtDate(l.startDate)}</div></div><div><div class="label">Devolución</div><div class="value">${l.returnDate ? fmtDate(l.returnDate) : '<i style="color:#888">Pendiente</i>'}</div></div></div>
-      ${l.expectedEnd ? `<div style="margin-top:4px;font-size:12px;color:#856404"><b>Prevista:</b> ${fmtDate(l.expectedEnd)}</div>` : ''}
+      <div class="row" style="margin-top:6px"><div><div class="label">Entrega</div><div class="value">${fmtDate(l.startDate)}</div></div><div><div class="label">Devolución</div><div class="value">${l.returnDate ? fmtDate(l.returnDate) : (l.expectedEnd ? `<small style="color:#856404">⏳ Prev: ${fmtDate(l.expectedEnd)}</small>` : '<i style="color:#888">Pendiente</i>')}</div></div></div>
       ${l.returner && l.returner !== l.person ? `<div style="margin-top:4px;font-size:12px;color:#666">Devuelto por: <b>${escapeHtml(l.returner)}</b></div>` : ''}
       ${l.stateIn === 'err' ? '<div style="margin-top:4px"><span class="tag tag-err">✗ Incidencia al devolver</span></div>' : ''}
       ${l.notes ? `<div style="margin-top:4px;font-size:12px;color:#666">Obs: ${escapeHtml(l.notes)}</div>` : ''}
@@ -948,8 +947,7 @@ function openPersonHistoryModal(personName) {
       const tipo = getLoanType(l) === 'reserve' ? '📅 Reserva' : '📷 Préstamo';
       html += `<div class="history-item ${isActive?'active':''}">
         <div class="row"><span class="cam-name">${camName(l.camera)} · ${tipo}</span>${isActive ? '<span class="tag tag-pending">Pendiente</span>' : '<span class="tag tag-ok">✓ Devuelto</span>'}</div>
-        <div class="row" style="margin-top:6px"><div><div class="label">Entrega</div><div class="value">${fmtDate(l.startDate)}</div></div><div><div class="label">Devolución</div><div class="value">${l.returnDate ? fmtDate(l.returnDate) : '<i style="color:#888">Pendiente</i>'}</div></div></div>
-        ${l.expectedEnd ? `<div style="margin-top:4px;font-size:12px;color:#856404"><b>Prevista:</b> ${fmtDate(l.expectedEnd)}</div>` : ''}
+        <div class="row" style="margin-top:6px"><div><div class="label">Entrega</div><div class="value">${fmtDate(l.startDate)}</div></div><div><div class="label">Devolución</div><div class="value">${l.returnDate ? fmtDate(l.returnDate) : (l.expectedEnd ? `<small style="color:#856404">⏳ Prev: ${fmtDate(l.expectedEnd)}</small>` : '<i style="color:#888">Pendiente</i>')}</div></div></div>
         ${l.returner && l.returner !== l.person ? `<div style="margin-top:4px;font-size:12px;color:#666">Devuelto por: <b>${escapeHtml(l.returner)}</b></div>` : ''}
         ${l.stateIn === 'err' ? '<div style="margin-top:4px"><span class="tag tag-err">✗ Incidencia</span></div>' : ''}
         ${l.notes ? `<div style="margin-top:4px;font-size:12px;color:#666">Obs: ${escapeHtml(l.notes)}</div>` : ''}
@@ -993,10 +991,10 @@ document.getElementById('person-form').onsubmit = e => {
   if (editingPersonId) {
     const idx = data.persons.findIndex(p => p.id == editingPersonId);
     if (idx >= 0) data.persons[idx] = person;
-    showToast(`✏️ Datos de <b>${escapeHtml(person.nombre)}</b> actualizados correctamente.`, 'success');
+    showToast(`✏️ <b>${escapeHtml(person.nombre)}</b> actualizado.`, 'success');
   } else {
     data.persons.push(person);
-    showToast(`👤 <b>${escapeHtml(person.nombre)}</b> añadido al listado de personas del edificio.`, 'success');
+    showToast(`👤 <b>${escapeHtml(person.nombre)}</b> añadido al listado.`, 'success');
   }
   save();
   closePersonModal();
@@ -1013,7 +1011,7 @@ function deletePerson(id) {
   if (!confirm(`¿Borrar a "${p.nombre}" del listado?${uses ? `\n\nTiene ${uses} préstamo(s) en el historial (se conservan los registros).` : ''}`)) return;
   data.persons = data.persons.filter(x => x.id != id);
   save();
-  showToast(`🗑️ <b>${escapeHtml(p.nombre)}</b> eliminado del listado. Sus registros de préstamos anteriores se conservan en el historial.`, 'success');
+  showToast(`🗑️ <b>${escapeHtml(p.nombre)}</b> eliminado del listado.`, 'success');
   render();
 }
 
@@ -1064,7 +1062,7 @@ function renderDashboard() {
       const isReserve = getLoanType(loan) === 'reserve';
       if (isReserve) {
         info = `<small><b>Reservada por:</b> ${escapeHtml(loan.person)}</small><small><b>Para:</b> ${fmtDate(loan.startDate)}</small>`;
-        alertHtml = `<div class="alert alert-warning" style="margin-top:8px; font-size:12px; padding:8px 10px;">⚠️ <b>${camName(n)}</b> reservada para <b>${escapeHtml(loan.person)}</b>. Debe devolverse antes del ${fmtDate(loan.startDate)}.</div>`;
+        alertHtml = `<div class="alert alert-warning" style="margin-top:8px; font-size:13px; padding:10px 12px; line-height:1.5;">👤 <b>En manos de:</b> ${escapeHtml(loan.person)}<br>⏰ <b>Devolución prevista:</b> ${fmtDate(loan.startDate)}</div>`;
       } else {
         cls += ' loaned';
         badge = '<span class="badge badge-red">🔴 Prestada</span>';
@@ -1127,15 +1125,15 @@ function changeMonth(delta) { currentMonth.setMonth(currentMonth.getMonth() + de
 document.getElementById('loan-form').onsubmit = e => {
   e.preventDefault();
   const personName = document.getElementById('f-person').value.trim();
-  if (!personName) { showToast('👤 Selecciona una persona del listado (empieza a escribir su nombre y haz clic en el resultado).', 'warning', 4500); return; }
+  if (!personName) { showToast('👤 Selecciona una persona del listado.', 'warning', 2800); return; }
   const loan = { id: Date.now(), camera: document.getElementById('f-camera').value, person: personName, personId: document.getElementById('f-person-id').value ? parseInt(document.getElementById('f-person-id').value) : null, startDate: document.getElementById('f-start').value, expectedEnd: document.getElementById('f-end').value || null, stateOut: document.getElementById('f-state-out').value, notes: document.getElementById('f-notes').value.trim(), returnDate: null, stateIn: null, returner: null, returnNotes: null };
   const start = new Date(loan.startDate);
   const conflict = data.loans.find(l => { if (l.camera != loan.camera || l.returnDate) return false; const ls = new Date(l.startDate); return ls <= start; });
-  if (conflict) { showToast(`🚫 No se puede registrar: <b>${camName(loan.camera)}</b> está actualmente en manos de <b>${escapeHtml(conflict.person)}</b>. Espera a que la devuelva o elige otra cámara.`, 'error', 6000); return; }
+  if (conflict) { showToast(`🚫 <b>${camName(loan.camera)}</b> está en manos de <b>${escapeHtml(conflict.person)}</b>.`, 'error', 3200); return; }
   data.loans.push(loan);
   save();
   const tipoMsg = getLoanType(loan) === 'reserve' ? 'reserva' : 'préstamo';
-  showToast(`📷 <b>${camName(loan.camera)}</b> registrada como <b>${tipoMsg}</b> a nombre de <b>${escapeHtml(personName)}</b>.`, 'success');
+  showToast(`📷 <b>${camName(loan.camera)}</b> registrada como <b>${tipoMsg}</b> para <b>${escapeHtml(personName)}</b>.`, 'success');
   e.target.reset();
   document.getElementById('f-person-id').value = '';
   setDefaultDates();
@@ -1196,7 +1194,7 @@ function confirmReturn() {
   loan.returnNotes = document.getElementById('r-notes').value.trim();
   save();
   closeReturnModal();
-  showToast(`↩️ Devolución de <b>${camName(loan.camera)}</b> registrada. Estado: ${loan.stateIn === 'ok' ? '✓ Funcionando correctamente' : '✗ Con incidencia'}.`, 'success');
+  showToast(`↩️ <b>${camName(loan.camera)}</b> devuelta. Estado: ${loan.stateIn === 'ok' ? '✓ OK' : '✗ Incidencia'}.`, 'success');
   render();
 }
 
@@ -1211,8 +1209,15 @@ function renderHistory() {
   let html = '<table><tr><th>Cámara</th><th>Persona</th><th>Tipo</th><th>Entrega</th><th>Devolución</th><th>Devuelto por</th><th>Estado</th><th></th></tr>';
   list.forEach(l => {
     const estado = l.returnDate ? (l.stateIn === 'ok' ? '<span class="tag tag-ok">✓ OK</span>' : '<span class="tag tag-err">✗ Incidencia</span>') : '<span class="tag tag-pending">Pendiente</span>';
-    const prevEnd = l.expectedEnd ? `<br><small style="color:#856404">Prev: ${fmtDate(l.expectedEnd)}</small>` : '';
-    html += `<tr><td><b>${camName(l.camera)}</b></td><td>${escapeHtml(l.person)}</td><td>${getLoanTypeLabel(l)}</td><td>${fmtDate(l.startDate)}${prevEnd}</td><td>${l.returnDate?fmtDate(l.returnDate):'<i>pendiente</i>'}</td><td>${l.returner?escapeHtml(l.returner):'-'}</td><td>${estado}</td><td><button class="btn btn-sm btn-edit-row" onclick="openEditLoanModal(${l.id})">✏️</button> <button class="btn-delete-row" onclick="requestDelete(${l.id})">🗑️</button></td></tr>`;
+    let devolucionCell = '';
+    if (l.returnDate) {
+      devolucionCell = fmtDate(l.returnDate);
+    } else if (l.expectedEnd) {
+      devolucionCell = `<small style="color:#856404">⏳ Prev: ${fmtDate(l.expectedEnd)}</small>`;
+    } else {
+      devolucionCell = '<i>pendiente</i>';
+    }
+    html += `<tr><td><b>${camName(l.camera)}</b></td><td>${escapeHtml(l.person)}</td><td>${getLoanTypeLabel(l)}</td><td>${fmtDate(l.startDate)}</td><td>${devolucionCell}</td><td>${l.returner?escapeHtml(l.returner):'-'}</td><td>${estado}</td><td><button class="btn btn-sm btn-edit-row" onclick="openEditLoanModal(${l.id})">✏️</button> <button class="btn-delete-row" onclick="requestDelete(${l.id})">🗑️</button></td></tr>`;
   });
   html += '</table>';
   div.innerHTML = html;
@@ -1266,13 +1271,13 @@ function confirmDelete() {
   if (pendingDeleteId === 'ALL_LOANS') {
     data.loans = [];
     save();
-    showToast('🗑️ Se han borrado todos los registros de préstamos. El listado de personas se mantiene intacto.', 'warning', 5000);
+    showToast('🗑️ Préstamos borrados. Las personas se mantienen.', 'warning', 3000);
   } else {
     const loan = data.loans.find(l => l.id === pendingDeleteId);
     if (loan) {
       data.loans = data.loans.filter(l => l.id !== pendingDeleteId);
       save();
-      showToast('🗑️ Registro eliminado del historial. La cámara queda disponible inmediatamente.', 'success');
+      showToast('🗑️ Registro eliminado. Cámara disponible.', 'success');
     }
   }
   closeDeleteModal();
@@ -1280,7 +1285,6 @@ function confirmDelete() {
 }
 document.getElementById('delete-password').addEventListener('keydown', e => { if (e.key === 'Enter') confirmDelete(); });
 
-// ===== EDICIÓN DE PRÉSTAMO =====
 function openEditLoanModal(loanId) {
   const loan = data.loans.find(l => l.id === loanId);
   if (!loan) return;
@@ -1332,9 +1336,9 @@ function confirmEditLoan() {
   save();
   closeEditLoanModal();
   if (oldCamera !== newCamera) {
-    showToast(`✏️ Préstamo movido de <b>${camName(oldCamera)}</b> a <b>${camName(newCamera)}</b> para <b>${escapeHtml(loan.person)}</b>.`, 'success');
+    showToast(`✏️ Movido de <b>${camName(oldCamera)}</b> a <b>${camName(newCamera)}</b>.`, 'success');
   } else {
-    showToast(`✏️ Préstamo actualizado: <b>${camName(newCamera)}</b> para <b>${escapeHtml(loan.person)}</b>.`, 'success');
+    showToast(`✏️ Préstamo actualizado.`, 'success');
   }
   render();
 }
@@ -1375,7 +1379,7 @@ function renderReports() {
 }
 
 function loadNames() { [1,2,3].forEach(n => document.getElementById('name-cam-'+n).value = data.names[n]); }
-function saveNames() { [1,2,3].forEach(n => data.names[n] = document.getElementById('name-cam-'+n).value.trim() || 'Cámara '+n); save(); showToast('📷 Nombres de las cámaras actualizados. Se reflejarán en toda la aplicación.', 'success'); render(); }
+function saveNames() { [1,2,3].forEach(n => data.names[n] = document.getElementById('name-cam-'+n).value.trim() || 'Cámara '+n); save(); showToast('📷 Nombres actualizados.', 'success'); render(); }
 
 function exportBackup() {
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
@@ -1384,7 +1388,7 @@ function exportBackup() {
   a.href = url;
   a.download = 'camaras_backup_' + new Date().toISOString().slice(0,10) + '.json';
   a.click();
-  showToast('📤 Copia de seguridad descargada. Guárdala en un lugar seguro por si necesitas restaurar los datos.', 'success', 5000);
+  showToast('📤 Copia de seguridad descargada.', 'success', 3000);
 }
 
 function importBackup(e) {
@@ -1398,15 +1402,15 @@ function importBackup(e) {
       if (imported.persons) data.persons = imported.persons;
       if (imported.names) data.names = imported.names;
       save();
-      showToast('📥 Datos importados correctamente. Se han cargado ' + data.loans.length + ' préstamos y ' + data.persons.length + ' personas.', 'success', 5000);
+      showToast(`📥 Importados: ${data.loans.length} préstamos, ${data.persons.length} personas.`, 'success', 3000);
       render();
-    } catch(err) { showToast('🚫 El archivo no es válido. Asegúrate de seleccionar un archivo .json exportado previamente desde esta misma aplicación.', 'error', 6000); }
+    } catch(err) { showToast('🚫 Archivo no válido. Usa un .json exportado desde esta app.', 'error', 3500); }
   };
   reader.readAsText(file);
 }
 
 function exportCSV() {
-  if (data.loans.length === 0) { showToast('📭 Aún no hay préstamos registrados. Cuando haya datos, podrás exportarlos desde aquí.', 'info'); return; }
+  if (data.loans.length === 0) { showToast('📭 No hay préstamos para exportar.', 'info'); return; }
   let csv = 'Cámara;Persona;Tipo;Fecha entrega;Fecha prevista devolución;Fecha devolución real;Quién devolvió;Estado entrega;Estado devolución;Observaciones entrega;Observaciones devolución\n';
   data.loans.forEach(l => { 
     const tipo = getLoanType(l) === 'reserve' ? 'Reserva' : 'Préstamo'; 
@@ -1418,7 +1422,7 @@ function exportCSV() {
   a.href = url;
   a.download = 'historial_camaras_' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
-  showToast(`📄 Historial exportado: <b>${data.loans.length} registro(s)</b> guardados en formato CSV (compatible con Excel).`, 'success');
+  showToast(`📄 ${data.loans.length} registros exportados a CSV.`, 'success');
 }
 
 function render() {
