@@ -143,7 +143,6 @@
   .btn-delete-row { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
   .btn-delete-row:hover { background: #c82333; }
 
-  /* ===== SISTEMA DE NOTIFICACIONES TOAST CENTRADO ===== */
   .toast-container {
     position: fixed;
     top: 50%;
@@ -734,7 +733,6 @@ function getLoanTypeLabel(loan) {
     : '<span class="tag tag-loan">📷 Préstamo</span>';
 }
 
-// ===== SISTEMA DE NOTIFICACIONES TOAST =====
 function showToast(message, type = 'info', duration = 4000) {
   const container = document.getElementById('toast-container');
   const icons = { success: '✅', error: '🚫', warning: '⚠️', info: 'ℹ️' };
@@ -1015,7 +1013,7 @@ function renderDashboard() {
   const active = data.loans.filter(l => !l.returnDate);
   const todayLoans = data.loans.filter(l => new Date(l.startDate).toDateString() === now.toDateString());
   const reserves = active.filter(l => getLoanType(l) === 'reserve');
-  document.getElementById('stat-available').textContent = 3 - active.length;
+  document.getElementById('stat-available').textContent = 3 - active.filter(l => getLoanType(l) !== 'reserve').length;
   document.getElementById('stat-loaned').textContent = todayLoans.length;
   document.getElementById('stat-reserved').textContent = reserves.length;
   document.getElementById('stat-persons').textContent = data.persons.length;
@@ -1023,12 +1021,22 @@ function renderDashboard() {
   grid.innerHTML = '';
   [1,2,3].forEach(n => {
     const loan = active.find(l => l.camera == n);
-    let cls = 'cam-status', badge = '<span class="badge badge-green">✓ Disponible</span>', info = '';
+    let cls = 'cam-status', badge = '<span class="badge badge-green">✓ Disponible</span>', info = '', alertHtml = '';
     if (loan) {
       const isReserve = getLoanType(loan) === 'reserve';
-      cls += isReserve ? ' reserved' : ' loaned';
-      badge = isReserve ? '<span class="badge badge-yellow">🟡 Reservada</span>' : '<span class="badge badge-red">🔴 Prestada</span>';
-      info = `<small><b>Con:</b> ${escapeHtml(loan.person)}</small><small><b>Desde:</b> ${fmtDate(loan.startDate)}</small>`;
+      if (isReserve) {
+        // Reservada para el futuro: aparece como DISPONIBLE pero con aviso
+        info = `<small><b>Reservada por:</b> ${escapeHtml(loan.person)}</small><small><b>Para:</b> ${fmtDate(loan.startDate)}</small>`;
+        alertHtml = `<div class="alert alert-warning" style="margin-top:8px; font-size:12px; padding:8px 10px;">
+          ⚠️ <b>${camName(n)}</b> reservada para <b>${escapeHtml(loan.person)}</b>. 
+          Debe devolverse antes del ${fmtDate(loan.startDate)}.
+        </div>`;
+      } else {
+        // Préstamo inmediato: aparece como PRESTADA
+        cls += ' loaned';
+        badge = '<span class="badge badge-red">🔴 Prestada</span>';
+        info = `<small><b>Con:</b> ${escapeHtml(loan.person)}</small><small><b>Desde:</b> ${fmtDate(loan.startDate)}</small>`;
+      }
     }
     grid.innerHTML += `<div class="${cls}">
       <svg class="cam-thumb" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -1040,7 +1048,7 @@ function renderDashboard() {
         <circle cx="50" cy="22" r="4" fill="#1e3c72"/>
         <circle cx="40" cy="22" r="1.5" fill="#4fc3f7"/>
       </svg>
-      <div><h3>${camName(n)}</h3>${badge}${info}</div>
+      <div style="flex:1"><h3>${camName(n)}</h3>${badge}${info}${alertHtml}</div>
     </div>`;
   });
   const up = document.getElementById('upcoming-returns');
@@ -1184,6 +1192,27 @@ function requestDelete(loanId) {
   document.getElementById('delete-modal').classList.add('show');
   setTimeout(() => document.getElementById('delete-password').focus(), 100);
 }
+
+function confirmResetAll() {
+  if (data.loans.length === 0) {
+    showToast('📭 No hay registros de préstamos que borrar.', 'info');
+    return;
+  }
+  pendingDeleteId = 'ALL_LOANS';
+  document.getElementById('delete-modal-info').innerHTML = `
+    <div class="alert alert-warning">
+      <b>¿Borrar TODOS los registros de préstamos?</b><br><br>
+      Se borrarán <b>${data.loans.length} registro(s)</b> de préstamos.<br><br>
+      <b>⚠️ El listado de personas y los nombres de las cámaras NO se verán afectados.</b>
+    </div>
+    <p style="font-size:13px; color:#666">Esta acción no se puede deshacer. Introduce la contraseña de administrador para continuar.</p>
+  `;
+  document.getElementById('delete-password').value = '';
+  document.getElementById('delete-error').style.display = 'none';
+  document.getElementById('delete-modal').classList.add('show');
+  setTimeout(() => document.getElementById('delete-password').focus(), 100);
+}
+
 function closeDeleteModal() { document.getElementById('delete-modal').classList.remove('show'); pendingDeleteId = null; }
 
 function confirmDelete() {
@@ -1196,11 +1225,17 @@ function confirmDelete() {
     document.getElementById('delete-password').focus();
     return;
   }
-  const loan = data.loans.find(l => l.id === pendingDeleteId);
-  if (loan) {
-    data.loans = data.loans.filter(l => l.id !== pendingDeleteId);
+  if (pendingDeleteId === 'ALL_LOANS') {
+    data.loans = [];
     save();
-    showToast('🗑️ Registro eliminado del historial. La cámara queda disponible inmediatamente.', 'success');
+    showToast('🗑️ Se han borrado todos los registros de préstamos. El listado de personas se mantiene intacto.', 'warning', 5000);
+  } else {
+    const loan = data.loans.find(l => l.id === pendingDeleteId);
+    if (loan) {
+      data.loans = data.loans.filter(l => l.id !== pendingDeleteId);
+      save();
+      showToast('🗑️ Registro eliminado del historial. La cámara queda disponible inmediatamente.', 'success');
+    }
   }
   closeDeleteModal();
   render();
@@ -1271,15 +1306,6 @@ function importBackup(e) {
     } catch(err) { showToast('🚫 El archivo no es válido. Asegúrate de seleccionar un archivo .json exportado previamente desde esta misma aplicación.', 'error', 6000); }
   };
   reader.readAsText(file);
-}
-
-function confirmResetAll() {
-  if (!confirm('⚠️ ¿Borrar todos los registros de préstamos?\n\nEl listado de personas y los nombres de las cámaras NO se verán afectados.')) return;
-  if (!confirm('⚠️ ÚLTIMA CONFIRMACIÓN\n\nSe borrarán ' + data.loans.length + ' registro(s) de préstamos. Esta acción no se puede deshacer.')) return;
-  data.loans = [];
-  save();
-  showToast('🗑️ Se han borrado todos los registros de préstamos.\nEl listado de personas se mantiene intacto.', 'warning', 5000);
-  render();
 }
 
 function exportCSV() {
