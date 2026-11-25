@@ -1089,19 +1089,29 @@ function renderDashboard() {
   const grid = document.getElementById('cam-status-grid');
   grid.innerHTML = '';
   [1,2,3].forEach(n => {
-    const loan = active.find(l => l.camera == n);
+    // Buscar TODOS los registros activos de esta cámara (préstamos + reservas)
+    const allActive = active.filter(l => l.camera == n);
+    const currentLoan = allActive.find(l => getLoanType(l) !== 'reserve'); // Préstamo activo AHORA
+    const futureReserve = allActive.find(l => getLoanType(l) === 'reserve'); // Reserva futura
+    
     let cls = 'cam-status', badge = '<span class="badge badge-green">✓ Disponible</span>', info = '', alertHtml = '';
-    if (loan) {
-      const isReserve = getLoanType(loan) === 'reserve';
-      if (isReserve) {
-        info = `<small><b>Reservada por:</b> ${escapeHtml(loan.person)}</small><small><b>Para:</b> ${fmtDate(loan.startDate)}</small>`;
-        alertHtml = `<div class="alert alert-warning" style="margin-top:8px; font-size:13px; padding:10px 12px; line-height:1.5;">👤 <b>La tendrá:</b> ${escapeHtml(loan.person)}<br>📅 <b>Entrega prevista:</b> ${fmtDate(loan.startDate)}</div>`;
-      } else {
-        cls += ' loaned';
-        badge = '<span class="badge badge-red">🔴 Prestada</span>';
-        info = `<small><b>La tiene:</b> ${escapeHtml(loan.person)}</small><small><b>Desde:</b> ${fmtDate(loan.startDate)}</small>`;
+    
+    if (currentLoan) {
+      // Hay un préstamo activo ahora → la cámara está PRESTADA
+      cls += ' loaned';
+      badge = '<span class="badge badge-red">🔴 Prestada</span>';
+      info = `<small><b>La tiene:</b> ${escapeHtml(currentLoan.person)}</small><small><b>Desde:</b> ${fmtDate(currentLoan.startDate)}${currentLoan.expectedEnd ? ' · <b style="color:#856404">Hasta:</b> ' + fmtDate(currentLoan.expectedEnd) : ''}</small>`;
+      
+      // Si además hay una reserva futura, mostrar aviso
+      if (futureReserve) {
+        alertHtml = `<div class="alert alert-warning" style="margin-top:8px; font-size:13px; padding:10px 12px; line-height:1.5;">👤 <b>Después la tendrá:</b> ${escapeHtml(futureReserve.person)}<br>📅 <b>Entrega prevista:</b> ${fmtDate(futureReserve.startDate)}</div>`;
       }
+    } else if (futureReserve) {
+      // Solo hay reserva futura (sin préstamo activo) → cámara DISPONIBLE hasta la fecha
+      info = `<small><b>Reservada por:</b> ${escapeHtml(futureReserve.person)}</small><small><b>Para:</b> ${fmtDate(futureReserve.startDate)}</small>`;
+      alertHtml = `<div class="alert alert-warning" style="margin-top:8px; font-size:13px; padding:10px 12px; line-height:1.5;">👤 <b>La tendrá:</b> ${escapeHtml(futureReserve.person)}<br>📅 <b>Entrega prevista:</b> ${fmtDate(futureReserve.startDate)}</div>`;
     }
+    
     grid.innerHTML += `<div class="${cls}">
       <svg class="cam-thumb" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <ellipse cx="50" cy="82" rx="38" ry="12" fill="#2a2a2a"/>
