@@ -50,6 +50,7 @@
   button.btn-success { background: #28a745; }
   button.btn-success:hover { background: #218838; }
   button.btn-danger { background: #dc3545; }
+  button.btn-danger:hover { background: #c82333; }
   button.btn-warning { background: #ffc107; color: #333; }
   button.btn-sm { padding: 7px 12px; font-size: 13px; width: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -124,7 +125,6 @@
   .loan-count { background: #e3f2fd; color: #1e3c72; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; margin-left: 6px; cursor: pointer; transition: all 0.2s; }
   .loan-count:hover { background: #1e3c72; color: white; transform: scale(1.1); }
   .return-card { background: white; border: 1px solid #e0e0e0; border-left: 4px solid #dc3545; border-radius: 8px; padding: 14px; margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
-  .return-card.overdue { border-left-color: #ff5722; background: #fff5f5; }
   .return-card .cam-icon-small { font-size: 28px; }
   .return-card .info { flex: 1; min-width: 200px; }
   .return-card .info .person { font-weight: 700; font-size: 15px; color: #333; }
@@ -140,9 +140,52 @@
   .history-item .label { font-size: 11px; color: #888; text-transform: uppercase; font-weight: 600; }
   .history-item .value { font-size: 14px; font-weight: 600; color: #333; }
   .history-item .cam-name { font-size: 12px; color: #1e3c72; font-weight: 700; }
+  .btn-delete-row { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
+  .btn-delete-row:hover { background: #c82333; }
+
+  /* ===== SISTEMA DE NOTIFICACIONES TOAST CENTRADO ===== */
+  .toast-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+    max-width: 90%;
+    align-items: center;
+  }
+  .toast {
+    background: white;
+    padding: 18px 24px;
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    min-width: 300px;
+    max-width: 480px;
+    animation: toastIn 0.35s ease;
+    pointer-events: auto;
+    border-left: 5px solid #1e3c72;
+  }
+  .toast.success { border-left-color: #28a745; }
+  .toast.error { border-left-color: #dc3545; }
+  .toast.warning { border-left-color: #ffc107; }
+  .toast.info { border-left-color: #17a2b8; }
+  .toast .toast-icon { font-size: 26px; flex-shrink: 0; margin-top: 2px; }
+  .toast .toast-msg { flex: 1; font-size: 15px; color: #333; line-height: 1.4; }
+  .toast .toast-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #888; padding: 0 4px; align-self: flex-start; }
+  .toast.hiding { animation: toastOut 0.35s ease forwards; }
+  @keyframes toastIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+  @keyframes toastOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
 </style>
 </head>
 <body>
+
+<div class="toast-container" id="toast-container"></div>
 
 <div class="sync-indicator">
   <div class="sync-dot syncing" id="sync-dot"></div>
@@ -286,7 +329,6 @@
     </div>
   </div>
 
-  <!-- NUEVA PESTAÑA: BÚSQUEDA -->
   <div class="view" id="view-search">
     <div class="card">
       <h2>🔍 Búsqueda de préstamos</h2>
@@ -294,7 +336,6 @@
         <button class="active" id="tab-search-person" onclick="switchSearchTab('person')">👤 Por persona</button>
         <button id="tab-search-camera" onclick="switchSearchTab('camera')">📷 Por cámara</button>
       </div>
-      
       <div id="search-by-person">
         <div style="margin-bottom:12px">
           <label>Selecciona una persona <small style="color:#888; font-weight:400">(empieza a escribir...)</small></label>
@@ -305,7 +346,6 @@
         </div>
         <div id="search-person-results"></div>
       </div>
-      
       <div id="search-by-camera" style="display:none">
         <div style="margin-bottom:12px">
           <label>Selecciona una cámara</label>
@@ -324,6 +364,7 @@
   <div class="view" id="view-history">
     <div class="card">
       <h2>Histórico completo</h2>
+      <div class="alert alert-info">💡 Para borrar un registro necesitas la contraseña de administrador. Contacta con el encargado del edificio (ext. 1482) si no la tienes.</div>
       <div class="filter-bar">
         <input type="text" id="filter-person" placeholder="🔍 Buscar por persona...">
         <select id="filter-camera">
@@ -376,7 +417,7 @@
       <button class="btn" onclick="exportBackup()" style="margin-bottom:8px">📤 Exportar datos (JSON)</button>
       <button class="btn btn-warning" onclick="document.getElementById('import-file').click()" style="margin-bottom:8px">📥 Importar copia</button>
       <input type="file" id="import-file" style="display:none" accept=".json" onchange="importBackup(event)">
-      <button class="btn btn-danger" onclick="resetAll()">🗑️ Borrar todos los datos</button>
+      <button class="btn btn-danger" onclick="confirmResetAll()">🗑️ Borrar todos los préstamos</button>
     </div>
     <div class="card">
       <h2>Estado de la conexión</h2>
@@ -385,7 +426,6 @@
   </div>
 </main>
 
-<!-- MODAL HISTORIAL DE PERSONA (al pulsar el contador) -->
 <div class="modal-bg" id="person-history-modal">
   <div class="modal">
     <h3 id="person-history-title">📋 Historial de préstamos</h3>
@@ -396,7 +436,6 @@
   </div>
 </div>
 
-<!-- MODAL DEVOLUCIÓN -->
 <div class="modal-bg" id="return-modal">
   <div class="modal">
     <h3>↩️ Registrar devolución</h3>
@@ -430,7 +469,6 @@
   </div>
 </div>
 
-<!-- MODAL PERSONA -->
 <div class="modal-bg" id="person-modal">
   <div class="modal">
     <h3 id="person-modal-title">➕ Añadir persona</h3>
@@ -449,11 +487,26 @@
   </div>
 </div>
 
+<div class="modal-bg" id="delete-modal">
+  <div class="modal" style="max-width:450px">
+    <h3>🔐 Verificación de administrador</h3>
+    <div id="delete-modal-info" style="margin-bottom:15px"></div>
+    <div style="margin-bottom:12px">
+      <label>Contraseña de administrador *</label>
+      <input type="password" id="delete-password" placeholder="Introduce la contraseña" autocomplete="off">
+    </div>
+    <div id="delete-error" style="color:#dc3545; font-size:13px; margin-bottom:10px; display:none"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeDeleteModal()">Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">🗑️ Borrar</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 
 <script>
-// ============ CONFIGURACIÓN FIREBASE ============
 const firebaseConfig = {
   apiKey: "AIzaSyCheUfkdzCg9XEsKqZNQyYgz1TnBVMHySg",
   authDomain: "control-camaras-edificio.firebaseapp.com",
@@ -464,7 +517,8 @@ const firebaseConfig = {
   appId: "1:798796513505:web:ee6082f08552af6298b7a0"
 };
 
-// ============ LISTA DE PERSONAS DEL EDIFICIO (131) ============
+const ADMIN_PASSWORD = "Sancayetano.2027";
+
 const PERSONAS_INICIALES = [
   {"id":1,"nombre":"Patricia Ajenjo Fresno","email":"patricia.ajenjo@dipuleon.es","telefono":"1026","oficina":"Derechos Sociales - Psicología"},
   {"id":2,"nombre":"Raquel Alonso Rodrigo","email":"raquel.alonso@dipuleon.es","telefono":"1063 / 4063","oficina":"Asuntos Generales - Arquitectura Técnica"},
@@ -605,8 +659,8 @@ let data = { loans: [], persons: [...PERSONAS_INICIALES], names: { "1": "Cámara
 let currentMonth = new Date();
 let currentReturnId = null;
 let editingPersonId = null;
+let pendingDeleteId = null;
 
-// ===== INICIALIZACIÓN FIREBASE =====
 try {
   firebase.initializeApp(firebaseConfig);
   db = firebase.database();
@@ -680,7 +734,26 @@ function getLoanTypeLabel(loan) {
     : '<span class="tag tag-loan">📷 Préstamo</span>';
 }
 
-// ============ NAVEGACIÓN ============
+// ===== SISTEMA DE NOTIFICACIONES TOAST =====
+function showToast(message, type = 'info', duration = 4000) {
+  const container = document.getElementById('toast-container');
+  const icons = { success: '✅', error: '🚫', warning: '⚠️', info: 'ℹ️' };
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `
+    <span class="toast-icon">${icons[type] || icons.info}</span>
+    <span class="toast-msg">${message}</span>
+    <button class="toast-close" onclick="this.parentElement.classList.add('hiding'); setTimeout(()=>this.parentElement.remove(), 350);">✕</button>
+  `;
+  container.appendChild(toast);
+  setTimeout(() => {
+    if (toast.parentElement) {
+      toast.classList.add('hiding');
+      setTimeout(() => toast.remove(), 350);
+    }
+  }, duration);
+}
+
 function goToView(viewName) {
   document.querySelectorAll('nav button').forEach(x => x.classList.remove('active'));
   document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
@@ -692,7 +765,6 @@ function goToView(viewName) {
 }
 document.querySelectorAll('nav button').forEach(b => { b.onclick = () => goToView(b.dataset.view); });
 
-// ============ COMBOBOX AUTOCOMPLETADO ============
 function setupCombobox(inputId, suggestionsId, onSelect, allowCreate = true) {
   const input = document.getElementById(inputId);
   const box = document.getElementById(suggestionsId);
@@ -768,32 +840,17 @@ function setupCombobox(inputId, suggestionsId, onSelect, allowCreate = true) {
   input.addEventListener('blur', () => setTimeout(() => box.classList.remove('show'), 200));
   input.addEventListener('keydown', e => {
     const items = box.querySelectorAll('.combobox-item[data-id], .combobox-item[data-create]');
-    if (e.key === 'ArrowDown') {
-      e.preventDefault(); highlightIdx = Math.min(highlightIdx+1, items.length-1);
-      items.forEach((el,i) => el.classList.toggle('highlighted', i===highlightIdx));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault(); highlightIdx = Math.max(highlightIdx-1, 0);
-      items.forEach((el,i) => el.classList.toggle('highlighted', i===highlightIdx));
-    } else if (e.key === 'Enter' && highlightIdx >= 0) {
-      e.preventDefault(); items[highlightIdx].click();
-    } else if (e.key === 'Escape') {
-      box.classList.remove('show');
-    }
+    if (e.key === 'ArrowDown') { e.preventDefault(); highlightIdx = Math.min(highlightIdx+1, items.length-1); items.forEach((el,i) => el.classList.toggle('highlighted', i===highlightIdx)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); highlightIdx = Math.max(highlightIdx-1, 0); items.forEach((el,i) => el.classList.toggle('highlighted', i===highlightIdx)); }
+    else if (e.key === 'Enter' && highlightIdx >= 0) { e.preventDefault(); items[highlightIdx].click(); }
+    else if (e.key === 'Escape') { box.classList.remove('show'); }
   });
 }
 
-setupCombobox('f-person', 'person-suggestions', p => {
-  document.getElementById('f-person-id').value = p.id;
-});
-
+setupCombobox('f-person', 'person-suggestions', p => { document.getElementById('f-person-id').value = p.id; });
 setupCombobox('r-returner', 'returner-suggestions', p => {});
+setupCombobox('search-person-input', 'search-person-suggestions', p => { renderSearchByPerson(p.nombre); }, false);
 
-// Combobox para búsqueda por persona
-setupCombobox('search-person-input', 'search-person-suggestions', p => {
-  renderSearchByPerson(p.nombre);
-}, false);
-
-// ============ BÚSQUEDA ============
 function switchSearchTab(tab) {
   document.getElementById('tab-search-person').classList.toggle('active', tab === 'person');
   document.getElementById('tab-search-camera').classList.toggle('active', tab === 'camera');
@@ -803,39 +860,16 @@ function switchSearchTab(tab) {
 
 function renderSearchByPerson(personName) {
   const div = document.getElementById('search-person-results');
-  if (!personName) {
-    div.innerHTML = '<div class="empty-state"><div class="icon">👤</div>Selecciona una persona para ver su historial</div>';
-    return;
-  }
-  
-  const loans = data.loans
-    .filter(l => l.person === personName)
-    .sort((a,b) => new Date(b.startDate) - new Date(a.startDate));
-  
-  if (loans.length === 0) {
-    div.innerHTML = `<div class="empty-state"><div class="icon">📭</div><b>${escapeHtml(personName)}</b> no ha tenido ningún préstamo</div>`;
-    return;
-  }
-  
+  if (!personName) { div.innerHTML = '<div class="empty-state"><div class="icon">👤</div>Selecciona una persona para ver su historial</div>'; return; }
+  const loans = data.loans.filter(l => l.person === personName).sort((a,b) => new Date(b.startDate) - new Date(a.startDate));
+  if (loans.length === 0) { div.innerHTML = `<div class="empty-state"><div class="icon">📭</div><b>${escapeHtml(personName)}</b> no ha tenido ningún préstamo registrado</div>`; return; }
   let html = `<h3 style="color:#1e3c72; margin-bottom:12px">📋 Historial de ${escapeHtml(personName)} (${loans.length} préstamo${loans.length!==1?'s':''})</h3>`;
   loans.forEach(l => {
     const isActive = !l.returnDate;
     const tipo = getLoanType(l) === 'reserve' ? '📅 Reserva' : '📷 Préstamo';
     html += `<div class="history-item ${isActive?'active':''}">
-      <div class="row">
-        <span class="cam-name">${camName(l.camera)} · ${tipo}</span>
-        ${isActive ? '<span class="tag tag-pending">Pendiente devolución</span>' : '<span class="tag tag-ok">✓ Devuelto</span>'}
-      </div>
-      <div class="row" style="margin-top:6px">
-        <div>
-          <div class="label">Entrega</div>
-          <div class="value">${fmtDate(l.startDate)}</div>
-        </div>
-        <div>
-          <div class="label">Devolución</div>
-          <div class="value">${l.returnDate ? fmtDate(l.returnDate) : '<i style="color:#888">Pendiente</i>'}</div>
-        </div>
-      </div>
+      <div class="row"><span class="cam-name">${camName(l.camera)} · ${tipo}</span>${isActive ? '<span class="tag tag-pending">Pendiente devolución</span>' : '<span class="tag tag-ok">✓ Devuelto</span>'}</div>
+      <div class="row" style="margin-top:6px"><div><div class="label">Entrega</div><div class="value">${fmtDate(l.startDate)}</div></div><div><div class="label">Devolución</div><div class="value">${l.returnDate ? fmtDate(l.returnDate) : '<i style="color:#888">Pendiente</i>'}</div></div></div>
       ${l.returner && l.returner !== l.person ? `<div style="margin-top:4px;font-size:12px;color:#666">Devuelto por: <b>${escapeHtml(l.returner)}</b></div>` : ''}
       ${l.stateIn === 'err' ? '<div style="margin-top:4px"><span class="tag tag-err">✗ Incidencia al devolver</span></div>' : ''}
       ${l.notes ? `<div style="margin-top:4px;font-size:12px;color:#666">Obs: ${escapeHtml(l.notes)}</div>` : ''}
@@ -848,40 +882,16 @@ function renderSearchByPerson(personName) {
 function renderSearchByCamera() {
   const cam = document.getElementById('search-camera-select').value;
   const div = document.getElementById('search-camera-results');
-  
-  if (!cam) {
-    div.innerHTML = '<div class="empty-state"><div class="icon">📷</div>Selecciona una cámara para ver su historial</div>';
-    return;
-  }
-  
-  const loans = data.loans
-    .filter(l => l.camera === cam)
-    .sort((a,b) => new Date(b.startDate) - new Date(a.startDate));
-  
-  if (loans.length === 0) {
-    div.innerHTML = `<div class="empty-state"><div class="icon">📭</div><b>${camName(cam)}</b> no tiene préstamos registrados</div>`;
-    return;
-  }
-  
+  if (!cam) { div.innerHTML = '<div class="empty-state"><div class="icon">📷</div>Selecciona una cámara para ver su historial</div>'; return; }
+  const loans = data.loans.filter(l => l.camera === cam).sort((a,b) => new Date(b.startDate) - new Date(a.startDate));
+  if (loans.length === 0) { div.innerHTML = `<div class="empty-state"><div class="icon">📭</div><b>${camName(cam)}</b> no tiene préstamos registrados</div>`; return; }
   let html = `<h3 style="color:#1e3c72; margin-bottom:12px">📷 Historial de ${camName(cam)} (${loans.length} préstamo${loans.length!==1?'s':''})</h3>`;
   loans.forEach(l => {
     const isActive = !l.returnDate;
     const tipo = getLoanType(l) === 'reserve' ? '📅 Reserva' : '📷 Préstamo';
     html += `<div class="history-item ${isActive?'active':''}">
-      <div class="row">
-        <span class="cam-name">${escapeHtml(l.person)} · ${tipo}</span>
-        ${isActive ? '<span class="tag tag-pending">Pendiente devolución</span>' : '<span class="tag tag-ok">✓ Devuelto</span>'}
-      </div>
-      <div class="row" style="margin-top:6px">
-        <div>
-          <div class="label">Entrega</div>
-          <div class="value">${fmtDate(l.startDate)}</div>
-        </div>
-        <div>
-          <div class="label">Devolución</div>
-          <div class="value">${l.returnDate ? fmtDate(l.returnDate) : '<i style="color:#888">Pendiente</i>'}</div>
-        </div>
-      </div>
+      <div class="row"><span class="cam-name">${escapeHtml(l.person)} · ${tipo}</span>${isActive ? '<span class="tag tag-pending">Pendiente devolución</span>' : '<span class="tag tag-ok">✓ Devuelto</span>'}</div>
+      <div class="row" style="margin-top:6px"><div><div class="label">Entrega</div><div class="value">${fmtDate(l.startDate)}</div></div><div><div class="label">Devolución</div><div class="value">${l.returnDate ? fmtDate(l.returnDate) : '<i style="color:#888">Pendiente</i>'}</div></div></div>
       ${l.returner && l.returner !== l.person ? `<div style="margin-top:4px;font-size:12px;color:#666">Devuelto por: <b>${escapeHtml(l.returner)}</b></div>` : ''}
       ${l.stateIn === 'err' ? '<div style="margin-top:4px"><span class="tag tag-err">✗ Incidencia al devolver</span></div>' : ''}
       ${l.notes ? `<div style="margin-top:4px;font-size:12px;color:#666">Obs: ${escapeHtml(l.notes)}</div>` : ''}
@@ -891,37 +901,19 @@ function renderSearchByCamera() {
   div.innerHTML = html;
 }
 
-// ============ MODAL HISTORIAL DE PERSONA (al pulsar el contador) ============
 function openPersonHistoryModal(personName) {
-  const loans = data.loans
-    .filter(l => l.person === personName)
-    .sort((a,b) => new Date(b.startDate) - new Date(a.startDate));
-  
+  const loans = data.loans.filter(l => l.person === personName).sort((a,b) => new Date(b.startDate) - new Date(a.startDate));
   document.getElementById('person-history-title').textContent = `📋 Historial de ${personName}`;
-  
   const div = document.getElementById('person-history-content');
-  if (loans.length === 0) {
-    div.innerHTML = '<div class="empty-state"><div class="icon">📭</div>Aún no ha tenido ningún préstamo</div>';
-  } else {
+  if (loans.length === 0) { div.innerHTML = '<div class="empty-state"><div class="icon">📭</div>Aún no ha tenido ningún préstamo</div>'; }
+  else {
     let html = '';
     loans.forEach(l => {
       const isActive = !l.returnDate;
       const tipo = getLoanType(l) === 'reserve' ? '📅 Reserva' : '📷 Préstamo';
       html += `<div class="history-item ${isActive?'active':''}">
-        <div class="row">
-          <span class="cam-name">${camName(l.camera)} · ${tipo}</span>
-          ${isActive ? '<span class="tag tag-pending">Pendiente</span>' : '<span class="tag tag-ok">✓ Devuelto</span>'}
-        </div>
-        <div class="row" style="margin-top:6px">
-          <div>
-            <div class="label">Entrega</div>
-            <div class="value">${fmtDate(l.startDate)}</div>
-          </div>
-          <div>
-            <div class="label">Devolución</div>
-            <div class="value">${l.returnDate ? fmtDate(l.returnDate) : '<i style="color:#888">Pendiente</i>'}</div>
-          </div>
-        </div>
+        <div class="row"><span class="cam-name">${camName(l.camera)} · ${tipo}</span>${isActive ? '<span class="tag tag-pending">Pendiente</span>' : '<span class="tag tag-ok">✓ Devuelto</span>'}</div>
+        <div class="row" style="margin-top:6px"><div><div class="label">Entrega</div><div class="value">${fmtDate(l.startDate)}</div></div><div><div class="label">Devolución</div><div class="value">${l.returnDate ? fmtDate(l.returnDate) : '<i style="color:#888">Pendiente</i>'}</div></div></div>
         ${l.returner && l.returner !== l.person ? `<div style="margin-top:4px;font-size:12px;color:#666">Devuelto por: <b>${escapeHtml(l.returner)}</b></div>` : ''}
         ${l.stateIn === 'err' ? '<div style="margin-top:4px"><span class="tag tag-err">✗ Incidencia</span></div>' : ''}
         ${l.notes ? `<div style="margin-top:4px;font-size:12px;color:#666">Obs: ${escapeHtml(l.notes)}</div>` : ''}
@@ -930,18 +922,12 @@ function openPersonHistoryModal(personName) {
     });
     div.innerHTML = html;
   }
-  
   document.getElementById('person-history-modal').classList.add('show');
 }
+function closePersonHistoryModal() { document.getElementById('person-history-modal').classList.remove('show'); }
 
-function closePersonHistoryModal() {
-  document.getElementById('person-history-modal').classList.remove('show');
-}
-
-// ============ GESTIÓN DE PERSONAS ============
 function openPersonModal(id = null, prefill = '') {
   editingPersonId = id;
-  const modal = document.getElementById('person-modal');
   document.getElementById('person-modal-title').textContent = id ? '✏️ Editar persona' : '➕ Añadir persona';
   document.getElementById('p-id').value = id || '';
   document.getElementById('p-name').value = '';
@@ -949,7 +935,6 @@ function openPersonModal(id = null, prefill = '') {
   document.getElementById('p-phone').value = '';
   document.getElementById('p-email').value = '';
   document.getElementById('p-notes').value = '';
-  
   if (id) {
     const p = data.persons.find(x => x.id == id);
     if (p) {
@@ -959,44 +944,26 @@ function openPersonModal(id = null, prefill = '') {
       document.getElementById('p-email').value = p.email || '';
       document.getElementById('p-notes').value = p.notas || '';
     }
-  } else if (prefill) {
-    document.getElementById('p-name').value = prefill;
-  }
-  
-  modal.classList.add('show');
+  } else if (prefill) { document.getElementById('p-name').value = prefill; }
+  document.getElementById('person-modal').classList.add('show');
   setTimeout(() => document.getElementById('p-name').focus(), 100);
 }
-
-function closePersonModal() {
-  document.getElementById('person-modal').classList.remove('show');
-  editingPersonId = null;
-}
+function closePersonModal() { document.getElementById('person-modal').classList.remove('show'); editingPersonId = null; }
 
 document.getElementById('person-form').onsubmit = e => {
   e.preventDefault();
   const id = editingPersonId || Date.now();
-  const person = {
-    id,
-    nombre: document.getElementById('p-name').value.trim(),
-    oficina: document.getElementById('p-office').value.trim(),
-    telefono: document.getElementById('p-phone').value.trim(),
-    email: document.getElementById('p-email').value.trim(),
-    notas: document.getElementById('p-notes').value.trim(),
-    activo: true,
-    creado: new Date().toISOString()
-  };
-  
+  const person = { id, nombre: document.getElementById('p-name').value.trim(), oficina: document.getElementById('p-office').value.trim(), telefono: document.getElementById('p-phone').value.trim(), email: document.getElementById('p-email').value.trim(), notas: document.getElementById('p-notes').value.trim(), activo: true, creado: new Date().toISOString() };
   if (editingPersonId) {
     const idx = data.persons.findIndex(p => p.id == editingPersonId);
     if (idx >= 0) data.persons[idx] = person;
+    showToast(`✏️ Datos de <b>${escapeHtml(person.nombre)}</b> actualizados correctamente.`, 'success');
   } else {
     data.persons.push(person);
+    showToast(`👤 <b>${escapeHtml(person.nombre)}</b> añadido al listado de personas del edificio.`, 'success');
   }
-  
   save();
   closePersonModal();
-  alert('✓ Persona guardada');
-  
   if (!editingPersonId && document.getElementById('view-newloan').classList.contains('active')) {
     document.getElementById('f-person').value = person.nombre;
     document.getElementById('f-person-id').value = person.id;
@@ -1007,28 +974,21 @@ document.getElementById('person-form').onsubmit = e => {
 function deletePerson(id) {
   const p = data.persons.find(x => x.id == id);
   const uses = data.loans.filter(l => l.person === p.nombre).length;
-  if (!confirm(`¿Borrar a "${p.nombre}"?${uses ? `\n\nTiene ${uses} préstamo(s) en el historial (se conservan).` : ''}`)) return;
+  if (!confirm(`¿Borrar a "${p.nombre}" del listado?${uses ? `\n\nTiene ${uses} préstamo(s) en el historial (se conservan los registros).` : ''}`)) return;
   data.persons = data.persons.filter(x => x.id != id);
   save();
+  showToast(`🗑️ <b>${escapeHtml(p.nombre)}</b> eliminado del listado. Sus registros de préstamos anteriores se conservan en el historial.`, 'success');
   render();
 }
 
 function renderPersons() {
   const filter = (document.getElementById('filter-persons')?.value || '').toLowerCase();
   let list = [...data.persons];
-  if (filter) list = list.filter(p => 
-    p.nombre.toLowerCase().includes(filter) ||
-    (p.oficina||'').toLowerCase().includes(filter)
-  );
+  if (filter) list = list.filter(p => p.nombre.toLowerCase().includes(filter) || (p.oficina||'').toLowerCase().includes(filter));
   list.sort((a,b) => a.nombre.localeCompare(b.nombre, 'es'));
-  
   const div = document.getElementById('persons-list');
   if (!div) return;
-  if (list.length === 0) {
-    div.innerHTML = '<div class="empty-state"><div class="icon">👥</div>No hay personas. Añade la primera.</div>';
-    return;
-  }
-  
+  if (list.length === 0) { div.innerHTML = '<div class="empty-state"><div class="icon">👥</div>No hay personas. Añade la primera.</div>'; return; }
   let html = '<div class="persons-grid">';
   list.forEach(p => {
     const uses = data.loans.filter(l => l.person === p.nombre).length;
@@ -1048,21 +1008,17 @@ function renderPersons() {
   html += '</div>';
   div.innerHTML = html;
 }
-
 document.getElementById('filter-persons').oninput = renderPersons;
 
-// ============ DASHBOARD ============
 function renderDashboard() {
   const now = new Date();
   const active = data.loans.filter(l => !l.returnDate);
   const todayLoans = data.loans.filter(l => new Date(l.startDate).toDateString() === now.toDateString());
   const reserves = active.filter(l => getLoanType(l) === 'reserve');
-
   document.getElementById('stat-available').textContent = 3 - active.length;
   document.getElementById('stat-loaned').textContent = todayLoans.length;
   document.getElementById('stat-reserved').textContent = reserves.length;
   document.getElementById('stat-persons').textContent = data.persons.length;
-
   const grid = document.getElementById('cam-status-grid');
   grid.innerHTML = '';
   [1,2,3].forEach(n => {
@@ -1071,9 +1027,7 @@ function renderDashboard() {
     if (loan) {
       const isReserve = getLoanType(loan) === 'reserve';
       cls += isReserve ? ' reserved' : ' loaned';
-      badge = isReserve 
-        ? '<span class="badge badge-yellow">🟡 Reservada</span>'
-        : '<span class="badge badge-red">🔴 Prestada</span>';
+      badge = isReserve ? '<span class="badge badge-yellow">🟡 Reservada</span>' : '<span class="badge badge-red">🔴 Prestada</span>';
       info = `<small><b>Con:</b> ${escapeHtml(loan.person)}</small><small><b>Desde:</b> ${fmtDate(loan.startDate)}</small>`;
     }
     grid.innerHTML += `<div class="${cls}">
@@ -1089,38 +1043,29 @@ function renderDashboard() {
       <div><h3>${camName(n)}</h3>${badge}${info}</div>
     </div>`;
   });
-
   const up = document.getElementById('upcoming-returns');
-  if (active.length === 0) {
-    up.innerHTML = '<div class="empty-state"><div class="icon">📭</div>No hay cámaras fuera</div>';
-  } else {
+  if (active.length === 0) { up.innerHTML = '<div class="empty-state"><div class="icon">📭</div>No hay cámaras fuera</div>'; }
+  else {
     let html = '<div class="table-wrap"><table><tr><th>Cámara</th><th>Persona</th><th>Tipo</th><th>Entrega</th><th></th></tr>';
-    active.forEach(l => {
-      html += `<tr><td>${camName(l.camera)}</td><td>${escapeHtml(l.person)}</td><td>${getLoanTypeLabel(l)}</td><td>${fmtDate(l.startDate)}</td><td><button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">Devolver</button></td></tr>`;
-    });
+    active.forEach(l => { html += `<tr><td>${camName(l.camera)}</td><td>${escapeHtml(l.person)}</td><td>${getLoanTypeLabel(l)}</td><td>${fmtDate(l.startDate)}</td><td><button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">Devolver</button></td></tr>`; });
     html += '</table></div>';
     up.innerHTML = html;
   }
 }
 
-// ============ CALENDARIO ============
 function renderCalendar() {
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
   const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   document.getElementById('cal-month-label').textContent = monthNames[month] + ' ' + year;
-
   const firstDay = new Date(year, month, 1).getDay();
   const offset = firstDay === 0 ? 6 : firstDay - 1;
   const daysInMonth = new Date(year, month+1, 0).getDate();
   const today = new Date();
-
   const grid = document.getElementById('calendar-grid');
   grid.innerHTML = '';
   ['L','M','X','J','V','S','D'].forEach(d => grid.innerHTML += `<div class="cal-header">${d}</div>`);
-
   for (let i = 0; i < offset; i++) grid.innerHTML += '<div class="cal-day empty"></div>';
-
   for (let d = 1; d <= daysInMonth; d++) {
     const date = new Date(year, month, d);
     const isToday = date.toDateString() === today.toDateString();
@@ -1128,99 +1073,47 @@ function renderCalendar() {
     [1,2,3].forEach(n => {
       const loan = data.loans.find(l => {
         const start = new Date(l.startDate);
-        const dayStart = new Date(year, month, d, 0, 0, 0);
         const dayEnd = new Date(year, month, d, 23, 59, 59);
         return l.camera == n && !l.returnDate && start <= dayEnd;
       });
-      if (loan) {
-        events += `<div class="event cam${n}" title="${camName(n)}: ${escapeHtml(loan.person)}">${camName(n).substring(0,4)}: ${escapeHtml(loan.person.split(' ')[0])}</div>`;
-      }
+      if (loan) { events += `<div class="event cam${n}" title="${camName(n)}: ${escapeHtml(loan.person)}">${camName(n).substring(0,4)}: ${escapeHtml(loan.person.split(' ')[0])}</div>`; }
     });
     grid.innerHTML += `<div class="cal-day ${isToday?'today':''}"><div class="date-num">${d}</div>${events}</div>`;
   }
 }
+function changeMonth(delta) { currentMonth.setMonth(currentMonth.getMonth() + delta); renderCalendar(); }
 
-function changeMonth(delta) {
-  currentMonth.setMonth(currentMonth.getMonth() + delta);
-  renderCalendar();
-}
-
-// ============ FORMULARIO PRÉSTAMO ============
 document.getElementById('loan-form').onsubmit = e => {
   e.preventDefault();
   const personName = document.getElementById('f-person').value.trim();
-  if (!personName) { alert('⚠️ Selecciona una persona'); return; }
-  
-  const loan = {
-    id: Date.now(),
-    camera: document.getElementById('f-camera').value,
-    person: personName,
-    personId: document.getElementById('f-person-id').value ? parseInt(document.getElementById('f-person-id').value) : null,
-    startDate: document.getElementById('f-start').value,
-    stateOut: document.getElementById('f-state-out').value,
-    notes: document.getElementById('f-notes').value.trim(),
-    returnDate: null, stateIn: null, returner: null, returnNotes: null
-  };
-
+  if (!personName) { showToast('👤 Selecciona una persona del listado (empieza a escribir su nombre y haz clic en el resultado).', 'warning', 4500); return; }
+  const loan = { id: Date.now(), camera: document.getElementById('f-camera').value, person: personName, personId: document.getElementById('f-person-id').value ? parseInt(document.getElementById('f-person-id').value) : null, startDate: document.getElementById('f-start').value, stateOut: document.getElementById('f-state-out').value, notes: document.getElementById('f-notes').value.trim(), returnDate: null, stateIn: null, returner: null, returnNotes: null };
   const start = new Date(loan.startDate);
-  const conflict = data.loans.find(l => {
-    if (l.camera != loan.camera || l.returnDate) return false;
-    const ls = new Date(l.startDate);
-    return ls <= start;
-  });
-  if (conflict) {
-    alert('⚠️ Conflicto: ' + camName(loan.camera) + ' ya está prestada/reservada a ' + conflict.person);
-    return;
-  }
-
+  const conflict = data.loans.find(l => { if (l.camera != loan.camera || l.returnDate) return false; const ls = new Date(l.startDate); return ls <= start; });
+  if (conflict) { showToast(`🚫 No se puede registrar: <b>${camName(loan.camera)}</b> está actualmente en manos de <b>${escapeHtml(conflict.person)}</b>. Espera a que la devuelva o elige otra cámara.`, 'error', 6000); return; }
   data.loans.push(loan);
   save();
-  
-  const tipo = getLoanType(loan) === 'reserve' ? 'reserva' : 'préstamo';
-  alert(`✓ ${tipo.charAt(0).toUpperCase() + tipo.slice(1)} registrado`);
+  const tipoMsg = getLoanType(loan) === 'reserve' ? 'reserva' : 'préstamo';
+  showToast(`📷 <b>${camName(loan.camera)}</b> registrada como <b>${tipoMsg}</b> a nombre de <b>${escapeHtml(personName)}</b>.`, 'success');
   e.target.reset();
   document.getElementById('f-person-id').value = '';
   setDefaultDates();
   render();
 };
 
-function setDefaultDates() {
-  const now = new Date();
-  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-  document.getElementById('f-start').value = now.toISOString().slice(0,16);
-}
+function setDefaultDates() { const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset()); document.getElementById('f-start').value = now.toISOString().slice(0,16); }
 
-// ============ DEVOLUCIONES ============
 function renderReturns() {
   const active = data.loans.filter(l => !l.returnDate);
   const div = document.getElementById('returns-list');
-  
-  if (active.length === 0) {
-    div.innerHTML = '<div class="empty-state"><div class="icon">✅</div>¡Todas las cámaras están en su sitio!<br><small>No hay devoluciones pendientes</small></div>';
-    return;
-  }
-  
+  if (active.length === 0) { div.innerHTML = '<div class="empty-state"><div class="icon">✅</div>¡Todas las cámaras están en su sitio!<br><small>No hay devoluciones pendientes</small></div>'; return; }
   const loans = active.filter(l => getLoanType(l) === 'loan');
   const reserves = active.filter(l => getLoanType(l) === 'reserve');
-  
   let html = '';
-  
   if (loans.length > 0) {
     html += '<h3 style="color:#dc3545; margin:15px 0 10px; font-size:15px">📷 Préstamos en curso (' + loans.length + ')</h3>';
-    loans.forEach(l => {
-      html += `<div class="return-card">
-        <div class="cam-icon-small">📷</div>
-        <div class="info">
-          <div class="person">${escapeHtml(l.person)}</div>
-          <div class="meta"><b>${camName(l.camera)}</b> · Entregada: ${fmtDate(l.startDate)}${l.notes ? ' · ' + escapeHtml(l.notes) : ''}</div>
-        </div>
-        <div class="actions">
-          <button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">↩️ Devolver</button>
-        </div>
-      </div>`;
-    });
+    loans.forEach(l => { html += `<div class="return-card"><div class="cam-icon-small">📷</div><div class="info"><div class="person">${escapeHtml(l.person)}</div><div class="meta"><b>${camName(l.camera)}</b> · Entregada: ${fmtDate(l.startDate)}${l.notes ? ' · ' + escapeHtml(l.notes) : ''}</div></div><div class="actions"><button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">↩️ Devolver</button></div></div>`; });
   }
-  
   if (reserves.length > 0) {
     html += '<h3 style="color:#e65100; margin:20px 0 10px; font-size:15px">📅 Reservas futuras (' + reserves.length + ')</h3>';
     reserves.forEach(l => {
@@ -1229,34 +1122,17 @@ function renderReturns() {
       const diff = start - now;
       const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
       const timeLabel = days > 0 ? `Faltan ${days} día(s)` : 'Hoy';
-      html += `<div class="return-card" style="border-left-color:#ffc107">
-        <div class="cam-icon-small">📅</div>
-        <div class="info">
-          <div class="person">${escapeHtml(l.person)}</div>
-          <div class="meta"><b>${camName(l.camera)}</b> · Entrega prevista: ${fmtDate(l.startDate)} · ${timeLabel}${l.notes ? ' · ' + escapeHtml(l.notes) : ''}</div>
-        </div>
-        <div class="actions">
-          <button class="btn btn-sm btn-warning" onclick="openReturnModal(${l.id})">↩️ Devolver</button>
-        </div>
-      </div>`;
+      html += `<div class="return-card" style="border-left-color:#ffc107"><div class="cam-icon-small">📅</div><div class="info"><div class="person">${escapeHtml(l.person)}</div><div class="meta"><b>${camName(l.camera)}</b> · Entrega prevista: ${fmtDate(l.startDate)} · ${timeLabel}${l.notes ? ' · ' + escapeHtml(l.notes) : ''}</div></div><div class="actions"><button class="btn btn-sm btn-warning" onclick="openReturnModal(${l.id})">↩️ Devolver</button></div></div>`;
     });
   }
-  
   div.innerHTML = html;
 }
 
-// ============ MODAL DEVOLUCIÓN ============
 function openReturnModal(id) {
   currentReturnId = id;
   const loan = data.loans.find(l => l.id === id);
   const tipo = getLoanType(loan) === 'reserve' ? 'Reserva' : 'Préstamo';
-  document.getElementById('return-modal-info').innerHTML = `
-    <p><b>Cámara:</b> ${camName(loan.camera)}</p>
-    <p><b>Tipo:</b> ${tipo}</p>
-    <p><b>Recogida por:</b> ${escapeHtml(loan.person)}</p>
-    <p><b>Fecha entrega:</b> ${fmtDate(loan.startDate)}</p>
-    ${loan.notes?'<p><b>Obs. entrega:</b> '+escapeHtml(loan.notes)+'</p>':''}
-  `;
+  document.getElementById('return-modal-info').innerHTML = `<p><b>Cámara:</b> ${camName(loan.camera)}</p><p><b>Tipo:</b> ${tipo}</p><p><b>Recogida por:</b> ${escapeHtml(loan.person)}</p><p><b>Fecha entrega:</b> ${fmtDate(loan.startDate)}</p>${loan.notes?'<p><b>Obs. entrega:</b> '+escapeHtml(loan.notes)+'</p>':''}`;
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   document.getElementById('r-datetime').value = now.toISOString().slice(0,16);
@@ -1265,11 +1141,7 @@ function openReturnModal(id) {
   document.getElementById('r-notes').value = '';
   document.getElementById('return-modal').classList.add('show');
 }
-
-function closeReturnModal() {
-  document.getElementById('return-modal').classList.remove('show');
-  currentReturnId = null;
-}
+function closeReturnModal() { document.getElementById('return-modal').classList.remove('show'); currentReturnId = null; }
 
 function confirmReturn() {
   const loan = data.loans.find(l => l.id === currentReturnId);
@@ -1279,80 +1151,85 @@ function confirmReturn() {
   loan.returnNotes = document.getElementById('r-notes').value.trim();
   save();
   closeReturnModal();
-  alert('✓ Devolución registrada');
+  showToast(`↩️ Devolución de <b>${camName(loan.camera)}</b> registrada. Estado: ${loan.stateIn === 'ok' ? '✓ Funcionando correctamente' : '✗ Con incidencia'}.`, 'success');
   render();
 }
 
-// ============ HISTORIAL ============
 function renderHistory() {
   const personFilter = document.getElementById('filter-person').value.toLowerCase();
   const camFilter = document.getElementById('filter-camera').value;
   let list = [...data.loans].reverse();
   if (personFilter) list = list.filter(l => l.person.toLowerCase().includes(personFilter) || (l.returner && l.returner.toLowerCase().includes(personFilter)));
   if (camFilter) list = list.filter(l => l.camera == camFilter);
-
   const div = document.getElementById('history-table');
-  if (list.length === 0) {
-    div.innerHTML = '<div class="empty-state"><div class="icon">📭</div>No hay registros</div>';
-    return;
-  }
-  let html = '<table><tr><th>Cámara</th><th>Persona</th><th>Tipo</th><th>Entrega</th><th>Devolución</th><th>Devuelto por</th><th>Estado</th></tr>';
+  if (list.length === 0) { div.innerHTML = '<div class="empty-state"><div class="icon">📭</div>No hay registros que coincidan con los filtros</div>'; return; }
+  let html = '<table><tr><th>Cámara</th><th>Persona</th><th>Tipo</th><th>Entrega</th><th>Devolución</th><th>Devuelto por</th><th>Estado</th><th></th></tr>';
   list.forEach(l => {
     const estado = l.returnDate ? (l.stateIn === 'ok' ? '<span class="tag tag-ok">✓ OK</span>' : '<span class="tag tag-err">✗ Incidencia</span>') : '<span class="tag tag-pending">Pendiente</span>';
-    html += `<tr>
-      <td><b>${camName(l.camera)}</b></td>
-      <td>${escapeHtml(l.person)}</td>
-      <td>${getLoanTypeLabel(l)}</td>
-      <td>${fmtDate(l.startDate)}</td>
-      <td>${l.returnDate?fmtDate(l.returnDate):'<i>pendiente</i>'}</td>
-      <td>${l.returner?escapeHtml(l.returner):'-'}</td>
-      <td>${estado}</td>
-    </tr>`;
+    html += `<tr><td><b>${camName(l.camera)}</b></td><td>${escapeHtml(l.person)}</td><td>${getLoanTypeLabel(l)}</td><td>${fmtDate(l.startDate)}</td><td>${l.returnDate?fmtDate(l.returnDate):'<i>pendiente</i>'}</td><td>${l.returner?escapeHtml(l.returner):'-'}</td><td>${estado}</td><td><button class="btn-delete-row" onclick="requestDelete(${l.id})">🗑️</button></td></tr>`;
   });
   html += '</table>';
   div.innerHTML = html;
 }
-
 document.getElementById('filter-person').oninput = renderHistory;
 document.getElementById('filter-camera').onchange = renderHistory;
 
-// ============ INFORMES ============
+function requestDelete(loanId) {
+  const loan = data.loans.find(l => l.id === loanId);
+  if (!loan) return;
+  pendingDeleteId = loanId;
+  document.getElementById('delete-modal-info').innerHTML = `<div class="alert alert-warning"><b>¿Borrar este registro del historial?</b><br><br><b>Cámara:</b> ${camName(loan.camera)}<br><b>Persona:</b> ${escapeHtml(loan.person)}<br><b>Entrega:</b> ${fmtDate(loan.startDate)}<br>${loan.returnDate ? `<b>Devolución:</b> ${fmtDate(loan.returnDate)}` : '<b>Estado:</b> Pendiente de devolución'}</div><p style="font-size:13px; color:#666">Esta acción no se puede deshacer. Introduce la contraseña de administrador para continuar.</p>`;
+  document.getElementById('delete-password').value = '';
+  document.getElementById('delete-error').style.display = 'none';
+  document.getElementById('delete-modal').classList.add('show');
+  setTimeout(() => document.getElementById('delete-password').focus(), 100);
+}
+function closeDeleteModal() { document.getElementById('delete-modal').classList.remove('show'); pendingDeleteId = null; }
+
+function confirmDelete() {
+  const password = document.getElementById('delete-password').value;
+  const errorDiv = document.getElementById('delete-error');
+  if (password !== ADMIN_PASSWORD) {
+    errorDiv.style.display = 'block';
+    errorDiv.innerHTML = '🔐 <b>Contraseña incorrecta.</b><br><br>No tiene permisos para realizar esta operación.<br>Póngase en contacto con el encargado del edificio.<br><b>Teléfono: 1482</b>';
+    document.getElementById('delete-password').value = '';
+    document.getElementById('delete-password').focus();
+    return;
+  }
+  const loan = data.loans.find(l => l.id === pendingDeleteId);
+  if (loan) {
+    data.loans = data.loans.filter(l => l.id !== pendingDeleteId);
+    save();
+    showToast('🗑️ Registro eliminado del historial. La cámara queda disponible inmediatamente.', 'success');
+  }
+  closeDeleteModal();
+  render();
+}
+document.getElementById('delete-password').addEventListener('keydown', e => { if (e.key === 'Enter') confirmDelete(); });
+
 function renderReports() {
   let html = '';
   [1,2,3].forEach(n => {
     const loans = data.loans.filter(l => l.camera == n);
     const uniquePersons = [...new Set(loans.map(l => l.person))];
     const damages = loans.filter(l => l.stateIn === 'err').length;
-    html += `<div style="margin-bottom:18px; padding:14px; background:#f8f9fa; border-radius:8px">
-      <h3 style="color:#1e3c72">📷 ${camName(n)}</h3>
-      <p><b>Total:</b> ${loans.length} · <b>Personas:</b> ${uniquePersons.length} · <b>Incidencias:</b> ${damages}</p>`;
+    html += `<div style="margin-bottom:18px; padding:14px; background:#f8f9fa; border-radius:8px"><h3 style="color:#1e3c72">📷 ${camName(n)}</h3><p><b>Total:</b> ${loans.length} · <b>Personas:</b> ${uniquePersons.length} · <b>Incidencias:</b> ${damages}</p>`;
     if (loans.length > 0) {
       html += '<div class="table-wrap"><table style="margin-top:10px"><tr><th>Persona</th><th>Veces</th><th>Último uso</th></tr>';
       const byPerson = {};
-      loans.forEach(l => {
-        if (!byPerson[l.person]) byPerson[l.person] = {count:0, last:l.startDate};
-        byPerson[l.person].count++;
-        if (new Date(l.startDate) > new Date(byPerson[l.person].last)) byPerson[l.person].last = l.startDate;
-      });
-      Object.entries(byPerson).sort((a,b) => b[1].count - a[1].count).forEach(([p, info]) => {
-        html += `<tr><td>${escapeHtml(p)}</td><td>${info.count}</td><td>${fmtDateShort(info.last)}</td></tr>`;
-      });
+      loans.forEach(l => { if (!byPerson[l.person]) byPerson[l.person] = {count:0, last:l.startDate}; byPerson[l.person].count++; if (new Date(l.startDate) > new Date(byPerson[l.person].last)) byPerson[l.person].last = l.startDate; });
+      Object.entries(byPerson).sort((a,b) => b[1].count - a[1].count).forEach(([p, info]) => { html += `<tr><td>${escapeHtml(p)}</td><td>${info.count}</td><td>${fmtDateShort(info.last)}</td></tr>`; });
       html += '</table></div>';
     }
     html += '</div>';
   });
   document.getElementById('report-camera').innerHTML = html;
-
   const persons = {};
-  data.loans.forEach(l => {
-    if (!persons[l.person]) persons[l.person] = [];
-    persons[l.person].push(l);
-  });
+  data.loans.forEach(l => { if (!persons[l.person]) persons[l.person] = []; persons[l.person].push(l); });
   let html2 = '';
   const sortedPersons = Object.entries(persons).sort((a,b) => b[1].length - a[1].length);
-  if (sortedPersons.length === 0) {
-    html2 = '<div class="empty-state"><div class="icon">📭</div>Aún no hay datos</div>';
-  } else {
+  if (sortedPersons.length === 0) { html2 = '<div class="empty-state"><div class="icon">📭</div>Aún no hay datos de uso</div>'; }
+  else {
     html2 += '<div class="table-wrap"><table><tr><th>Persona</th><th>Préstamos</th><th>Cámaras</th><th>Último</th><th>Incidencias</th></tr>';
     sortedPersons.forEach(([p, loans]) => {
       const cams = [...new Set(loans.map(l => camName(l.camera)))].join(', ');
@@ -1365,16 +1242,9 @@ function renderReports() {
   document.getElementById('report-person').innerHTML = html2;
 }
 
-// ============ AJUSTES ============
-function loadNames() {
-  [1,2,3].forEach(n => document.getElementById('name-cam-'+n).value = data.names[n]);
-}
-function saveNames() {
-  [1,2,3].forEach(n => data.names[n] = document.getElementById('name-cam-'+n).value.trim() || 'Cámara '+n);
-  save();
-  alert('✓ Nombres guardados');
-  render();
-}
+function loadNames() { [1,2,3].forEach(n => document.getElementById('name-cam-'+n).value = data.names[n]); }
+function saveNames() { [1,2,3].forEach(n => data.names[n] = document.getElementById('name-cam-'+n).value.trim() || 'Cámara '+n); save(); showToast('📷 Nombres de las cámaras actualizados. Se reflejarán en toda la aplicación.', 'success'); render(); }
+
 function exportBackup() {
   const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
   const url = URL.createObjectURL(blob);
@@ -1382,7 +1252,9 @@ function exportBackup() {
   a.href = url;
   a.download = 'camaras_backup_' + new Date().toISOString().slice(0,10) + '.json';
   a.click();
+  showToast('📤 Copia de seguridad descargada. Guárdala en un lugar seguro por si necesitas restaurar los datos.', 'success', 5000);
 }
+
 function importBackup(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -1394,36 +1266,35 @@ function importBackup(e) {
       if (imported.persons) data.persons = imported.persons;
       if (imported.names) data.names = imported.names;
       save();
-      alert('✓ Datos importados');
+      showToast('📥 Datos importados correctamente. Se han cargado ' + data.loans.length + ' préstamos y ' + data.persons.length + ' personas.', 'success', 5000);
       render();
-    } catch(err) { alert('❌ Archivo inválido'); }
+    } catch(err) { showToast('🚫 El archivo no es válido. Asegúrate de seleccionar un archivo .json exportado previamente desde esta misma aplicación.', 'error', 6000); }
   };
   reader.readAsText(file);
 }
-function resetAll() {
-  if (confirm('⚠️ ¿Borrar TODOS los datos (préstamos y personas)?')) {
-    if (confirm('⚠️ ÚLTIMA CONFIRMACIÓN')) {
-      data = {loans:[], persons:[...PERSONAS_INICIALES], names:{1:'Cámara 1',2:'Cámara 2',3:'Cámara 3'}};
-      save();
-      render();
-    }
-  }
+
+function confirmResetAll() {
+  if (!confirm('⚠️ ¿Borrar todos los registros de préstamos?\n\nEl listado de personas y los nombres de las cámaras NO se verán afectados.')) return;
+  if (!confirm('⚠️ ÚLTIMA CONFIRMACIÓN\n\nSe borrarán ' + data.loans.length + ' registro(s) de préstamos. Esta acción no se puede deshacer.')) return;
+  data.loans = [];
+  save();
+  showToast('🗑️ Se han borrado todos los registros de préstamos.\nEl listado de personas se mantiene intacto.', 'warning', 5000);
+  render();
 }
+
 function exportCSV() {
+  if (data.loans.length === 0) { showToast('📭 Aún no hay préstamos registrados. Cuando haya datos, podrás exportarlos desde aquí.', 'info'); return; }
   let csv = 'Cámara;Persona;Tipo;Fecha entrega;Fecha devolución;Quién devolvió;Estado entrega;Estado devolución;Observaciones entrega;Observaciones devolución\n';
-  data.loans.forEach(l => {
-    const tipo = getLoanType(l) === 'reserve' ? 'Reserva' : 'Préstamo';
-    csv += `"${camName(l.camera)}";"${l.person}";"${tipo}";"${fmtDate(l.startDate)}";"${l.returnDate?fmtDate(l.returnDate):''}";"${l.returner||''}";"${l.stateOut}";"${l.stateIn||''}";"${l.notes||''}";"${l.returnNotes||''}"\n`;
-  });
+  data.loans.forEach(l => { const tipo = getLoanType(l) === 'reserve' ? 'Reserva' : 'Préstamo'; csv += `"${camName(l.camera)}";"${l.person}";"${tipo}";"${fmtDate(l.startDate)}";"${l.returnDate?fmtDate(l.returnDate):''}";"${l.returner||''}";"${l.stateOut}";"${l.stateIn||''}";"${l.notes||''}";"${l.returnNotes||''}"\n`; });
   const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
   a.download = 'historial_camaras_' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
+  showToast(`📄 Historial exportado: <b>${data.loans.length} registro(s)</b> guardados en formato CSV (compatible con Excel).`, 'success');
 }
 
-// ============ RENDER ============
 function render() {
   renderDashboard();
   renderCalendar();
@@ -1432,13 +1303,8 @@ function render() {
   renderReports();
   renderPersons();
   loadNames();
-  
   const connDiv = document.getElementById('connection-info');
-  if (connDiv) {
-    connDiv.innerHTML = useFirebase 
-      ? '<div class="alert alert-info">✅ Conectado a Firebase. Datos sincronizados entre dispositivos.</div>'
-      : '<div class="alert alert-warning">⚠️ Modo local.</div>';
-  }
+  if (connDiv) { connDiv.innerHTML = useFirebase ? '<div class="alert alert-info">✅ Conectado a Firebase. Los datos se sincronizan entre todos los dispositivos.</div>' : '<div class="alert alert-warning">⚠️ Modo local. Los datos solo se guardan en este navegador.</div>'; }
 }
 
 setDefaultDates();
