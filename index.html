@@ -160,7 +160,6 @@
   .btn-edit-row { background: #17a2b8; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
   .btn-edit-row:hover { background: #138496; }
 
-  /* Banner de retrasos */
   .overdue-banner {
     background: linear-gradient(135deg, #ff1744, #d50000);
     color: white;
@@ -1103,7 +1102,6 @@ function renderPersons() {
 }
 document.getElementById('filter-persons').oninput = renderPersons;
 
-// ===== UTILIDAD: días de retraso =====
 function getOverdueDays(loan) {
   if (!loan.expectedEnd || loan.returnDate) return 0;
   const end = new Date(loan.expectedEnd);
@@ -1152,7 +1150,6 @@ function renderDashboard() {
   
   document.getElementById('stat-persons').textContent = data.persons.length;
   
-  // ===== BANNER DE RETRASOS =====
   const overdueLoans = active.filter(l => getOverdueDays(l) > 0);
   const bannerContainer = document.getElementById('overdue-banner-container');
   if (overdueLoans.length > 0) {
@@ -1218,11 +1215,15 @@ function renderDashboard() {
       <div style="flex:1"><h3>${camName(n)}</h3>${badge}${info}${alertHtml}</div>
     </div>`;
   });
+  
+  // ===== TABLA DE PRÓXIMAS DEVOLUCIONES ORDENADA POR FECHA =====
   const up = document.getElementById('upcoming-returns');
   if (active.length === 0) { up.innerHTML = '<div class="empty-state"><div class="icon">📭</div>No hay cámaras fuera</div>'; }
   else {
+    // Ordenar de la más antigua a la más nueva
+    const sortedActive = [...active].sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
     let html = '<div class="table-wrap"><table><tr><th>Cámara</th><th>Persona</th><th>Tipo</th><th>Entrega</th></tr>';
-    active.forEach(l => { 
+    sortedActive.forEach(l => { 
       const prevInfo = l.expectedEnd ? `<br><small style="color:#856404">Prev: ${fmtDate(l.expectedEnd)}</small>` : '';
       html += `<tr><td>${camName(l.camera)}</td><td>${escapeHtml(l.person)}</td><td>${getLoanTypeLabel(l)}</td><td>${fmtDate(l.startDate)}${prevInfo}</td></tr>`; 
     });
@@ -1288,7 +1289,6 @@ function renderReturns() {
   const active = data.loans.filter(l => !l.returnDate);
   const div = document.getElementById('returns-list');
   
-  // Banner de retrasos en la pestaña de devoluciones
   const overdueBanner = document.getElementById('overdue-returns-banner');
   const overdueLoans = active.filter(l => getOverdueDays(l) > 0);
   if (overdueLoans.length > 0) {
@@ -1360,7 +1360,6 @@ function confirmReturn() {
   render();
 }
 
-// ===== FILTROS DE FECHA EN HISTORIAL =====
 function clearHistoryFilters() {
   document.getElementById('filter-person').value = '';
   document.getElementById('filter-camera').value = '';
@@ -1384,7 +1383,6 @@ function renderHistory() {
   const div = document.getElementById('history-table');
   const summary = document.getElementById('history-summary');
   
-  // Resumen de filtros activos
   const filters = [];
   if (personFilter) filters.push(`Persona: "${personFilter}"`);
   if (camFilter) filters.push(`Cámara ${camFilter}`);
