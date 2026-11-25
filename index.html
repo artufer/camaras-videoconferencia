@@ -129,7 +129,8 @@
   .return-card .info { flex: 1; min-width: 200px; }
   .return-card .info .person { font-weight: 700; font-size: 15px; color: #333; }
   .return-card .info .meta { font-size: 12px; color: #666; margin-top: 3px; }
-  .return-card .actions { flex-shrink: 0; }
+  .return-card .actions { flex-shrink: 0; display: flex; gap: 6px; }
+  .return-card .actions button { width: auto; }
   .search-tabs { display: flex; gap: 8px; margin-bottom: 15px; }
   .search-tabs button { flex: 1; padding: 10px; border: 2px solid #e0e0e0; background: white; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; color: #666; transition: all 0.2s; }
   .search-tabs button.active { border-color: #1e3c72; background: #1e3c72; color: white; }
@@ -142,6 +143,8 @@
   .history-item .cam-name { font-size: 12px; color: #1e3c72; font-weight: 700; }
   .btn-delete-row { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
   .btn-delete-row:hover { background: #c82333; }
+  .btn-edit-row { background: #17a2b8; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
+  .btn-edit-row:hover { background: #138496; }
 
   .toast-container {
     position: fixed;
@@ -304,12 +307,19 @@
             <input type="datetime-local" id="f-start" required>
           </div>
           <div>
+            <label>Fecha prevista de devolución <small style="color:#888; font-weight:400">(opcional)</small></label>
+            <input type="datetime-local" id="f-end">
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
             <label>Estado al entregar</label>
             <select id="f-state-out">
               <option value="ok">✓ Funcionando correctamente</option>
               <option value="err">⚠ Con alguna incidencia</option>
             </select>
           </div>
+          <div></div>
         </div>
         <div style="margin-bottom:15px">
           <label>Observaciones (opcional)</label>
@@ -323,7 +333,7 @@
   <div class="view" id="view-returns">
     <div class="card">
       <h2>↩️ Devoluciones pendientes</h2>
-      <div class="alert alert-info">Cámaras que están fuera y necesitan ser devueltas. Pulsa <b>"Devolver"</b> cuando la recibas.</div>
+      <div class="alert alert-info">Cámaras que están fuera y necesitan ser devueltas. Pulsa <b>"Devolver"</b> cuando la recibas. Usa ✏️ para editar cámara o fecha prevista.</div>
       <div id="returns-list"></div>
     </div>
   </div>
@@ -363,7 +373,7 @@
   <div class="view" id="view-history">
     <div class="card">
       <h2>Histórico completo</h2>
-      <div class="alert alert-info">💡 Para borrar un registro necesitas la contraseña de administrador. Contacta con el encargado del edificio (ext. 1482) si no la tienes.</div>
+      <div class="alert alert-info">💡 Para borrar un registro necesitas la contraseña de administrador. Contacta con el encargado del edificio (ext. 1482) si no la tienes. Usa ✏️ para editar cámara o fecha prevista.</div>
       <div class="filter-bar">
         <input type="text" id="filter-person" placeholder="🔍 Buscar por persona...">
         <select id="filter-camera">
@@ -498,6 +508,30 @@
     <div class="modal-actions">
       <button class="btn" onclick="closeDeleteModal()">Cancelar</button>
       <button class="btn btn-danger" onclick="confirmDelete()">🗑️ Borrar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="edit-loan-modal">
+  <div class="modal" style="max-width:500px">
+    <h3>✏️ Editar préstamo</h3>
+    <div id="edit-loan-info" style="margin-bottom:15px"></div>
+    <div style="margin-bottom:12px">
+      <label>Cámara *</label>
+      <select id="edit-camera">
+        <option value="1">📷 Cámara 1</option>
+        <option value="2">📷 Cámara 2</option>
+        <option value="3">📷 Cámara 3</option>
+      </select>
+    </div>
+    <div style="margin-bottom:12px">
+      <label>Fecha prevista de devolución <small style="color:#888; font-weight:400">(opcional, se puede cambiar después)</small></label>
+      <input type="datetime-local" id="edit-end">
+    </div>
+    <div id="edit-error" style="color:#dc3545; font-size:13px; margin-bottom:10px; display:none"></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeEditLoanModal()">Cancelar</button>
+      <button class="btn btn-success" onclick="confirmEditLoan()">✓ Guardar cambios</button>
     </div>
   </div>
 </div>
@@ -659,6 +693,7 @@ let currentMonth = new Date();
 let currentReturnId = null;
 let editingPersonId = null;
 let pendingDeleteId = null;
+let pendingEditId = null;
 
 try {
   firebase.initializeApp(firebaseConfig);
@@ -868,6 +903,7 @@ function renderSearchByPerson(personName) {
     html += `<div class="history-item ${isActive?'active':''}">
       <div class="row"><span class="cam-name">${camName(l.camera)} · ${tipo}</span>${isActive ? '<span class="tag tag-pending">Pendiente devolución</span>' : '<span class="tag tag-ok">✓ Devuelto</span>'}</div>
       <div class="row" style="margin-top:6px"><div><div class="label">Entrega</div><div class="value">${fmtDate(l.startDate)}</div></div><div><div class="label">Devolución</div><div class="value">${l.returnDate ? fmtDate(l.returnDate) : '<i style="color:#888">Pendiente</i>'}</div></div></div>
+      ${l.expectedEnd ? `<div style="margin-top:4px;font-size:12px;color:#856404"><b>Prevista:</b> ${fmtDate(l.expectedEnd)}</div>` : ''}
       ${l.returner && l.returner !== l.person ? `<div style="margin-top:4px;font-size:12px;color:#666">Devuelto por: <b>${escapeHtml(l.returner)}</b></div>` : ''}
       ${l.stateIn === 'err' ? '<div style="margin-top:4px"><span class="tag tag-err">✗ Incidencia al devolver</span></div>' : ''}
       ${l.notes ? `<div style="margin-top:4px;font-size:12px;color:#666">Obs: ${escapeHtml(l.notes)}</div>` : ''}
@@ -890,6 +926,7 @@ function renderSearchByCamera() {
     html += `<div class="history-item ${isActive?'active':''}">
       <div class="row"><span class="cam-name">${escapeHtml(l.person)} · ${tipo}</span>${isActive ? '<span class="tag tag-pending">Pendiente devolución</span>' : '<span class="tag tag-ok">✓ Devuelto</span>'}</div>
       <div class="row" style="margin-top:6px"><div><div class="label">Entrega</div><div class="value">${fmtDate(l.startDate)}</div></div><div><div class="label">Devolución</div><div class="value">${l.returnDate ? fmtDate(l.returnDate) : '<i style="color:#888">Pendiente</i>'}</div></div></div>
+      ${l.expectedEnd ? `<div style="margin-top:4px;font-size:12px;color:#856404"><b>Prevista:</b> ${fmtDate(l.expectedEnd)}</div>` : ''}
       ${l.returner && l.returner !== l.person ? `<div style="margin-top:4px;font-size:12px;color:#666">Devuelto por: <b>${escapeHtml(l.returner)}</b></div>` : ''}
       ${l.stateIn === 'err' ? '<div style="margin-top:4px"><span class="tag tag-err">✗ Incidencia al devolver</span></div>' : ''}
       ${l.notes ? `<div style="margin-top:4px;font-size:12px;color:#666">Obs: ${escapeHtml(l.notes)}</div>` : ''}
@@ -912,6 +949,7 @@ function openPersonHistoryModal(personName) {
       html += `<div class="history-item ${isActive?'active':''}">
         <div class="row"><span class="cam-name">${camName(l.camera)} · ${tipo}</span>${isActive ? '<span class="tag tag-pending">Pendiente</span>' : '<span class="tag tag-ok">✓ Devuelto</span>'}</div>
         <div class="row" style="margin-top:6px"><div><div class="label">Entrega</div><div class="value">${fmtDate(l.startDate)}</div></div><div><div class="label">Devolución</div><div class="value">${l.returnDate ? fmtDate(l.returnDate) : '<i style="color:#888">Pendiente</i>'}</div></div></div>
+        ${l.expectedEnd ? `<div style="margin-top:4px;font-size:12px;color:#856404"><b>Prevista:</b> ${fmtDate(l.expectedEnd)}</div>` : ''}
         ${l.returner && l.returner !== l.person ? `<div style="margin-top:4px;font-size:12px;color:#666">Devuelto por: <b>${escapeHtml(l.returner)}</b></div>` : ''}
         ${l.stateIn === 'err' ? '<div style="margin-top:4px"><span class="tag tag-err">✗ Incidencia</span></div>' : ''}
         ${l.notes ? `<div style="margin-top:4px;font-size:12px;color:#666">Obs: ${escapeHtml(l.notes)}</div>` : ''}
@@ -1025,14 +1063,9 @@ function renderDashboard() {
     if (loan) {
       const isReserve = getLoanType(loan) === 'reserve';
       if (isReserve) {
-        // Reservada para el futuro: aparece como DISPONIBLE pero con aviso
         info = `<small><b>Reservada por:</b> ${escapeHtml(loan.person)}</small><small><b>Para:</b> ${fmtDate(loan.startDate)}</small>`;
-        alertHtml = `<div class="alert alert-warning" style="margin-top:8px; font-size:12px; padding:8px 10px;">
-          ⚠️ <b>${camName(n)}</b> reservada para <b>${escapeHtml(loan.person)}</b>. 
-          Debe devolverse antes del ${fmtDate(loan.startDate)}.
-        </div>`;
+        alertHtml = `<div class="alert alert-warning" style="margin-top:8px; font-size:12px; padding:8px 10px;">⚠️ <b>${camName(n)}</b> reservada para <b>${escapeHtml(loan.person)}</b>. Debe devolverse antes del ${fmtDate(loan.startDate)}.</div>`;
       } else {
-        // Préstamo inmediato: aparece como PRESTADA
         cls += ' loaned';
         badge = '<span class="badge badge-red">🔴 Prestada</span>';
         info = `<small><b>Con:</b> ${escapeHtml(loan.person)}</small><small><b>Desde:</b> ${fmtDate(loan.startDate)}</small>`;
@@ -1084,7 +1117,7 @@ function renderCalendar() {
         const dayEnd = new Date(year, month, d, 23, 59, 59);
         return l.camera == n && !l.returnDate && start <= dayEnd;
       });
-      if (loan) { events += `<div class="event cam${n}" title="${camName(n)}: ${escapeHtml(loan.person)}">${camName(n).substring(0,4)}: ${escapeHtml(loan.person.split(' ')[0])}</div>`; }
+      if (loan) { events += `<div class="event cam${n}" title="${camName(n)}: ${escapeHtml(loan.person)}">Cam ${n}: ${escapeHtml(loan.person.split(' ')[0])}</div>`; }
     });
     grid.innerHTML += `<div class="cal-day ${isToday?'today':''}"><div class="date-num">${d}</div>${events}</div>`;
   }
@@ -1095,7 +1128,7 @@ document.getElementById('loan-form').onsubmit = e => {
   e.preventDefault();
   const personName = document.getElementById('f-person').value.trim();
   if (!personName) { showToast('👤 Selecciona una persona del listado (empieza a escribir su nombre y haz clic en el resultado).', 'warning', 4500); return; }
-  const loan = { id: Date.now(), camera: document.getElementById('f-camera').value, person: personName, personId: document.getElementById('f-person-id').value ? parseInt(document.getElementById('f-person-id').value) : null, startDate: document.getElementById('f-start').value, stateOut: document.getElementById('f-state-out').value, notes: document.getElementById('f-notes').value.trim(), returnDate: null, stateIn: null, returner: null, returnNotes: null };
+  const loan = { id: Date.now(), camera: document.getElementById('f-camera').value, person: personName, personId: document.getElementById('f-person-id').value ? parseInt(document.getElementById('f-person-id').value) : null, startDate: document.getElementById('f-start').value, expectedEnd: document.getElementById('f-end').value || null, stateOut: document.getElementById('f-state-out').value, notes: document.getElementById('f-notes').value.trim(), returnDate: null, stateIn: null, returner: null, returnNotes: null };
   const start = new Date(loan.startDate);
   const conflict = data.loans.find(l => { if (l.camera != loan.camera || l.returnDate) return false; const ls = new Date(l.startDate); return ls <= start; });
   if (conflict) { showToast(`🚫 No se puede registrar: <b>${camName(loan.camera)}</b> está actualmente en manos de <b>${escapeHtml(conflict.person)}</b>. Espera a que la devuelva o elige otra cámara.`, 'error', 6000); return; }
@@ -1120,7 +1153,10 @@ function renderReturns() {
   let html = '';
   if (loans.length > 0) {
     html += '<h3 style="color:#dc3545; margin:15px 0 10px; font-size:15px">📷 Préstamos en curso (' + loans.length + ')</h3>';
-    loans.forEach(l => { html += `<div class="return-card"><div class="cam-icon-small">📷</div><div class="info"><div class="person">${escapeHtml(l.person)}</div><div class="meta"><b>${camName(l.camera)}</b> · Entregada: ${fmtDate(l.startDate)}${l.notes ? ' · ' + escapeHtml(l.notes) : ''}</div></div><div class="actions"><button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">↩️ Devolver</button></div></div>`; });
+    loans.forEach(l => { 
+      const prevInfo = l.expectedEnd ? ` · <b style="color:#856404">Devolver antes: ${fmtDate(l.expectedEnd)}</b>` : '';
+      html += `<div class="return-card"><div class="cam-icon-small">📷</div><div class="info"><div class="person">${escapeHtml(l.person)}</div><div class="meta"><b>${camName(l.camera)}</b> · Entregada: ${fmtDate(l.startDate)}${prevInfo}${l.notes ? ' · ' + escapeHtml(l.notes) : ''}</div></div><div class="actions"><button class="btn btn-sm btn-edit-row" onclick="openEditLoanModal(${l.id})">✏️</button><button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">↩️ Devolver</button></div></div>`; 
+    });
   }
   if (reserves.length > 0) {
     html += '<h3 style="color:#e65100; margin:20px 0 10px; font-size:15px">📅 Reservas futuras (' + reserves.length + ')</h3>';
@@ -1130,7 +1166,8 @@ function renderReturns() {
       const diff = start - now;
       const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
       const timeLabel = days > 0 ? `Faltan ${days} día(s)` : 'Hoy';
-      html += `<div class="return-card" style="border-left-color:#ffc107"><div class="cam-icon-small">📅</div><div class="info"><div class="person">${escapeHtml(l.person)}</div><div class="meta"><b>${camName(l.camera)}</b> · Entrega prevista: ${fmtDate(l.startDate)} · ${timeLabel}${l.notes ? ' · ' + escapeHtml(l.notes) : ''}</div></div><div class="actions"><button class="btn btn-sm btn-warning" onclick="openReturnModal(${l.id})">↩️ Devolver</button></div></div>`;
+      const prevInfo = l.expectedEnd ? ` · <b style="color:#856404">Devolver antes: ${fmtDate(l.expectedEnd)}</b>` : '';
+      html += `<div class="return-card" style="border-left-color:#ffc107"><div class="cam-icon-small">📅</div><div class="info"><div class="person">${escapeHtml(l.person)}</div><div class="meta"><b>${camName(l.camera)}</b> · Entrega prevista: ${fmtDate(l.startDate)} · ${timeLabel}${prevInfo}${l.notes ? ' · ' + escapeHtml(l.notes) : ''}</div></div><div class="actions"><button class="btn btn-sm btn-edit-row" onclick="openEditLoanModal(${l.id})">✏️</button><button class="btn btn-sm btn-warning" onclick="openReturnModal(${l.id})">↩️ Devolver</button></div></div>`;
     });
   }
   div.innerHTML = html;
@@ -1140,7 +1177,7 @@ function openReturnModal(id) {
   currentReturnId = id;
   const loan = data.loans.find(l => l.id === id);
   const tipo = getLoanType(loan) === 'reserve' ? 'Reserva' : 'Préstamo';
-  document.getElementById('return-modal-info').innerHTML = `<p><b>Cámara:</b> ${camName(loan.camera)}</p><p><b>Tipo:</b> ${tipo}</p><p><b>Recogida por:</b> ${escapeHtml(loan.person)}</p><p><b>Fecha entrega:</b> ${fmtDate(loan.startDate)}</p>${loan.notes?'<p><b>Obs. entrega:</b> '+escapeHtml(loan.notes)+'</p>':''}`;
+  document.getElementById('return-modal-info').innerHTML = `<p><b>Cámara:</b> ${camName(loan.camera)}</p><p><b>Tipo:</b> ${tipo}</p><p><b>Recogida por:</b> ${escapeHtml(loan.person)}</p><p><b>Fecha entrega:</b> ${fmtDate(loan.startDate)}</p>${loan.expectedEnd ? `<p><b>Devolución prevista:</b> ${fmtDate(loan.expectedEnd)}</p>` : ''}${loan.notes?'<p><b>Obs. entrega:</b> '+escapeHtml(loan.notes)+'</p>':''}`;
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   document.getElementById('r-datetime').value = now.toISOString().slice(0,16);
@@ -1174,7 +1211,8 @@ function renderHistory() {
   let html = '<table><tr><th>Cámara</th><th>Persona</th><th>Tipo</th><th>Entrega</th><th>Devolución</th><th>Devuelto por</th><th>Estado</th><th></th></tr>';
   list.forEach(l => {
     const estado = l.returnDate ? (l.stateIn === 'ok' ? '<span class="tag tag-ok">✓ OK</span>' : '<span class="tag tag-err">✗ Incidencia</span>') : '<span class="tag tag-pending">Pendiente</span>';
-    html += `<tr><td><b>${camName(l.camera)}</b></td><td>${escapeHtml(l.person)}</td><td>${getLoanTypeLabel(l)}</td><td>${fmtDate(l.startDate)}</td><td>${l.returnDate?fmtDate(l.returnDate):'<i>pendiente</i>'}</td><td>${l.returner?escapeHtml(l.returner):'-'}</td><td>${estado}</td><td><button class="btn-delete-row" onclick="requestDelete(${l.id})">🗑️</button></td></tr>`;
+    const prevEnd = l.expectedEnd ? `<br><small style="color:#856404">Prev: ${fmtDate(l.expectedEnd)}</small>` : '';
+    html += `<tr><td><b>${camName(l.camera)}</b></td><td>${escapeHtml(l.person)}</td><td>${getLoanTypeLabel(l)}</td><td>${fmtDate(l.startDate)}${prevEnd}</td><td>${l.returnDate?fmtDate(l.returnDate):'<i>pendiente</i>'}</td><td>${l.returner?escapeHtml(l.returner):'-'}</td><td>${estado}</td><td><button class="btn btn-sm btn-edit-row" onclick="openEditLoanModal(${l.id})">✏️</button> <button class="btn-delete-row" onclick="requestDelete(${l.id})">🗑️</button></td></tr>`;
   });
   html += '</table>';
   div.innerHTML = html;
@@ -1241,6 +1279,65 @@ function confirmDelete() {
   render();
 }
 document.getElementById('delete-password').addEventListener('keydown', e => { if (e.key === 'Enter') confirmDelete(); });
+
+// ===== EDICIÓN DE PRÉSTAMO =====
+function openEditLoanModal(loanId) {
+  const loan = data.loans.find(l => l.id === loanId);
+  if (!loan) return;
+  pendingEditId = loanId;
+  document.getElementById('edit-loan-info').innerHTML = `
+    <div class="alert alert-info">
+      <b>Préstamo actual:</b><br>
+      📷 <b>${camName(loan.camera)}</b> a nombre de <b>${escapeHtml(loan.person)}</b><br>
+      Entrega: ${fmtDate(loan.startDate)}
+      ${loan.expectedEnd ? `<br>Devolución prevista: ${fmtDate(loan.expectedEnd)}` : '<br><i>Sin fecha prevista de devolución</i>'}
+    </div>
+    <p style="font-size:13px; color:#666">Puedes cambiar la cámara (si está libre) y/o la fecha prevista de devolución.</p>
+  `;
+  document.getElementById('edit-camera').value = loan.camera;
+  document.getElementById('edit-end').value = loan.expectedEnd || '';
+  document.getElementById('edit-error').style.display = 'none';
+  document.getElementById('edit-loan-modal').classList.add('show');
+}
+
+function closeEditLoanModal() {
+  document.getElementById('edit-loan-modal').classList.remove('show');
+  pendingEditId = null;
+}
+
+function confirmEditLoan() {
+  const loan = data.loans.find(l => l.id === pendingEditId);
+  if (!loan) return;
+  const newCamera = document.getElementById('edit-camera').value;
+  const newEnd = document.getElementById('edit-end').value || null;
+  const errorDiv = document.getElementById('edit-error');
+  
+  if (newCamera !== loan.camera) {
+    const start = new Date(loan.startDate);
+    const conflict = data.loans.find(l => {
+      if (l.id === loan.id || l.camera !== newCamera || l.returnDate) return false;
+      const ls = new Date(l.startDate);
+      return ls <= start;
+    });
+    if (conflict) {
+      errorDiv.style.display = 'block';
+      errorDiv.innerHTML = `🚫 <b>${camName(newCamera)}</b> no está disponible. Está en manos de <b>${escapeHtml(conflict.person)}</b> desde ${fmtDate(conflict.startDate)}.`;
+      return;
+    }
+  }
+  
+  const oldCamera = loan.camera;
+  loan.camera = newCamera;
+  loan.expectedEnd = newEnd;
+  save();
+  closeEditLoanModal();
+  if (oldCamera !== newCamera) {
+    showToast(`✏️ Préstamo movido de <b>${camName(oldCamera)}</b> a <b>${camName(newCamera)}</b> para <b>${escapeHtml(loan.person)}</b>.`, 'success');
+  } else {
+    showToast(`✏️ Préstamo actualizado: <b>${camName(newCamera)}</b> para <b>${escapeHtml(loan.person)}</b>.`, 'success');
+  }
+  render();
+}
 
 function renderReports() {
   let html = '';
@@ -1310,8 +1407,11 @@ function importBackup(e) {
 
 function exportCSV() {
   if (data.loans.length === 0) { showToast('📭 Aún no hay préstamos registrados. Cuando haya datos, podrás exportarlos desde aquí.', 'info'); return; }
-  let csv = 'Cámara;Persona;Tipo;Fecha entrega;Fecha devolución;Quién devolvió;Estado entrega;Estado devolución;Observaciones entrega;Observaciones devolución\n';
-  data.loans.forEach(l => { const tipo = getLoanType(l) === 'reserve' ? 'Reserva' : 'Préstamo'; csv += `"${camName(l.camera)}";"${l.person}";"${tipo}";"${fmtDate(l.startDate)}";"${l.returnDate?fmtDate(l.returnDate):''}";"${l.returner||''}";"${l.stateOut}";"${l.stateIn||''}";"${l.notes||''}";"${l.returnNotes||''}"\n`; });
+  let csv = 'Cámara;Persona;Tipo;Fecha entrega;Fecha prevista devolución;Fecha devolución real;Quién devolvió;Estado entrega;Estado devolución;Observaciones entrega;Observaciones devolución\n';
+  data.loans.forEach(l => { 
+    const tipo = getLoanType(l) === 'reserve' ? 'Reserva' : 'Préstamo'; 
+    csv += `"${camName(l.camera)}";"${l.person}";"${tipo}";"${fmtDate(l.startDate)}";"${l.expectedEnd?fmtDate(l.expectedEnd):''}";"${l.returnDate?fmtDate(l.returnDate):''}";"${l.returner||''}";"${l.stateOut}";"${l.stateIn||''}";"${l.notes||''}";"${l.returnNotes||''}"\n`; 
+  });
   const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
