@@ -70,7 +70,8 @@
   .cal-nav h3 { font-size: 17px; color: #1e3c72; }
   .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
   @media (min-width: 600px) { .stats { grid-template-columns: repeat(4, 1fr); } }
-  .stat-box { background: white; padding: 14px; border-radius: 8px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .stat-box { background: white; padding: 14px; border-radius: 8px; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.08); cursor: help; }
+  .stat-box:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.15); transform: translateY(-1px); transition: all 0.2s; }
   .stat-box .num { font-size: 26px; font-weight: 700; color: #1e3c72; }
   .stat-box .label { font-size: 11px; color: #666; margin-top: 3px; }
   .filter-bar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
@@ -250,9 +251,9 @@
 <main>
   <div class="view active" id="view-dashboard">
     <div class="stats">
-      <div class="stat-box"><div class="num" id="stat-available">3</div><div class="label">Disponibles</div></div>
-      <div class="stat-box"><div class="num" id="stat-loaned">0</div><div class="label">Prestadas hoy</div></div>
-      <div class="stat-box"><div class="num" id="stat-reserved">0</div><div class="label">Reservas</div></div>
+      <div class="stat-box" id="stat-box-available"><div class="num" id="stat-available">3</div><div class="label">Disponibles</div></div>
+      <div class="stat-box" id="stat-box-loaned"><div class="num" id="stat-loaned">0</div><div class="label">Prestadas hoy</div></div>
+      <div class="stat-box" id="stat-box-reserved"><div class="num" id="stat-reserved">0</div><div class="label">Reservas</div></div>
       <div class="stat-box"><div class="num" id="stat-persons">0</div><div class="label">Personas</div></div>
     </div>
     <div class="card">
@@ -768,7 +769,6 @@ function getLoanTypeLabel(loan) {
     : '<span class="tag tag-loan">📷 Préstamo</span>';
 }
 
-// ===== SISTEMA DE NOTIFICACIONES TOAST (TIEMPOS REDUCIDOS) =====
 function showToast(message, type = 'info', duration = 2200) {
   const container = document.getElementById('toast-container');
   const icons = { success: '✅', error: '🚫', warning: '⚠️', info: 'ℹ️' };
@@ -1049,10 +1049,43 @@ function renderDashboard() {
   const active = data.loans.filter(l => !l.returnDate);
   const todayLoans = data.loans.filter(l => new Date(l.startDate).toDateString() === now.toDateString());
   const reserves = active.filter(l => getLoanType(l) === 'reserve');
-  document.getElementById('stat-available').textContent = 3 - active.filter(l => getLoanType(l) !== 'reserve').length;
+  const activeLoans = active.filter(l => getLoanType(l) !== 'reserve');
+  
+  const availableCount = 3 - activeLoans.length;
+  document.getElementById('stat-available').textContent = availableCount;
+  
+  // Tooltip Disponibles
+  let availableTitle = '';
+  if (activeLoans.length > 0) {
+    availableTitle = 'Cámaras fuera:\n' + activeLoans.map(l => `📷 ${camName(l.camera)}: ${l.person}${l.expectedEnd ? ' → hasta ' + fmtDate(l.expectedEnd) : ''}`).join('\n');
+  } else {
+    availableTitle = 'Las 3 cámaras están en su sitio ✓';
+  }
+  document.getElementById('stat-box-available').title = availableTitle;
+  
+  // Tooltip Prestadas hoy
+  const loanedToday = data.loans.filter(l => new Date(l.startDate).toDateString() === now.toDateString() && !l.returnDate);
+  let loanedTitle = '';
+  if (loanedToday.length > 0) {
+    loanedTitle = loanedToday.map(l => `📷 ${camName(l.camera)}: ${l.person}${l.expectedEnd ? ' → hasta ' + fmtDate(l.expectedEnd) : ' (sin fecha prevista)'}`).join('\n');
+  } else {
+    loanedTitle = 'No hay cámaras prestadas hoy';
+  }
   document.getElementById('stat-loaned').textContent = todayLoans.length;
+  document.getElementById('stat-box-loaned').title = loanedTitle;
+  
+  // Tooltip Reservas
+  let reserveTitle = '';
+  if (reserves.length > 0) {
+    reserveTitle = reserves.map(l => `📅 ${camName(l.camera)}: ${l.person}\n   Desde: ${fmtDate(l.startDate)}${l.expectedEnd ? '\n   Hasta: ' + fmtDate(l.expectedEnd) : ''}`).join('\n\n');
+  } else {
+    reserveTitle = 'No hay reservas futuras';
+  }
   document.getElementById('stat-reserved').textContent = reserves.length;
+  document.getElementById('stat-box-reserved').title = reserveTitle;
+  
   document.getElementById('stat-persons').textContent = data.persons.length;
+  
   const grid = document.getElementById('cam-status-grid');
   grid.innerHTML = '';
   [1,2,3].forEach(n => {
@@ -1062,11 +1095,11 @@ function renderDashboard() {
       const isReserve = getLoanType(loan) === 'reserve';
       if (isReserve) {
         info = `<small><b>Reservada por:</b> ${escapeHtml(loan.person)}</small><small><b>Para:</b> ${fmtDate(loan.startDate)}</small>`;
-        alertHtml = `<div class="alert alert-warning" style="margin-top:8px; font-size:13px; padding:10px 12px; line-height:1.5;">👤 <b>En manos de:</b> ${escapeHtml(loan.person)}<br>⏰ <b>Devolución prevista:</b> ${fmtDate(loan.startDate)}</div>`;
+        alertHtml = `<div class="alert alert-warning" style="margin-top:8px; font-size:13px; padding:10px 12px; line-height:1.5;">👤 <b>La tendrá:</b> ${escapeHtml(loan.person)}<br>📅 <b>Entrega prevista:</b> ${fmtDate(loan.startDate)}</div>`;
       } else {
         cls += ' loaned';
         badge = '<span class="badge badge-red">🔴 Prestada</span>';
-        info = `<small><b>Con:</b> ${escapeHtml(loan.person)}</small><small><b>Desde:</b> ${fmtDate(loan.startDate)}</small>`;
+        info = `<small><b>La tiene:</b> ${escapeHtml(loan.person)}</small><small><b>Desde:</b> ${fmtDate(loan.startDate)}</small>`;
       }
     }
     grid.innerHTML += `<div class="${cls}">
@@ -1085,8 +1118,11 @@ function renderDashboard() {
   const up = document.getElementById('upcoming-returns');
   if (active.length === 0) { up.innerHTML = '<div class="empty-state"><div class="icon">📭</div>No hay cámaras fuera</div>'; }
   else {
-    let html = '<div class="table-wrap"><table><tr><th>Cámara</th><th>Persona</th><th>Tipo</th><th>Entrega</th><th></th></tr>';
-    active.forEach(l => { html += `<tr><td>${camName(l.camera)}</td><td>${escapeHtml(l.person)}</td><td>${getLoanTypeLabel(l)}</td><td>${fmtDate(l.startDate)}</td><td><button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">Devolver</button></td></tr>`; });
+    let html = '<div class="table-wrap"><table><tr><th>Cámara</th><th>Persona</th><th>Tipo</th><th>Entrega</th></tr>';
+    active.forEach(l => { 
+      const prevInfo = l.expectedEnd ? `<br><small style="color:#856404">Prev: ${fmtDate(l.expectedEnd)}</small>` : '';
+      html += `<tr><td>${camName(l.camera)}</td><td>${escapeHtml(l.person)}</td><td>${getLoanTypeLabel(l)}</td><td>${fmtDate(l.startDate)}${prevInfo}</td></tr>`; 
+    });
     html += '</table></div>';
     up.innerHTML = html;
   }
