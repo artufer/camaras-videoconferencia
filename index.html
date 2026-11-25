@@ -33,6 +33,8 @@
   .cam-status { background: #f8f9fa; border-left: 4px solid #28a745; padding: 14px; border-radius: 8px; display: flex; gap: 12px; align-items: flex-start; }
   .cam-status.reserved { border-left-color: #ffc107; }
   .cam-status.loaned { border-left-color: #dc3545; }
+  .cam-status.overdue { border-left-color: #ff1744; animation: pulseBorder 2s infinite; }
+  @keyframes pulseBorder { 0%,100% { box-shadow: 0 0 0 0 rgba(255,23,68,0.4); } 50% { box-shadow: 0 0 0 6px rgba(255,23,68,0); } }
   .cam-status .cam-thumb { width: 60px; height: 60px; flex-shrink: 0; }
   .cam-status h3 { font-size: 15px; margin-bottom: 6px; }
   .cam-status small { color: #666; display: block; margin-top: 3px; font-size: 12px; }
@@ -40,6 +42,8 @@
   .badge-green { background: #d4edda; color: #155724; }
   .badge-yellow { background: #fff3cd; color: #856404; }
   .badge-red { background: #f8d7da; color: #721c24; }
+  .badge-overdue { background: #ff1744; color: white; animation: pulseBadge 1.5s infinite; }
+  @keyframes pulseBadge { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
   label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; color: #555; }
   input, select, textarea { width: 100%; padding: 11px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; font-family: inherit; background: white; }
   input:focus, select:focus, textarea:focus { outline: none; border-color: #2a5298; box-shadow: 0 0 0 2px rgba(42,82,152,0.15); }
@@ -53,6 +57,8 @@
   button.btn-danger:hover { background: #c82333; }
   button.btn-warning { background: #ffc107; color: #333; }
   button.btn-sm { padding: 7px 12px; font-size: 13px; width: auto; }
+  button.btn-outline { background: white; color: #1e3c72; border: 1px solid #1e3c72; }
+  button.btn-outline:hover { background: #1e3c72; color: white; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th { background: #f0f2f5; text-align: left; padding: 10px 8px; font-weight: 600; color: #555; border-bottom: 2px solid #ddd; }
   td { padding: 10px 8px; border-bottom: 1px solid #eee; vertical-align: top; }
@@ -66,6 +72,7 @@
   .cal-day .event { background: #e3f2fd; color: #0d47a1; padding: 2px 3px; border-radius: 2px; margin-bottom: 2px; font-size: 9px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .cal-day .event.cam2 { background: #fff3e0; color: #e65100; }
   .cal-day .event.cam3 { background: #e8f5e9; color: #1b5e20; }
+  .cal-day .event.overdue { background: #ffebee; color: #c62828; font-weight: 700; }
   .cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
   .cal-nav h3 { font-size: 17px; color: #1e3c72; }
   .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
@@ -74,17 +81,21 @@
   .stat-box:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.15); transform: translateY(-1px); transition: all 0.2s; }
   .stat-box .num { font-size: 26px; font-weight: 700; color: #1e3c72; }
   .stat-box .label { font-size: 11px; color: #666; margin-top: 3px; }
-  .filter-bar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: flex-end; }
   .filter-bar input, .filter-bar select { flex: 1; min-width: 120px; font-size: 14px; }
+  .filter-bar .filter-group { display: flex; flex-direction: column; flex: 1; min-width: 130px; }
+  .filter-bar .filter-group label { font-size: 11px; color: #888; margin-bottom: 3px; font-weight: 500; }
   .tag { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
   .tag-ok { background: #d4edda; color: #155724; }
   .tag-err { background: #f8d7da; color: #721c24; }
   .tag-pending { background: #fff3cd; color: #856404; }
   .tag-loan { background: #e3f2fd; color: #0d47a1; }
   .tag-reserve { background: #fff3e0; color: #e65100; }
+  .tag-overdue { background: #ff1744; color: white; animation: pulseBadge 1.5s infinite; }
   .alert { padding: 11px 14px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; }
   .alert-info { background: #d1ecf1; color: #0c5460; border-left: 4px solid #17a2b8; }
   .alert-warning { background: #fff3cd; color: #856404; border-left: 4px solid #ffc107; }
+  .alert-danger { background: #ffebee; color: #c62828; border-left: 4px solid #ff1744; }
   .empty-state { text-align: center; padding: 30px 15px; color: #888; }
   .empty-state .icon { font-size: 42px; margin-bottom: 8px; }
   .modal-bg { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; padding: 15px; }
@@ -126,6 +137,7 @@
   .loan-count { background: #e3f2fd; color: #1e3c72; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; margin-left: 6px; cursor: pointer; transition: all 0.2s; }
   .loan-count:hover { background: #1e3c72; color: white; transform: scale(1.1); }
   .return-card { background: white; border: 1px solid #e0e0e0; border-left: 4px solid #dc3545; border-radius: 8px; padding: 14px; margin-bottom: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .return-card.overdue { border-left-color: #ff1744; background: #fff5f5; animation: pulseBorder 2s infinite; }
   .return-card .cam-icon-small { font-size: 28px; }
   .return-card .info { flex: 1; min-width: 200px; }
   .return-card .info .person { font-weight: 700; font-size: 15px; color: #333; }
@@ -138,6 +150,7 @@
   .search-tabs button:hover:not(.active) { border-color: #1e3c72; color: #1e3c72; }
   .history-item { background: #f8f9fa; border-left: 4px solid #1e3c72; padding: 10px 12px; margin-bottom: 8px; border-radius: 6px; }
   .history-item.active { border-left-color: #dc3545; background: #fff5f5; }
+  .history-item.overdue { border-left-color: #ff1744; background: #fff5f5; }
   .history-item .row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
   .history-item .label { font-size: 11px; color: #888; text-transform: uppercase; font-weight: 600; }
   .history-item .value { font-size: 14px; font-weight: 600; color: #333; }
@@ -146,6 +159,25 @@
   .btn-delete-row:hover { background: #c82333; }
   .btn-edit-row { background: #17a2b8; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; }
   .btn-edit-row:hover { background: #138496; }
+
+  /* Banner de retrasos */
+  .overdue-banner {
+    background: linear-gradient(135deg, #ff1744, #d50000);
+    color: white;
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    animation: slideIn 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255,23,68,0.3);
+  }
+  .overdue-banner .icon { font-size: 32px; flex-shrink: 0; }
+  .overdue-banner .content { flex: 1; }
+  .overdue-banner .title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .overdue-banner .detail { font-size: 13px; opacity: 0.95; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
   .toast-container {
     position: fixed;
@@ -250,6 +282,7 @@
 
 <main>
   <div class="view active" id="view-dashboard">
+    <div id="overdue-banner-container"></div>
     <div class="stats">
       <div class="stat-box" id="stat-box-available"><div class="num" id="stat-available">3</div><div class="label">Disponibles</div></div>
       <div class="stat-box" id="stat-box-loaned"><div class="num" id="stat-loaned">0</div><div class="label">Prestadas hoy</div></div>
@@ -335,6 +368,7 @@
     <div class="card">
       <h2>↩️ Devoluciones pendientes</h2>
       <div class="alert alert-info">Cámaras que están fuera y necesitan ser devueltas. Pulsa <b>"Devolver"</b> cuando la recibas. Usa ✏️ para editar cámara o fecha prevista.</div>
+      <div id="overdue-returns-banner"></div>
       <div id="returns-list"></div>
     </div>
   </div>
@@ -376,15 +410,31 @@
       <h2>Histórico completo</h2>
       <div class="alert alert-info">💡 Para borrar un registro necesitas la contraseña de administrador. Contacta con el encargado del edificio (ext. 1482) si no la tienes. Usa ✏️ para editar cámara o fecha prevista.</div>
       <div class="filter-bar">
-        <input type="text" id="filter-person" placeholder="🔍 Buscar por persona...">
-        <select id="filter-camera">
-          <option value="">Todas las cámaras</option>
-          <option value="1">Cámara 1</option>
-          <option value="2">Cámara 2</option>
-          <option value="3">Cámara 3</option>
-        </select>
+        <div class="filter-group">
+          <label>🔍 Persona</label>
+          <input type="text" id="filter-person" placeholder="Buscar por persona...">
+        </div>
+        <div class="filter-group">
+          <label>📷 Cámara</label>
+          <select id="filter-camera">
+            <option value="">Todas las cámaras</option>
+            <option value="1">Cámara 1</option>
+            <option value="2">Cámara 2</option>
+            <option value="3">Cámara 3</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>📅 Desde</label>
+          <input type="date" id="filter-date-from">
+        </div>
+        <div class="filter-group">
+          <label>📅 Hasta</label>
+          <input type="date" id="filter-date-to">
+        </div>
+        <button class="btn btn-sm btn-outline" onclick="clearHistoryFilters()">🧹 Limpiar</button>
         <button class="btn btn-sm" onclick="exportCSV()">📥 CSV</button>
       </div>
+      <div id="history-summary" style="margin-bottom:10px; font-size:13px; color:#666;"></div>
       <div class="table-wrap" id="history-table"></div>
     </div>
   </div>
@@ -1007,12 +1057,21 @@ document.getElementById('person-form').onsubmit = e => {
 
 function deletePerson(id) {
   const p = data.persons.find(x => x.id == id);
+  if (!p) return;
   const uses = data.loans.filter(l => l.person === p.nombre).length;
-  if (!confirm(`¿Borrar a "${p.nombre}" del listado?${uses ? `\n\nTiene ${uses} préstamo(s) en el historial (se conservan los registros).` : ''}`)) return;
-  data.persons = data.persons.filter(x => x.id != id);
-  save();
-  showToast(`🗑️ <b>${escapeHtml(p.nombre)}</b> eliminado del listado.`, 'success');
-  render();
+  pendingDeleteId = 'PERSON_' + id;
+  document.getElementById('delete-modal-info').innerHTML = `
+    <div class="alert alert-warning">
+      <b>¿Borrar a "${escapeHtml(p.nombre)}" del listado?</b><br><br>
+      ${uses ? `<b>⚠️ Tiene ${uses} préstamo(s) en el historial.</b><br>Los registros se conservarán, pero se perderá la ficha de la persona.<br><br>` : ''}
+      <b>Esta acción no se puede deshacer.</b>
+    </div>
+    <p style="font-size:13px; color:#666">Introduce la contraseña de administrador para continuar.</p>
+  `;
+  document.getElementById('delete-password').value = '';
+  document.getElementById('delete-error').style.display = 'none';
+  document.getElementById('delete-modal').classList.add('show');
+  setTimeout(() => document.getElementById('delete-password').focus(), 100);
 }
 
 function renderPersons() {
@@ -1044,6 +1103,16 @@ function renderPersons() {
 }
 document.getElementById('filter-persons').oninput = renderPersons;
 
+// ===== UTILIDAD: días de retraso =====
+function getOverdueDays(loan) {
+  if (!loan.expectedEnd || loan.returnDate) return 0;
+  const end = new Date(loan.expectedEnd);
+  const now = new Date();
+  const diffMs = now - end;
+  if (diffMs <= 0) return 0;
+  return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+}
+
 function renderDashboard() {
   const now = new Date();
   const active = data.loans.filter(l => !l.returnDate);
@@ -1054,7 +1123,6 @@ function renderDashboard() {
   const availableCount = 3 - activeLoans.length;
   document.getElementById('stat-available').textContent = availableCount;
   
-  // Tooltip Disponibles
   let availableTitle = '';
   if (activeLoans.length > 0) {
     availableTitle = 'Cámaras fuera:\n' + activeLoans.map(l => `📷 ${camName(l.camera)}: ${l.person}${l.expectedEnd ? ' → hasta ' + fmtDate(l.expectedEnd) : ''}`).join('\n');
@@ -1063,7 +1131,6 @@ function renderDashboard() {
   }
   document.getElementById('stat-box-available').title = availableTitle;
   
-  // Tooltip Prestadas hoy
   const loanedToday = data.loans.filter(l => new Date(l.startDate).toDateString() === now.toDateString() && !l.returnDate);
   let loanedTitle = '';
   if (loanedToday.length > 0) {
@@ -1074,7 +1141,6 @@ function renderDashboard() {
   document.getElementById('stat-loaned').textContent = todayLoans.length;
   document.getElementById('stat-box-loaned').title = loanedTitle;
   
-  // Tooltip Reservas
   let reserveTitle = '';
   if (reserves.length > 0) {
     reserveTitle = reserves.map(l => `📅 ${camName(l.camera)}: ${l.person}\n   Desde: ${fmtDate(l.startDate)}${l.expectedEnd ? '\n   Hasta: ' + fmtDate(l.expectedEnd) : ''}`).join('\n\n');
@@ -1086,28 +1152,55 @@ function renderDashboard() {
   
   document.getElementById('stat-persons').textContent = data.persons.length;
   
+  // ===== BANNER DE RETRASOS =====
+  const overdueLoans = active.filter(l => getOverdueDays(l) > 0);
+  const bannerContainer = document.getElementById('overdue-banner-container');
+  if (overdueLoans.length > 0) {
+    let bannerHtml = '<div class="overdue-banner">';
+    bannerHtml += '<div class="icon">🚨</div>';
+    bannerHtml += '<div class="content">';
+    if (overdueLoans.length === 1) {
+      const l = overdueLoans[0];
+      const days = getOverdueDays(l);
+      bannerHtml += `<div class="title">⚠️ ${days} día${days>1?'s':''} de retraso</div>`;
+      bannerHtml += `<div class="detail"><b>${camName(l.camera)}</b> en manos de <b>${escapeHtml(l.person)}</b> · Previsto: ${fmtDate(l.expectedEnd)}</div>`;
+    } else {
+      bannerHtml += `<div class="title">⚠️ ${overdueLoans.length} cámaras con retraso en la devolución</div>`;
+      bannerHtml += '<div class="detail">' + overdueLoans.map(l => {
+        const days = getOverdueDays(l);
+        return `<b>${camName(l.camera)}</b>: ${escapeHtml(l.person)} (${days} día${days>1?'s':''} de retraso)`;
+      }).join(' · ') + '</div>';
+    }
+    bannerHtml += '</div></div>';
+    bannerContainer.innerHTML = bannerHtml;
+  } else {
+    bannerContainer.innerHTML = '';
+  }
+  
   const grid = document.getElementById('cam-status-grid');
   grid.innerHTML = '';
   [1,2,3].forEach(n => {
-    // Buscar TODOS los registros activos de esta cámara (préstamos + reservas)
     const allActive = active.filter(l => l.camera == n);
-    const currentLoan = allActive.find(l => getLoanType(l) !== 'reserve'); // Préstamo activo AHORA
-    const futureReserve = allActive.find(l => getLoanType(l) === 'reserve'); // Reserva futura
+    const currentLoan = allActive.find(l => getLoanType(l) !== 'reserve');
+    const futureReserve = allActive.find(l => getLoanType(l) === 'reserve');
     
     let cls = 'cam-status', badge = '<span class="badge badge-green">✓ Disponible</span>', info = '', alertHtml = '';
     
     if (currentLoan) {
-      // Hay un préstamo activo ahora → la cámara está PRESTADA
-      cls += ' loaned';
-      badge = '<span class="badge badge-red">🔴 Prestada</span>';
+      const overdueDays = getOverdueDays(currentLoan);
+      if (overdueDays > 0) {
+        cls += ' overdue';
+        badge = `<span class="badge badge-overdue">🚨 ${overdueDays} día${overdueDays>1?'s':''} de retraso</span>`;
+      } else {
+        cls += ' loaned';
+        badge = '<span class="badge badge-red">🔴 Prestada</span>';
+      }
       info = `<small><b>La tiene:</b> ${escapeHtml(currentLoan.person)}</small><small><b>Desde:</b> ${fmtDate(currentLoan.startDate)}${currentLoan.expectedEnd ? ' · <b style="color:#856404">Hasta:</b> ' + fmtDate(currentLoan.expectedEnd) : ''}</small>`;
       
-      // Si además hay una reserva futura, mostrar aviso
       if (futureReserve) {
         alertHtml = `<div class="alert alert-warning" style="margin-top:8px; font-size:13px; padding:10px 12px; line-height:1.5;">👤 <b>Después la tendrá:</b> ${escapeHtml(futureReserve.person)}<br>📅 <b>Entrega prevista:</b> ${fmtDate(futureReserve.startDate)}</div>`;
       }
     } else if (futureReserve) {
-      // Solo hay reserva futura (sin préstamo activo) → cámara DISPONIBLE hasta la fecha
       info = `<small><b>Reservada por:</b> ${escapeHtml(futureReserve.person)}</small><small><b>Para:</b> ${fmtDate(futureReserve.startDate)}</small>`;
       alertHtml = `<div class="alert alert-warning" style="margin-top:8px; font-size:13px; padding:10px 12px; line-height:1.5;">👤 <b>La tendrá:</b> ${escapeHtml(futureReserve.person)}<br>📅 <b>Entrega prevista:</b> ${fmtDate(futureReserve.startDate)}</div>`;
     }
@@ -1161,7 +1254,10 @@ function renderCalendar() {
         const dayEnd = new Date(year, month, d, 23, 59, 59);
         return l.camera == n && !l.returnDate && start <= dayEnd;
       });
-      if (loan) { events += `<div class="event cam${n}" title="${camName(n)}: ${escapeHtml(loan.person)}">Cam ${n}: ${escapeHtml(loan.person.split(' ')[0])}</div>`; }
+      if (loan) { 
+        const isOverdue = getOverdueDays(loan) > 0;
+        events += `<div class="event cam${n} ${isOverdue?'overdue':''}" title="${camName(n)}: ${escapeHtml(loan.person)}${isOverdue?' ⚠️ RETRASO':''}">Cam ${n}: ${escapeHtml(loan.person.split(' ')[0])}</div>`; 
+      }
     });
     grid.innerHTML += `<div class="cal-day ${isToday?'today':''}"><div class="date-num">${d}</div>${events}</div>`;
   }
@@ -1191,6 +1287,22 @@ function setDefaultDates() { const now = new Date(); now.setMinutes(now.getMinut
 function renderReturns() {
   const active = data.loans.filter(l => !l.returnDate);
   const div = document.getElementById('returns-list');
+  
+  // Banner de retrasos en la pestaña de devoluciones
+  const overdueBanner = document.getElementById('overdue-returns-banner');
+  const overdueLoans = active.filter(l => getOverdueDays(l) > 0);
+  if (overdueLoans.length > 0) {
+    overdueBanner.innerHTML = `<div class="alert alert-danger" style="margin-bottom:12px">
+      <b>🚨 ${overdueLoans.length} cámara(s) con retraso en la devolución:</b><br>
+      ${overdueLoans.map(l => {
+        const days = getOverdueDays(l);
+        return `• <b>${camName(l.camera)}</b> - ${escapeHtml(l.person)} (${days} día${days>1?'s':''} de retraso)`;
+      }).join('<br>')}
+    </div>`;
+  } else {
+    overdueBanner.innerHTML = '';
+  }
+  
   if (active.length === 0) { div.innerHTML = '<div class="empty-state"><div class="icon">✅</div>¡Todas las cámaras están en su sitio!<br><small>No hay devoluciones pendientes</small></div>'; return; }
   const loans = active.filter(l => getLoanType(l) === 'loan');
   const reserves = active.filter(l => getLoanType(l) === 'reserve');
@@ -1198,8 +1310,10 @@ function renderReturns() {
   if (loans.length > 0) {
     html += '<h3 style="color:#dc3545; margin:15px 0 10px; font-size:15px">📷 Préstamos en curso (' + loans.length + ')</h3>';
     loans.forEach(l => { 
+      const overdueDays = getOverdueDays(l);
+      const overdueTag = overdueDays > 0 ? ` · <b style="color:#ff1744">🚨 ${overdueDays} día${overdueDays>1?'s':''} de retraso</b>` : '';
       const prevInfo = l.expectedEnd ? ` · <b style="color:#856404">Devolver antes: ${fmtDate(l.expectedEnd)}</b>` : '';
-      html += `<div class="return-card"><div class="cam-icon-small">📷</div><div class="info"><div class="person">${escapeHtml(l.person)}</div><div class="meta"><b>${camName(l.camera)}</b> · Entregada: ${fmtDate(l.startDate)}${prevInfo}${l.notes ? ' · ' + escapeHtml(l.notes) : ''}</div></div><div class="actions"><button class="btn btn-sm btn-edit-row" onclick="openEditLoanModal(${l.id})">✏️</button><button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">↩️ Devolver</button></div></div>`; 
+      html += `<div class="return-card ${overdueDays>0?'overdue':''}"><div class="cam-icon-small">📷</div><div class="info"><div class="person">${escapeHtml(l.person)}${overdueTag}</div><div class="meta"><b>${camName(l.camera)}</b> · Entregada: ${fmtDate(l.startDate)}${prevInfo}${l.notes ? ' · ' + escapeHtml(l.notes) : ''}</div></div><div class="actions"><button class="btn btn-sm btn-edit-row" onclick="openEditLoanModal(${l.id})">✏️</button><button class="btn btn-sm btn-success" onclick="openReturnModal(${l.id})">↩️ Devolver</button></div></div>`; 
     });
   }
   if (reserves.length > 0) {
@@ -1221,7 +1335,9 @@ function openReturnModal(id) {
   currentReturnId = id;
   const loan = data.loans.find(l => l.id === id);
   const tipo = getLoanType(loan) === 'reserve' ? 'Reserva' : 'Préstamo';
-  document.getElementById('return-modal-info').innerHTML = `<p><b>Cámara:</b> ${camName(loan.camera)}</p><p><b>Tipo:</b> ${tipo}</p><p><b>Recogida por:</b> ${escapeHtml(loan.person)}</p><p><b>Fecha entrega:</b> ${fmtDate(loan.startDate)}</p>${loan.expectedEnd ? `<p><b>Devolución prevista:</b> ${fmtDate(loan.expectedEnd)}</p>` : ''}${loan.notes?'<p><b>Obs. entrega:</b> '+escapeHtml(loan.notes)+'</p>':''}`;
+  const overdueDays = getOverdueDays(loan);
+  const overdueInfo = overdueDays > 0 ? `<p style="color:#ff1744"><b>🚨 RETRASO: ${overdueDays} día${overdueDays>1?'s':''}</b></p>` : '';
+  document.getElementById('return-modal-info').innerHTML = `<p><b>Cámara:</b> ${camName(loan.camera)}</p><p><b>Tipo:</b> ${tipo}</p><p><b>Recogida por:</b> ${escapeHtml(loan.person)}</p><p><b>Fecha entrega:</b> ${fmtDate(loan.startDate)}</p>${loan.expectedEnd ? `<p><b>Devolución prevista:</b> ${fmtDate(loan.expectedEnd)}</p>` : ''}${overdueInfo}${loan.notes?'<p><b>Obs. entrega:</b> '+escapeHtml(loan.notes)+'</p>':''}`;
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
   document.getElementById('r-datetime').value = now.toISOString().slice(0,16);
@@ -1244,13 +1360,40 @@ function confirmReturn() {
   render();
 }
 
+// ===== FILTROS DE FECHA EN HISTORIAL =====
+function clearHistoryFilters() {
+  document.getElementById('filter-person').value = '';
+  document.getElementById('filter-camera').value = '';
+  document.getElementById('filter-date-from').value = '';
+  document.getElementById('filter-date-to').value = '';
+  renderHistory();
+}
+
 function renderHistory() {
   const personFilter = document.getElementById('filter-person').value.toLowerCase();
   const camFilter = document.getElementById('filter-camera').value;
+  const dateFrom = document.getElementById('filter-date-from').value;
+  const dateTo = document.getElementById('filter-date-to').value;
+  
   let list = [...data.loans].reverse();
   if (personFilter) list = list.filter(l => l.person.toLowerCase().includes(personFilter) || (l.returner && l.returner.toLowerCase().includes(personFilter)));
   if (camFilter) list = list.filter(l => l.camera == camFilter);
+  if (dateFrom) list = list.filter(l => l.startDate >= dateFrom);
+  if (dateTo) list = list.filter(l => l.startDate <= dateTo + 'T23:59:59');
+  
   const div = document.getElementById('history-table');
+  const summary = document.getElementById('history-summary');
+  
+  // Resumen de filtros activos
+  const filters = [];
+  if (personFilter) filters.push(`Persona: "${personFilter}"`);
+  if (camFilter) filters.push(`Cámara ${camFilter}`);
+  if (dateFrom) filters.push(`Desde: ${new Date(dateFrom).toLocaleDateString('es-ES')}`);
+  if (dateTo) filters.push(`Hasta: ${new Date(dateTo).toLocaleDateString('es-ES')}`);
+  summary.innerHTML = filters.length > 0 
+    ? `🔎 Mostrando <b>${list.length}</b> de ${data.loans.length} registros · Filtros: ${filters.join(' · ')}` 
+    : `📋 Mostrando los <b>${list.length}</b> registros del histórico`;
+  
   if (list.length === 0) { div.innerHTML = '<div class="empty-state"><div class="icon">📭</div>No hay registros que coincidan con los filtros</div>'; return; }
   let html = '<table><tr><th>Cámara</th><th>Persona</th><th>Tipo</th><th>Entrega</th><th>Devolución</th><th>Devuelto por</th><th>Estado</th><th></th></tr>';
   list.forEach(l => {
@@ -1259,7 +1402,12 @@ function renderHistory() {
     if (l.returnDate) {
       devolucionCell = fmtDate(l.returnDate);
     } else if (l.expectedEnd) {
-      devolucionCell = `<small style="color:#856404">⏳ Prev: ${fmtDate(l.expectedEnd)}</small>`;
+      const overdueDays = getOverdueDays(l);
+      if (overdueDays > 0) {
+        devolucionCell = `<small style="color:#ff1744"><b>🚨 ${overdueDays} día${overdueDays>1?'s':''} de retraso</b><br>Prev: ${fmtDate(l.expectedEnd)}</small>`;
+      } else {
+        devolucionCell = `<small style="color:#856404">⏳ Prev: ${fmtDate(l.expectedEnd)}</small>`;
+      }
     } else {
       devolucionCell = '<i>pendiente</i>';
     }
@@ -1270,6 +1418,8 @@ function renderHistory() {
 }
 document.getElementById('filter-person').oninput = renderHistory;
 document.getElementById('filter-camera').onchange = renderHistory;
+document.getElementById('filter-date-from').onchange = renderHistory;
+document.getElementById('filter-date-to').onchange = renderHistory;
 
 function requestDelete(loanId) {
   const loan = data.loans.find(l => l.id === loanId);
@@ -1314,10 +1464,19 @@ function confirmDelete() {
     document.getElementById('delete-password').focus();
     return;
   }
+  
   if (pendingDeleteId === 'ALL_LOANS') {
     data.loans = [];
     save();
     showToast('🗑️ Préstamos borrados. Las personas se mantienen.', 'warning', 3000);
+  } else if (typeof pendingDeleteId === 'string' && pendingDeleteId.startsWith('PERSON_')) {
+    const personId = parseInt(pendingDeleteId.replace('PERSON_', ''));
+    const p = data.persons.find(x => x.id == personId);
+    if (p) {
+      data.persons = data.persons.filter(x => x.id != personId);
+      save();
+      showToast(`🗑️ <b>${escapeHtml(p.nombre)}</b> eliminado del listado.`, 'success');
+    }
   } else {
     const loan = data.loans.find(l => l.id === pendingDeleteId);
     if (loan) {
